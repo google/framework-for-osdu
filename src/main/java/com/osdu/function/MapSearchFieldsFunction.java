@@ -70,6 +70,7 @@ public class MapSearchFieldsFunction implements Function<Message<OSDUSearchObjec
         if (source.getGeoLocation() != null) {
             SpatialFilter spatialFilter = new SpatialFilter();
             spatialFilter.setType(source.getGeoLocation().getType());
+            //TODO: get possible GeoJSON types from RFC and implement support for at least types available in Delfi ( at least 1 more type expected )
             if (source.getGeoLocation().getType().equals(GeoLocation.BY_BOUNDING_BOX_GEO_TYPE)) {
                 Double[] coordinates = source.getGeoLocation().getCooridanates();
                 spatialFilter.setByBoundingBox(new ByBoundingBox(new Point(coordinates[0], coordinates[1]), new Point(coordinates[2], coordinates[3])));
@@ -90,7 +91,7 @@ public class MapSearchFieldsFunction implements Function<Message<OSDUSearchObjec
      *
      * @param key   key to current level of inner object. Will be basically a path to lowest level.
      * @param value value of the given property
-     * @return string for current
+     * @return string for current field in Query format supported by Delfi
      */
     private String mapJSONToDelfiQuery(String key, Object value) {
         String result = key;
