@@ -29,7 +29,7 @@ import java.util.function.Function;
 public class MapSearchFieldsFunction implements Function<Message<OSDUSearchObject>, Message<SearchResult>> {
 
     private final static Logger log = LoggerFactory.getLogger(MapSearchFieldsFunction.class);
-    public static final String KIND_HEADER_KEY = "kind";
+    private static final String KIND_HEADER_KEY = "kind";
     public static final String PARTITION_HEADER_KEY = "partition";
 
 
@@ -50,14 +50,13 @@ public class MapSearchFieldsFunction implements Function<Message<OSDUSearchObjec
         try {
             log.info("Received request to search with following arguments: {}", messageSource);
             OSDUSearchObject payload = messageSource.getPayload();
-            MessageHeaders headers = messageSource.getHeaders();
-            String partition = null;
-            String kind = null;
-
             //Code below was agreed to use as a temporary solution - there is a header policy
             //in Apigee that let's you use change those parameters. They are removed
             //from requests coming from outside and are here only while we have problems with solid test
             // partitions and kinds.
+            MessageHeaders headers = messageSource.getHeaders();
+            String partition = null;
+            String kind = null;
             if (headers.containsKey(KIND_HEADER_KEY)) {
                 kind = (String) headers.get(KIND_HEADER_KEY);
                 log.debug("Found kind override in the request, using following kind : {}", kind);
