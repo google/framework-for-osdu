@@ -1,11 +1,25 @@
 package com.osdu.model.delfi.geo;
 
+import com.osdu.model.delfi.geo.exception.GeoLocationException;
+import lombok.Data;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Data
 public class ByGeoPolygon implements GeoLocation {
 
-    public static final String CURRENT_TYPE = "byGeoPolygon";
+    private Point[] points;
 
-    @Override
-    public String getCurrentType(String type) {
-        return CURRENT_TYPE;
+    public ByGeoPolygon(Object[] coordinates) throws GeoLocationException {
+        if (coordinates.length < 3) {
+            throw new GeoLocationException("Polygon GeoJSON requires at least 3 points for creation, actual, received " + coordinates.length);
+        }
+        List<Point> points = new ArrayList<>();
+        for (Object coordinate : coordinates) {
+            points.add(GeoUtils.coordinatesToPoint(coordinate));
+        }
+        points.toArray(this.points);
     }
+
 }

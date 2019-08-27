@@ -1,8 +1,10 @@
 package com.osdu.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.osdu.model.delfi.DelfiSearchObject;
-import okhttp3.*;
+import com.osdu.client.delfi.DelfiSearchClient;
+import com.osdu.model.SearchObject;
+import com.osdu.model.SearchResult;
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,44 +19,50 @@ public class DelfiSearchService implements SearchService {
 
     private final static Logger log = LoggerFactory.getLogger(DelfiSearchService.class);
 
-    private static final MediaType JSON
-            = MediaType.parse("application/json; charset=utf-8");
-    private static final String AUTHORIZATION_HEADER = "Authorization";
-    private static final String APP_KEY_HEADER = "AppKey";
-    private static final String PARTITION_HEADER = "slb-data-partition-id";
+    private static final String AUTHORIZATION_HEADER = "authorization";
 
-    @Value("${search.mapper.delfi.url}")
-    private String delfiPortalUrl;
-    @Value("${search.mapper.searchEndpoint}")
-    private String searchIndex;
-    @Value("${search.mapper.delfi.appkey}")
-    private String appKey;
+    private final DelfiSearchClient delfiSearchClient;
+
     @Value("${search.mapper.delfi.partition}")
     private String partition;
     @Value("${search.mapper.delfi.appkey}")
     private String applicationKey;
 
-    public String searchIndex(DelfiSearchObject delfiSearchObject, MessageHeaders headers) {
-        OkHttpClient client = new OkHttpClient();
-        ObjectMapper mapper = new ObjectMapper();
-        RequestBody body = null;
-        try {
-            body = RequestBody.create(JSON, mapper.writeValueAsString(delfiSearchObject));
-        } catch (Exception e) {
-            log.debug("Error during creation of JSON object to send to Delfi", e);
-        }
-        Request request = new Request.Builder()
-                .url(delfiPortalUrl + searchIndex)
-                .header(AUTHORIZATION_HEADER, headers.get(AUTHORIZATION_HEADER.toLowerCase()).toString())
-                .header(APP_KEY_HEADER, applicationKey)
-                .header(PARTITION_HEADER, partition)
-                .post(body)
-                .build();
-        try (Response response = client.newCall(request).execute()) {
-            return response.body().string();
-        } catch (Exception e) {
-            log.debug("Error during querying of Delfi portal", e);
-        }
-        return null;
+    public DelfiSearchService(DelfiSearchClient delfiSearchClient) {
+        this.delfiSearchClient = delfiSearchClient;
+    }
+
+    /**
+     * NOT IMPLEMENTED YET
+     * Searches Delfi partition using index
+     *
+     * @param searchObject parameters to use during search
+     * @param headers      headers of the orriginal search request to get authorization header from them
+     * @return {@link SearchResult} the result of the search from Delfi portal
+     */
+    @Override
+    public SearchResult searchIndexWithCursor(SearchObject searchObject, MessageHeaders headers, String partitionOverride) {
+        throw new NotImplementedException();
+    }
+
+    /**
+     * Searches Delfi partition
+     *
+     * @param searchObject parameters to use during search
+     * @param headers      headers of the orriginal search request to get authorization header from them
+     * @return {@link SearchResult} the result of the search from Delfi portal
+     */
+    @Override
+    public SearchResult searchIndex(SearchObject searchObject, MessageHeaders headers, String partitionOverride) {
+        log.info("Received request to query Delfi Portal for data with following arguments: {},{}", searchObject, headers);
+
+        SearchResult searchResult = delfiSearchClient.searchIndex(
+                String.valueOf(headers.get(AUTHORIZATION_HEADER)),
+                applicationKey,
+                StringUtils.isEmpty(partitionOverride) ? partition : partitionOverride,
+                searchObject);
+
+        log.info("Received search result: {}", searchResult);
+        return searchResult;
     }
 }
