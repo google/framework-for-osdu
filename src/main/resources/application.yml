@@ -8,11 +8,11 @@ search:
             authorizationHeader: Authorization
             partitionHeader: slb-data-partition-id
             serverUrl: https://api.evq.csp.slb.com/
+
     mapper:
         delfi:
             appkey: ${search.mapper.delfi.applicationKey:PtVguojl2DUr0qimhDclNMwZAeAJwK1T}
             partition: ${search.mapper.delfi.partitionKey:common}
             url: https://api.evq.csp.slb.com/
         searchEndpoint: de/search/v2/query
-mapstruct:
 
