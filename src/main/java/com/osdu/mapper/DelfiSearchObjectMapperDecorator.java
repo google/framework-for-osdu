@@ -25,6 +25,7 @@ public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMa
     private static final String KIND_WILDCARD_VERSION = ":*";
     private static final double DEFAULT_ZERO_DISTANCE = 0.0;
     private static final String LUCENE_AND_TERM = " AND ";
+    public static final String LUCENE_OR_TERM = " OR ";
 
     @Value("${search.mapper.delfi.partition}")
     String partition;
@@ -77,10 +78,7 @@ public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMa
         if (osduSearchObject.getMetadata() != null) {
             StringBuilder stringBuilder = new StringBuilder();
             for (Map.Entry<String, Object> metadataEntry : osduSearchObject.getMetadata().entrySet()) {
-                stringBuilder.append(metadataEntry.getKey());
-                stringBuilder.append(":");
-                stringBuilder.append("\"").append(metadataEntry.getValue()).append("\"");
-                stringBuilder.append(",");
+                createQueryEntry(stringBuilder, metadataEntry.getKey(), metadataEntry.getValue());
             }
             stringBuilder.deleteCharAt(stringBuilder.length() - 1);
             String result = stringBuilder.toString();
@@ -88,6 +86,21 @@ public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMa
             return result;
         }
         return null;
+    }
+
+    private void createQueryEntry(StringBuilder stringBuilder, String key, Object value) {
+        if (value instanceof List) {
+            for (Object o : (List) value) {
+                createQueryEntry(stringBuilder, key, o);
+                stringBuilder.append(LUCENE_OR_TERM);
+            }
+            stringBuilder.delete(stringBuilder.lastIndexOf(LUCENE_OR_TERM), stringBuilder.length() - 1);
+        } else {
+            stringBuilder.append(key);
+            stringBuilder.append(":");
+            stringBuilder.append("\"").append(value).append("\"");
+            stringBuilder.append(",");
+        }
     }
 
     /**
