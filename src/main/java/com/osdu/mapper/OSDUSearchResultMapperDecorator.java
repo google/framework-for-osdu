@@ -3,13 +3,13 @@ package com.osdu.mapper;
 import com.osdu.model.delfi.DelfiSearchResult;
 import com.osdu.model.osdu.OSDUSearchObject;
 import com.osdu.model.osdu.OSDUSearchResult;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import javax.inject.Inject;
+import javax.inject.Named;
 
 public abstract class OSDUSearchResultMapperDecorator implements SearchResultMapper {
 
-    @Autowired
-    @Qualifier("delegate")
+    @Inject
+    @Named("com.osdu.mapper.SearchResultMapperImpl_")
     private SearchResultMapper searchResultMapper;
 
     @Override

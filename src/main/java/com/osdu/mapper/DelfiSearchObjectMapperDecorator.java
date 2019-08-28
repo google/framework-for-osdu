@@ -8,11 +8,11 @@ import com.osdu.model.osdu.OSDUSearchObject;
 import com.osdu.model.osdu.SortOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.*;
 
 
@@ -29,8 +29,8 @@ public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMa
     @Value("${search.mapper.delfi.partition}")
     String partition;
 
-    @Autowired
-    @Qualifier("delegate")
+    @Inject
+    @Named("com.osdu.mapper.SearchObjectMapperImpl_")
     private SearchObjectMapper delegate;
 
     @Override

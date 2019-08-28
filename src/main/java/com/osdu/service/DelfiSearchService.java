@@ -1,8 +1,14 @@
 package com.osdu.service;
 
 import com.osdu.client.delfi.DelfiSearchClient;
+import com.osdu.mapper.SearchObjectMapper;
+import com.osdu.mapper.SearchResultMapper;
 import com.osdu.model.SearchObject;
 import com.osdu.model.SearchResult;
+import com.osdu.model.delfi.DelfiSearchObject;
+import com.osdu.model.delfi.DelfiSearchResult;
+import com.osdu.model.delfi.geo.exception.GeoLocationException;
+import com.osdu.model.osdu.OSDUSearchObject;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -10,6 +16,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  * Delfi API query service
@@ -19,9 +28,19 @@ public class DelfiSearchService implements SearchService {
 
     private final static Logger log = LoggerFactory.getLogger(DelfiSearchService.class);
 
+    private static final String KIND_HEADER_KEY = "kind";
+    private static final String PARTITION_HEADER_KEY = "partition";
     private static final String AUTHORIZATION_HEADER = "authorization";
 
     private final DelfiSearchClient delfiSearchClient;
+
+    @Inject
+    @Named
+    private SearchObjectMapper searchObjectMapper;
+
+    @Inject
+    @Named
+    private SearchResultMapper searchResultMapper;
 
     @Value("${search.mapper.delfi.partition}")
     private String partition;
@@ -41,7 +60,7 @@ public class DelfiSearchService implements SearchService {
      * @return {@link SearchResult} the result of the search from Delfi portal
      */
     @Override
-    public SearchResult searchIndexWithCursor(SearchObject searchObject, MessageHeaders headers, String partitionOverride) {
+    public SearchResult searchIndexWithCursor(SearchObject searchObject, MessageHeaders headers) {
         throw new NotImplementedException();
     }
 
@@ -53,16 +72,29 @@ public class DelfiSearchService implements SearchService {
      * @return {@link SearchResult} the result of the search from Delfi portal
      */
     @Override
-    public SearchResult searchIndex(SearchObject searchObject, MessageHeaders headers, String partitionOverride) {
+    public SearchResult searchIndex(SearchObject searchObject, MessageHeaders headers) throws GeoLocationException {
         log.info("Received request to query Delfi Portal for data with following arguments: {},{}", searchObject, headers);
 
-        SearchResult searchResult = delfiSearchClient.searchIndex(
+        String kindOverride = extractHeaderOverride(headers, KIND_HEADER_KEY);
+        String partitionOverride = extractHeaderOverride(headers, PARTITION_HEADER_KEY);
+
+        DelfiSearchObject delfiSearchObject = searchObjectMapper.osduSearchObjectToDelfiSearchObject((OSDUSearchObject) searchObject, kindOverride, partitionOverride);
+        DelfiSearchResult searchResult = delfiSearchClient.searchIndex(
                 String.valueOf(headers.get(AUTHORIZATION_HEADER)),
                 applicationKey,
                 StringUtils.isEmpty(partitionOverride) ? partition : partitionOverride,
-                searchObject);
+                delfiSearchObject);
+        SearchResult osduSearchResult = searchResultMapper.delfiSearchResultToOSDUSearchResult(searchResult, (OSDUSearchObject) searchObject);
+        log.info("Received search result: {}", osduSearchResult);
+        return osduSearchResult;
+    }
 
-        log.info("Received search result: {}", searchResult);
-        return searchResult;
+    private String extractHeaderOverride(MessageHeaders headers, String headerKey) {
+        if (headers.containsKey(headerKey)) {
+            String result = (String) headers.get(headerKey);
+            log.debug("Found {} override in the request, using following parameter: {}", headerKey, result);
+            return result;
+        }
+        return null;
     }
 }

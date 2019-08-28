@@ -21,9 +21,15 @@
         <org.springframwork.version>2.1.7.RELEASE</org.springframwork.version>
         <org.springfrawork.security.test.version>4.0.0.RELEASE</org.springfrawork.security.test.version>
         <org.projectlombok.version>1.18.8</org.projectlombok.version>
+        <javax.inject.version>1</javax.inject.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>${javax.inject.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
@@ -123,7 +129,7 @@
                     </annotationProcessorPaths>
                     <compilerArgs>
                         <compilerArg>
-                            -Amapstruct.defaultComponentModel=spring
+                            -Amapstruct.defaultComponentModel=jsr330
                         </compilerArg>
                     </compilerArgs>
                 </configuration>

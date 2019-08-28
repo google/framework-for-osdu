@@ -1,13 +1,14 @@
 package com.osdu.model.osdu;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.osdu.model.SearchObject;
 import lombok.Data;
 
 import java.util.List;
 import java.util.Map;
 
 @Data
-public class OSDUSearchObject {
+public class OSDUSearchObject extends SearchObject {
     private Integer count;
     private Integer start;
     private String fulltext;
