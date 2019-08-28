@@ -20,31 +20,20 @@ public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMa
 
     private final static Logger log = LoggerFactory.getLogger(DelfiSearchObjectMapperDecorator.class);
 
-    private static final String KIND_WILDCARD_SOURCE = ":*";
-    private static final String KIND_WILDCARD_TYPE = ":*";
-    private static final String KIND_WILDCARD_VERSION = ":*";
     private static final double DEFAULT_ZERO_DISTANCE = 0.0;
     private static final String LUCENE_AND_TERM = " AND ";
-    public static final String LUCENE_OR_TERM = " OR ";
-
-    @Value("${search.mapper.delfi.partition}")
-    String partition;
+    private static final String LUCENE_OR_TERM = " OR ";
 
     @Inject
     @Named("com.osdu.mapper.SearchObjectMapperImpl_")
     private SearchObjectMapper delegate;
 
     @Override
-    public DelfiSearchObject osduSearchObjectToDelfiSearchObject(OSDUSearchObject osduSearchObject, String kindOverride, String partitionOverride) throws GeoLocationException {
+    public DelfiSearchObject osduSearchObjectToDelfiSearchObject(OSDUSearchObject osduSearchObject, String kind, String partition) throws GeoLocationException {
         log.debug("Mapping request for object : {}", osduSearchObject);
-        DelfiSearchObject result = delegate.osduSearchObjectToDelfiSearchObject(osduSearchObject, kindOverride, partitionOverride);
+        DelfiSearchObject result = delegate.osduSearchObjectToDelfiSearchObject(osduSearchObject, kind, partition);
         addToQuery(result, osduSearchObject.getFulltext(), mapMetadata(osduSearchObject));
-        result.setKind(
-                StringUtils.isEmpty(kindOverride) ?
-                        (String.format("%s%s%s%s",
-                                (StringUtils.isEmpty(partitionOverride) ? partition : partitionOverride),
-                                KIND_WILDCARD_SOURCE, KIND_WILDCARD_TYPE, KIND_WILDCARD_VERSION)) :
-                        kindOverride);
+        result.setKind(kind);
         mapGeoParameters(osduSearchObject, result);
         log.debug("Result of mapping : {}", result);
         return result;

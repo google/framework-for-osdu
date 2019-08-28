@@ -11,6 +11,5 @@ search:
   mapper:
     delfi:
       appkey: ${search.mapper.delfi.applicationKey:PtVguojl2DUr0qimhDclNMwZAeAJwK1T}
-      partition: ${search.mapper.delfi.partitionKey:common}
     searchEndpoint: de/search/v2/query
 

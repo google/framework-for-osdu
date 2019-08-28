@@ -10,7 +10,6 @@ import com.osdu.model.delfi.DelfiSearchResult;
 import com.osdu.model.delfi.geo.exception.GeoLocationException;
 import com.osdu.model.osdu.OSDUSearchObject;
 import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,8 +41,6 @@ public class DelfiSearchService implements SearchService {
     @Named
     private SearchResultMapper searchResultMapper;
 
-    @Value("${search.mapper.delfi.partition}")
-    private String partition;
     @Value("${search.mapper.delfi.appkey}")
     private String applicationKey;
 
@@ -75,21 +72,21 @@ public class DelfiSearchService implements SearchService {
     public SearchResult searchIndex(SearchObject searchObject, MessageHeaders headers) throws GeoLocationException {
         log.info("Received request to query Delfi Portal for data with following arguments: {},{}", searchObject, headers);
 
-        String kindOverride = extractHeaderOverride(headers, KIND_HEADER_KEY);
-        String partitionOverride = extractHeaderOverride(headers, PARTITION_HEADER_KEY);
+        String kind = extractHeaders(headers, KIND_HEADER_KEY);
+        String partition = extractHeaders(headers, PARTITION_HEADER_KEY);
 
-        DelfiSearchObject delfiSearchObject = searchObjectMapper.osduSearchObjectToDelfiSearchObject((OSDUSearchObject) searchObject, kindOverride, partitionOverride);
+        DelfiSearchObject delfiSearchObject = searchObjectMapper.osduSearchObjectToDelfiSearchObject((OSDUSearchObject) searchObject, kind, partition);
         DelfiSearchResult searchResult = delfiSearchClient.searchIndex(
                 String.valueOf(headers.get(AUTHORIZATION_HEADER)),
                 applicationKey,
-                StringUtils.isEmpty(partitionOverride) ? partition : partitionOverride,
+                partition,
                 delfiSearchObject);
         SearchResult osduSearchResult = searchResultMapper.delfiSearchResultToOSDUSearchResult(searchResult, (OSDUSearchObject) searchObject);
         log.info("Received search result: {}", osduSearchResult);
         return osduSearchResult;
     }
 
-    private String extractHeaderOverride(MessageHeaders headers, String headerKey) {
+    private String extractHeaders(MessageHeaders headers, String headerKey) {
         if (headers.containsKey(headerKey)) {
             String result = (String) headers.get(headerKey);
             log.debug("Found {} override in the request, using following parameter: {}", headerKey, result);
