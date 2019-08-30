@@ -25,9 +25,6 @@ public class MapSearchFieldsFunction implements Function<Message<OSDUSearchObjec
 
     private final static Logger log = LoggerFactory.getLogger(MapSearchFieldsFunction.class);
 
-    @Value("${search.mapper.delfi.partition}")
-    private String partition;
-
     @Inject
     private SearchService searchService;
 
