@@ -17,15 +17,14 @@ public class DataTransferFunction implements Function<Message<ManifestObject>, M
 
     private final static Logger log = LoggerFactory.getLogger(DataTransferFunction.class);
 
-    @Value("${test.url}")
-    private String testUrl;
-
     @Override
     public Message<URL> apply(Message<ManifestObject> messageSource) {
         try {
             log.info("Received request: {}", messageSource);
 
-            return new GenericMessage<>(new URL(testUrl));
+            String urlToDownloadFilesFromDelfi = "http://some-url";
+
+            return new GenericMessage<>(new URL(urlToDownloadFilesFromDelfi));
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
