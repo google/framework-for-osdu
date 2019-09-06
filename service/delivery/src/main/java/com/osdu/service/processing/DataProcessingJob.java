@@ -16,7 +16,7 @@ import java.util.concurrent.Callable;
 @RequiredArgsConstructor
 public class DataProcessingJob implements Callable {
 
-    private static final String FILE_LOCATION_KEY = "fileLocation";
+    private static final String FILE_LOCATION_KEY = "signedUrl";
     private final String srn;
     private final SRNMappingService srnMappingService;
     private final DelfiDeliveryPortalService deliveryService;
