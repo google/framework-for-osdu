@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 @FeignClient(url = "${osdu.delfi.filePortal.url", name = "delfi.delivery.file.client")
 public interface DelfiFileClient {
 
-    @GetMapping("")
+    @GetMapping("/_ah/api/signedUrlService/v1/sign?resourcePath={resourcePath}")
     public void getSignedUrlForLocation(@PathVariable("resourcePath") String resourcePath,
                                         @RequestHeader("Authorization") String authorizationToken,
                                         @RequestHeader("slb-data-partition-id") String partition,
