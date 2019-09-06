@@ -12,7 +12,7 @@ public class ResponseItem {
     private String fileLocation;
 
     @JsonProperty("Data")
-    private String data;
+    private Object data;
 
     @JsonProperty("SRN")
     private String srn;

@@ -6,7 +6,7 @@ import lombok.Data;
 public class ProcessingResult {
 
     private String fileLocation;
-    private String data;
+    private Object data;
     private String srn;
 
     private boolean isProcessed;
