@@ -24,7 +24,7 @@ public class DataTransferFunction implements Function<Message<Srns>, Message<Del
     public Message<DeliveryResponse> apply(Message<Srns> messageSource) {
 
         log.debug("Received request: {}", messageSource);
-        DeliveryResponse resource = deliveryService.getResources(messageSource.getPayload());
+        DeliveryResponse resource = deliveryService.getResources(messageSource.getPayload(), messageSource.getHeaders());
 
         return new GenericMessage<>(resource);
     }
