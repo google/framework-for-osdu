@@ -2,18 +2,17 @@ package com.osdu.service.delfi;
 
 import com.osdu.client.delfi.DelfiDeliveryClient;
 import com.osdu.client.delfi.DelfiFileClient;
-import com.osdu.client.delfi.DelfiOdesClient;
 import com.osdu.exception.OSDUException;
+import com.osdu.model.osdu.delivery.dto.ResponseItem;
 import com.osdu.model.osdu.delivery.input.Srns;
-import com.osdu.model.osdu.delivery.response.DeliveryResponse;
+import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
 import com.osdu.service.DeliveryService;
 import com.osdu.service.SRNMappingService;
 import com.osdu.service.StorageService;
 import com.osdu.service.processing.DataProcessingJob;
-import com.osdu.service.processing.ProcessingResult;
+import com.osdu.model.osdu.delivery.process.ProcessingResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -31,9 +30,6 @@ public class DelfiDeliveryService implements DeliveryService {
 
     private final static Logger log = LoggerFactory.getLogger(DelfiDeliveryService.class);
     private static final int THREAD_POOL_CAPACITY = 3;
-
-    @Inject
-    private DelfiOdesClient delfiOdesClient;
 
     @Inject
     private StorageService storageService;
@@ -56,7 +52,7 @@ public class DelfiDeliveryService implements DeliveryService {
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_CAPACITY);
 
         List<DataProcessingJob> jobs = srns.getSrns().stream()
-                .map(srn -> new DataProcessingJob(srn, delfiOdesClient, storageService))
+                .map(srn -> new DataProcessingJob(srn, srnMappingService, storageService))
                 .collect(Collectors.toList());
 
         List<Future<ProcessingResult>> futures = new ArrayList<>();
@@ -79,18 +75,21 @@ public class DelfiDeliveryService implements DeliveryService {
     }
 
     private DeliveryResponse processResults(List<ProcessingResult> results) {
-        List<String> data = new ArrayList<>();
+        List<ResponseItem> responseItems = new ArrayList<>();
         List<String> unprocessedSrns = new ArrayList<>();
         results.stream().forEach(result -> {
             if (result.isProcessed()) {
-                data.add(result.getData());
+                responseItems.add(ResponseItem.builder()
+                        .fileLocation(result.getFileLocation())
+                        .data(result.getData())
+                        .srn(result.getSrn()).build());
             } else {
                 unprocessedSrns.add(result.getSrn());
             }
         });
 
         DeliveryResponse response = new DeliveryResponse();
-        response.setData(data);
+        response.setResult(responseItems);
         response.setUnprocessedSRNs(unprocessedSrns);
 
         return response;

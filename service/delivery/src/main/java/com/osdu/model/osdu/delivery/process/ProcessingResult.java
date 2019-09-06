@@ -1,12 +1,14 @@
-package com.osdu.service.processing;
+package com.osdu.model.osdu.delivery.process;
 
 import lombok.Data;
 
 @Data
 public class ProcessingResult {
 
-    private String srn;
-    private boolean isProcessed;
+    private String fileLocation;
     private String data;
+    private String srn;
+
+    private boolean isProcessed;
 
 }

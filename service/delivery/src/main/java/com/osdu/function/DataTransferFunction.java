@@ -1,8 +1,7 @@
 package com.osdu.function;
 
-import com.osdu.exception.OsduUrlException;
+import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
 import com.osdu.model.osdu.delivery.input.Srns;
-import com.osdu.model.osdu.delivery.response.DeliveryResponse;
 import com.osdu.service.DeliveryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

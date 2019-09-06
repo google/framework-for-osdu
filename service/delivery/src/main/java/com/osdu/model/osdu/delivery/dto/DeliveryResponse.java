@@ -1,5 +1,6 @@
-package com.osdu.model.osdu.delivery.response;
+package com.osdu.model.osdu.delivery.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ public class DeliveryResponse {
 
     private List<String> unprocessedSRNs;
 
-    private List<String> data;
+    @JsonProperty("Result")
+    private List<ResponseItem> result;
 
 }
