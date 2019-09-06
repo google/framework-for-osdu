@@ -75,7 +75,7 @@ public class DelfiDeliveryService implements DeliveryService {
         response.setData(data);
         response.setUnprocessedSRNs(unprocessedSrns);
 
-        return response
+        return response;
     }
 }
 
