@@ -55,13 +55,17 @@ public class DelfiDeliveryService implements DeliveryService {
 
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_CAPACITY);
 
-        List<Future<ProcessingResult>> jobs = srns.getSrns()
-                .stream().map(srn -> new DataProcessingJob(srn, delfiOdesClient, storageService))
-                .map(job -> executor.submit(job))
+        List<DataProcessingJob> jobs = srns.getSrns().stream()
+                .map(srn -> new DataProcessingJob(srn, delfiOdesClient, storageService))
                 .collect(Collectors.toList());
 
+        List<Future<ProcessingResult>> futures = new ArrayList<>();
+        for(DataProcessingJob job : jobs){
+            futures.add(executor.submit(job));
+        }
+
         List<ProcessingResult> results = new ArrayList<>();
-        for (Future<ProcessingResult> job : jobs) {
+        for(Future<ProcessingResult> job : futures){
             try {
                 results.add(job.get());
             } catch (ExecutionException | InterruptedException e) {
