@@ -1,10 +1,13 @@
 package com.osdu.service.delfi;
 
+import com.osdu.client.delfi.DelfiDeliveryClient;
+import com.osdu.client.delfi.DelfiFileClient;
 import com.osdu.client.delfi.DelfiOdesClient;
 import com.osdu.exception.OSDUException;
 import com.osdu.model.osdu.delivery.input.Srns;
 import com.osdu.model.osdu.delivery.response.DeliveryResponse;
 import com.osdu.service.DeliveryService;
+import com.osdu.service.SRNMappingService;
 import com.osdu.service.StorageService;
 import com.osdu.service.processing.DataProcessingJob;
 import com.osdu.service.processing.ProcessingResult;
@@ -14,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -28,11 +32,20 @@ public class DelfiDeliveryService implements DeliveryService {
     private final static Logger log = LoggerFactory.getLogger(DelfiDeliveryService.class);
     private static final int THREAD_POOL_CAPACITY = 3;
 
-    @Autowired
+    @Inject
     private DelfiOdesClient delfiOdesClient;
 
-    @Autowired
+    @Inject
     private StorageService storageService;
+
+    @Inject
+    private SRNMappingService srnMappingService;
+
+    @Inject
+    private DelfiDeliveryClient deliveryClient;
+
+    @Inject
+    private DelfiFileClient delfiFileClient;
 
     @Value("${osdu.download.resource.url}")
     private String downloadResourceLocation;
@@ -48,7 +61,7 @@ public class DelfiDeliveryService implements DeliveryService {
                 .collect(Collectors.toList());
 
         List<ProcessingResult> results = new ArrayList<>();
-        for(Future<ProcessingResult> job : jobs){
+        for (Future<ProcessingResult> job : jobs) {
             try {
                 results.add(job.get());
             } catch (ExecutionException | InterruptedException e) {
@@ -58,17 +71,16 @@ public class DelfiDeliveryService implements DeliveryService {
         }
         executor.shutdown();
 
-       return processResults(results);
+        return processResults(results);
     }
 
     private DeliveryResponse processResults(List<ProcessingResult> results) {
         List<String> data = new ArrayList<>();
         List<String> unprocessedSrns = new ArrayList<>();
         results.stream().forEach(result -> {
-            if(result.isProcessed()){
+            if (result.isProcessed()) {
                 data.add(result.getData());
-            }
-            else{
+            } else {
                 unprocessedSrns.add(result.getSrn());
             }
         });

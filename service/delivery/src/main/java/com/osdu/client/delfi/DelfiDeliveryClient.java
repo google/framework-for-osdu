@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 public interface DelfiDeliveryClient {
 
     @GetMapping(value = "/storage/v2/records/{recordId}")
-    public void getRecord(@PathVariable("recordId") String recordId,
+    void getRecord(@PathVariable("recordId") String recordId,
                           @RequestHeader("Authorization") String authorizationToken,
                           @RequestHeader("slb-data-partition-id") String partition,
                           @RequestHeader("Slb-Account-Id") String accountId,
