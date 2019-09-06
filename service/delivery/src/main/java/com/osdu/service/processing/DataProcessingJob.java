@@ -36,13 +36,13 @@ public class DataProcessingJob implements Callable {
         }
         final Record record = deliveryService.getRecord(odesId, authorizationToken, partition);
         //TODO: Beautify this
-        if (((Map<String, Object>) record.getData().get("data")).containsKey("location")) {
-            final FileRecord file = deliveryService.getFile(((Map<String, Object>) record.getData().get("data")).get("location").toString(), authorizationToken, partition);
+        if (((Map<String, Object>) record.getData()).containsKey("location")) {
+            final FileRecord file = deliveryService.getFile(((Map<String, Object>) record.getData()).get("location").toString(), authorizationToken, partition);
             result.setProcessingResultStatus(ProcessingResultStatus.FILE);
-            result.setData(file.getData());
-            result.setFileLocation(String.valueOf(file.getData().get(FILE_LOCATION_KEY)));
+            result.setData(file);
+            result.setFileLocation(String.valueOf(file.getDetails().get(FILE_LOCATION_KEY)));
         } else {
-            result.setData(record.getData());
+            result.setData(record);
             result.setProcessingResultStatus(ProcessingResultStatus.DATA);
         }
         return result;

@@ -34,7 +34,7 @@ public class DelfiDeliveryService implements DeliveryService, DelfiDeliveryPorta
     private final static Logger log = LoggerFactory.getLogger(DelfiDeliveryService.class);
     private static final int THREAD_POOL_CAPACITY = 3;
     private static final String PARTITION_HEADER_KEY = "partition";
-    private static final String AUTHORIZATION_HEADER_KEY = "Authorization";
+    private static final String AUTHORIZATION_HEADER_KEY = "authorization";
 
     @Inject
     private SRNMappingService srnMappingService;
@@ -45,11 +45,8 @@ public class DelfiDeliveryService implements DeliveryService, DelfiDeliveryPorta
     @Inject
     private DelfiFileClient delfiFileClient;
 
-    @Value("${osdu.download.resource.url}")
-    private String downloadResourceLocation;
-
-    @Value("${osdu.project.appkey}")
-    private static String appKey;
+    @Value("${osdu.delfi.portal.appkey}")
+    private String appKey;
 
     @Override
     public DeliveryResponse getResources(Srns srns, MessageHeaders headers) {
@@ -110,7 +107,7 @@ public class DelfiDeliveryService implements DeliveryService, DelfiDeliveryPorta
         //TODO: Remove coupling. Right now Job knows which service it needs. Replace with children classes
         //IDEA: PortalService with 2 params for method : specific data and auth info.
         //      it will have a child with DelfiAuthInfo as param which will then be passed. Job should also have a delfi child
-        return deliveryClient.getRecord(id, authorizationToken, partition, partition, appKey);
+        return deliveryClient.getRecord(id, authorizationToken, partition, appKey);
     }
 
     @Override

@@ -1,7 +1,7 @@
-osdu.download.resource.url: 1http://osdu.file.download.url
 osdu:
   delfi:
     filePortal:
       url: https://signed-url-dot-p4d-ddl-eu-services.appspot.com/
     portal:
+      appkey: PtVguojl2DUr0qimhDclNMwZAeAJwK1T
       url: https://api.evq.csp.slb.com/

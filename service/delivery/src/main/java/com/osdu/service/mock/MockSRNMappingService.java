@@ -18,6 +18,8 @@ public class MockSRNMappingService implements SRNMappingService {
         srnToKindMap = new HashMap<>();
         srnToKindMap.put("sampleSrn", "sampleKind");
         srnToKindMap.put("yetAnotherSrn", "common:welldb:wellbore-dataset_descriptor-1.5");
+        srnToKindMap.put("no-location-example", "systemdefault2pr6ah6z50:doc:7cea9dc855e84778a881f8c13d4625db");
+        srnToKindMap.put("location-example", "systemdefault2pr6ah6z50:doc:ae7a2aad9aa64672b79ebd4365bc7772");
     }
 
     @Override
