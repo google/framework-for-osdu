@@ -1,11 +1,10 @@
 package com.osdu.service;
 
-import com.osdu.exception.OsduUrlException;
-import com.osdu.model.osdu.manifest.DeliveryResult;
-import com.osdu.model.osdu.manifest.ManifestObject;
+import com.osdu.model.osdu.delivery.input.Srns;
+import com.osdu.model.osdu.delivery.response.DeliveryResponse;
 
 public interface DeliveryService {
 
-    DeliveryResult getResources(ManifestObject manifestObject) throws OsduUrlException;
+    DeliveryResponse getResources(Srns srns);
 
 }

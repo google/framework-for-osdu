@@ -1,4 +1,4 @@
-package com.osdu.model.osdu.manifest;
+package com.osdu.model.osdu.delivery.manifest;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Data;

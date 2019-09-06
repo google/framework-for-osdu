@@ -1,8 +1,8 @@
 package com.osdu.function;
 
 import com.osdu.exception.OsduUrlException;
-import com.osdu.model.osdu.manifest.DeliveryResult;
-import com.osdu.model.osdu.manifest.ManifestObject;
+import com.osdu.model.osdu.delivery.input.Srns;
+import com.osdu.model.osdu.delivery.response.DeliveryResponse;
 import com.osdu.service.DeliveryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.function.Function;
 
 @Component
-public class DataTransferFunction implements Function<Message<ManifestObject>, Message<DeliveryResult>> {
+public class DataTransferFunction implements Function<Message<Srns>, Message<DeliveryResponse>> {
 
     private final static Logger log = LoggerFactory.getLogger(DataTransferFunction.class);
 
@@ -22,16 +22,11 @@ public class DataTransferFunction implements Function<Message<ManifestObject>, M
     private DeliveryService deliveryService;
 
     @Override
-    public Message<DeliveryResult> apply(Message<ManifestObject> messageSource) {
-        try {
-            log.debug("Received request: {}", messageSource);
+    public Message<DeliveryResponse> apply(Message<Srns> messageSource) {
 
-            DeliveryResult resource = deliveryService.getResources(messageSource.getPayload());
+        log.debug("Received request: {}", messageSource);
+        DeliveryResponse resource = deliveryService.getResources(messageSource.getPayload());
 
-            return new GenericMessage<>(resource);
-
-        } catch (OsduUrlException e) {
-            throw new RuntimeException(String.format("Exception while processing request: %s", messageSource), e);
-        }
+        return new GenericMessage<>(resource);
     }
 }

@@ -1,38 +1,81 @@
 package com.osdu.service;
 
-import com.osdu.exception.OsduUrlException;
-import com.osdu.model.osdu.manifest.DeliveryResult;
-import com.osdu.model.osdu.manifest.ManifestObject;
-import org.apache.commons.lang.StringUtils;
+import com.osdu.client.delfi.DelfiOdesClient;
+import com.osdu.exception.OSDUException;
+import com.osdu.model.osdu.delivery.input.Srns;
+import com.osdu.model.osdu.delivery.response.DeliveryResponse;
+import com.osdu.service.processing.DataProcessingJob;
+import com.osdu.service.processing.ProcessingResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 @Service
 public class DelfiDeliveryService implements DeliveryService {
 
     private final static Logger log = LoggerFactory.getLogger(DelfiDeliveryService.class);
+    private static final int THREAD_POOL_CAPACITY = 3;
+
+    @Autowired
+    private DelfiOdesClient delfiOdesClient;
+
+    @Autowired
+    private StorageService storageService;
 
     @Value("${osdu.download.resource.url}")
     private String downloadResourceLocation;
 
     @Override
-    public DeliveryResult getResources(ManifestObject manifestObject) throws OsduUrlException {
+    public DeliveryResponse getResources(Srns srns) {
 
-        String resultString = StringUtils.EMPTY;
-        try {
-            log.debug("Processing manifest: {}", manifestObject);
+        ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_CAPACITY);
 
-            resultString = downloadResourceLocation;
-            return DeliveryResult.builder()
-                    .resourceLink(new URL(resultString))
-                    .build();
-        } catch (MalformedURLException e) {
-            throw new OsduUrlException(String.format("Can not construct URL from string: %s", resultString));
+        List<Future<ProcessingResult>> jobs = srns.getSrns()
+                .stream().map(srn -> new DataProcessingJob(srn, delfiOdesClient, storageService))
+                .map(job -> executor.submit(job))
+                .collect(Collectors.toList());
+
+        List<ProcessingResult> results = new ArrayList<>();
+        for(Future<ProcessingResult> job : jobs){
+            try {
+                results.add(job.get());
+            } catch (ExecutionException | InterruptedException e) {
+                log.error("Error execution srn", e);
+                throw new OSDUException("Error execution srn");
+            }
         }
+        executor.shutdown();
+
+       return processResults(results);
+    }
+
+    private DeliveryResponse processResults(List<ProcessingResult> results) {
+        List<String> data = new ArrayList<>();
+        List<String> unprocessedSrns = new ArrayList<>();
+        results.stream().forEach(result -> {
+            if(result.isProcessed()){
+                data.add(result.getData());
+            }
+            else{
+                unprocessedSrns.add(result.getSrn());
+            }
+        });
+
+        DeliveryResponse response = new DeliveryResponse();
+        response.setData(data);
+        response.setUnprocessedSRNs(unprocessedSrns);
+
+        return response
     }
 }
+
