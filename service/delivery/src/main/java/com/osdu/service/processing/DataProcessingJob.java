@@ -4,10 +4,8 @@ import com.osdu.model.osdu.delivery.FileRecord;
 import com.osdu.model.osdu.delivery.Record;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResultStatus;
-import com.osdu.service.DeliveryService;
 import com.osdu.service.SRNMappingService;
 import com.osdu.service.delfi.DelfiDeliveryPortalService;
-import com.osdu.service.delfi.DelfiDeliveryService;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;

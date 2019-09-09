@@ -7,7 +7,7 @@ import com.osdu.model.osdu.delivery.FileRecord;
 import com.osdu.model.osdu.delivery.Record;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResultStatus;
 import com.osdu.model.osdu.delivery.dto.ResponseItem;
-import com.osdu.model.osdu.delivery.input.Srns;
+import com.osdu.model.osdu.delivery.input.InputPayload;
 import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
 import com.osdu.service.DeliveryService;
 import com.osdu.service.SRNMappingService;
@@ -55,7 +55,7 @@ public class DelfiDeliveryService implements DeliveryService, DelfiDeliveryPorta
     private String appKey;
 
     @Override
-    public DeliveryResponse getResources(Srns srns, MessageHeaders headers) {
+    public DeliveryResponse getResources(InputPayload inputPayload, MessageHeaders headers) {
 
         ExecutorService executor = Executors.newFixedThreadPool(threadPoolCapacity);
 
@@ -63,7 +63,7 @@ public class DelfiDeliveryService implements DeliveryService, DelfiDeliveryPorta
         String partition = extractHeaders(headers, PARTITION_HEADER_KEY);
 
 
-        List<DataProcessingJob> jobs = srns.getSrns().stream()
+        List<DataProcessingJob> jobs = inputPayload.getSrns().stream()
                 .map(srn -> new DataProcessingJob(srn, srnMappingService, this, authorizationToken, partition))
                 .collect(Collectors.toList());
 
