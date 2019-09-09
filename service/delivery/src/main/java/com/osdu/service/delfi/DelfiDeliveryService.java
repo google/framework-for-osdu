@@ -10,8 +10,10 @@ import com.osdu.model.osdu.delivery.dto.ResponseItem;
 import com.osdu.model.osdu.delivery.input.Srns;
 import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
 import com.osdu.service.DeliveryService;
+import com.osdu.service.PortalService;
 import com.osdu.service.SRNMappingService;
 import com.osdu.service.processing.DataProcessingJob;
+import com.osdu.service.processing.delfi.DelfiDataProcessingJob;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +31,7 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 @Service
-public class DelfiDeliveryService implements DeliveryService, DelfiDeliveryPortalService {
+public class DelfiDeliveryService implements DeliveryService {
 
     private final static Logger log = LoggerFactory.getLogger(DelfiDeliveryService.class);
     private static final int THREAD_POOL_CAPACITY = 3;
@@ -40,17 +42,11 @@ public class DelfiDeliveryService implements DeliveryService, DelfiDeliveryPorta
     private SRNMappingService srnMappingService;
 
     @Inject
-    private DelfiDeliveryClient deliveryClient;
-
-    @Inject
-    private DelfiFileClient delfiFileClient;
-
-    @Value("${osdu.delfi.portal.appkey}")
-    private String appKey;
+    private PortalService portalService;
 
     @Override
     public DeliveryResponse getResources(Srns srns, MessageHeaders headers) {
-
+        log.debug("Getting resources for following SRNs and headers : {}, {}", srns, headers);
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_CAPACITY);
 
         String authorizationToken = extractHeaders(headers, AUTHORIZATION_HEADER_KEY);
@@ -58,7 +54,7 @@ public class DelfiDeliveryService implements DeliveryService, DelfiDeliveryPorta
 
 
         List<DataProcessingJob> jobs = srns.getSrns().stream()
-                .map(srn -> new DataProcessingJob(srn, srnMappingService, this, authorizationToken, partition))
+                .map(srn -> new DelfiDataProcessingJob(srn, srnMappingService, portalService, authorizationToken, partition))
                 .collect(Collectors.toList());
 
         List<Future<ProcessingResult>> futures = new ArrayList<>();
@@ -81,6 +77,7 @@ public class DelfiDeliveryService implements DeliveryService, DelfiDeliveryPorta
     }
 
     private DeliveryResponse processResults(List<ProcessingResult> results) {
+        log.debug("Processing results : {}", results);
         List<ResponseItem> responseItems = new ArrayList<>();
         List<String> unprocessedSrns = new ArrayList<>();
         results.stream().forEach(result -> {
@@ -101,24 +98,11 @@ public class DelfiDeliveryService implements DeliveryService, DelfiDeliveryPorta
         return response;
     }
 
-    @Override
-    public Record getRecord(String id, String authorizationToken, String partition) {
-        //TODO: Add proper logging
-        //TODO: Remove coupling. Right now Job knows which service it needs. Replace with children classes
-        //IDEA: PortalService with 2 params for method : specific data and auth info.
-        //      it will have a child with DelfiAuthInfo as param which will then be passed. Job should also have a delfi child
-        return deliveryClient.getRecord(id, authorizationToken, partition, appKey);
-    }
-
-    @Override
-    public FileRecord getFile(String location, String authorizationToken, String partition) {
-        return delfiFileClient.getSignedUrlForLocation(location, authorizationToken, partition, partition, appKey);
-    }
-
     private String extractHeaders(MessageHeaders headers, String headerKey) {
+        log.debug("Extracting header with name : {} from map : {}", headerKey, headers);
         if (headers.containsKey(headerKey)) {
             String result = (String) headers.get(headerKey);
-            log.debug("Found {} override in the request, using following parameter: {}", headerKey, result);
+            log.debug("Found header in the request with following key:value pair : {}:{}", headerKey, result);
             return result;
         }
         return null;
