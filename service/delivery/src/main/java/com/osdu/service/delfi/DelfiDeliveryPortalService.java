@@ -29,9 +29,6 @@ public class DelfiDeliveryPortalService implements PortalService {
     @Override
     public Record getRecord(String id, String authorizationToken, String partition) {
         log.debug("Getting record with params : {}, {}, {}", id, authorizationToken, partition);
-        //TODO: Remove coupling. Right now Job knows which service it needs. Replace with children classes
-        //IDEA: PortalService with 2 params for method : specific data and auth info.
-        //      it will have a child with DelfiAuthInfo as param which will then be passed. Job should also have a delfi child
         return deliveryClient.getRecord(id, authorizationToken, partition, appKey);
     }
 
