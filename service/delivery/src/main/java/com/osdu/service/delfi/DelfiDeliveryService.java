@@ -12,6 +12,7 @@ import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
 import com.osdu.service.DeliveryService;
 import com.osdu.service.PortalService;
 import com.osdu.service.SRNMappingService;
+import com.osdu.service.processing.ResultDataPostProcessor;
 import com.osdu.service.processing.DataProcessingJob;
 import com.osdu.service.processing.delfi.DelfiDataProcessingJob;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
@@ -34,7 +35,6 @@ import java.util.stream.Collectors;
 public class DelfiDeliveryService implements DeliveryService {
 
     private final static Logger log = LoggerFactory.getLogger(DelfiDeliveryService.class);
-    private static final int THREAD_POOL_CAPACITY = 3;
     private static final String PARTITION_HEADER_KEY = "partition";
     private static final String AUTHORIZATION_HEADER_KEY = "authorization";
 
@@ -44,10 +44,16 @@ public class DelfiDeliveryService implements DeliveryService {
     @Inject
     private PortalService portalService;
 
+    @Inject
+    private ResultDataPostProcessor resultDataPostProcessor;
+
+    @Value("${osdu.processing.thread-pool-capacity}")
+    private int threadPoolCapacity;
+
     @Override
     public DeliveryResponse getResources(Srns srns, MessageHeaders headers) {
         log.debug("Getting resources for following SRNs and headers : {}, {}", srns, headers);
-        ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_CAPACITY);
+        ExecutorService executor = Executors.newFixedThreadPool(threadPoolCapacity);
 
         String authorizationToken = extractHeaders(headers, AUTHORIZATION_HEADER_KEY);
         String partition = extractHeaders(headers, PARTITION_HEADER_KEY);
@@ -90,6 +96,8 @@ public class DelfiDeliveryService implements DeliveryService {
                 unprocessedSrns.add(result.getSrn());
             }
         });
+
+        responseItems.forEach(result -> resultDataPostProcessor.processData(result.getData()));
 
         DeliveryResponse response = new DeliveryResponse();
         response.setResult(responseItems);

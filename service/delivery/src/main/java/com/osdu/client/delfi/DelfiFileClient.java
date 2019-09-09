@@ -1,6 +1,5 @@
 package com.osdu.client.delfi;
 
-import com.osdu.model.osdu.delivery.FileRecord;
 import com.osdu.model.osdu.delivery.delfi.DelfiFireRecord;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
