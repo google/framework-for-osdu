@@ -5,11 +5,12 @@ import com.osdu.model.osdu.delivery.delfi.ProcessingResultStatus;
 import com.osdu.model.osdu.delivery.dto.ResponseItem;
 import com.osdu.model.osdu.delivery.input.InputPayload;
 import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
+import com.osdu.model.osdu.delivery.input.InputPayload;
 import com.osdu.service.DeliveryService;
 import com.osdu.service.PortalService;
 import com.osdu.service.SRNMappingService;
-import com.osdu.service.processing.ResultDataPostProcessor;
 import com.osdu.service.processing.DataProcessingJob;
+import com.osdu.service.processing.ResultDataConverter;
 import com.osdu.service.processing.delfi.DelfiDataProcessingJob;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,7 +42,7 @@ public class DelfiDeliveryService implements DeliveryService {
     PortalService portalService;
 
     @Inject
-    ResultDataPostProcessor resultDataPostProcessor;
+    ResultDataConverter resultDataConverter;
 
     @Value("${osdu.processing.thread-pool-capacity}")
     int threadPoolCapacity;
@@ -67,38 +69,16 @@ public class DelfiDeliveryService implements DeliveryService {
         for (Future<ProcessingResult> job : futures) {
             try {
                 results.add(job.get());
-            } catch (ExecutionException | InterruptedException e) {
+            } catch (ExecutionException e) {
                 log.error("Error execution srn", e);
                 throw new OSDUException("Error execution srn");
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
         }
         executor.shutdown();
 
-        return processResults(results);
-    }
-
-    private DeliveryResponse processResults(List<ProcessingResult> results) {
-        log.debug("Processing results : {}", results);
-        List<ResponseItem> responseItems = new ArrayList<>();
-        List<String> unprocessedSrns = new ArrayList<>();
-        results.stream().forEach(result -> {
-            if (!result.getProcessingResultStatus().equals(ProcessingResultStatus.NO_MAPPING)) {
-                responseItems.add(ResponseItem.builder()
-                        .fileLocation(result.getFileLocation())
-                        .data(result.getData())
-                        .srn(result.getSrn()).build());
-            } else {
-                unprocessedSrns.add(result.getSrn());
-            }
-        });
-
-        responseItems.forEach(result -> resultDataPostProcessor.processData(result.getData()));
-
-        DeliveryResponse response = new DeliveryResponse();
-        response.setResult(responseItems);
-        response.setUnprocessedSRNs(unprocessedSrns);
-
-        return response;
+        return resultDataConverter.convertProcessingResults(results);
     }
 
     private String extractHeaders(MessageHeaders headers, String headerKey) {

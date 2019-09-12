@@ -1,7 +1,8 @@
-package com.osdu.service.processing;
+package com.osdu.service.processing.delfi;
 
 import com.osdu.model.osdu.delivery.FileRecord;
 import com.osdu.model.osdu.delivery.Record;
+import com.osdu.service.processing.ResultDataPostProcessor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-public class ResultDataPostProcessorTest {
+public class DelfiResultDataPostProcessorTest {
 
     private ResultDataPostProcessor resultDataPostProcessor;
 
@@ -25,7 +26,7 @@ public class ResultDataPostProcessorTest {
         List<String> filelsToStrip = new ArrayList<>();
         filelsToStrip.add("one");
         filelsToStrip.add("three");
-        resultDataPostProcessor = new ResultDataPostProcessor(filelsToStrip);
+        resultDataPostProcessor = new DelfiResultDataPostProcessor(filelsToStrip);
     }
 
     @Test

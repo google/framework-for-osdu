@@ -38,7 +38,7 @@ public class DelfiDataProcessingJob implements DataProcessingJob {
             return result;
         }
         final Record record = portalService.getRecord(odesId, authorizationToken, partition);
-        if ((record.getData()).containsKey(LOCATION_KEY)) {
+        if (record.getData().containsKey(LOCATION_KEY)) {
             final FileRecord file = portalService.getFile((record.getData()).get(LOCATION_KEY).toString(), authorizationToken, partition);
             result.setProcessingResultStatus(ProcessingResultStatus.FILE);
             result.setData(file);
