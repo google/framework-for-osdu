@@ -19,9 +19,9 @@ public class DelfiResultDataPostProcessor implements ResultDataPostProcessor {
         recordPostProcessor = new RecordPostProcessor();
     }
 
-    private List<String> fieldsToStrip;
-    private FileRecordPostProcessor fileRecordPostProcessor;
-    private RecordPostProcessor recordPostProcessor;
+    List<String> fieldsToStrip;
+    FileRecordPostProcessor fileRecordPostProcessor;
+    RecordPostProcessor recordPostProcessor;
 
     private final static Logger log = LoggerFactory.getLogger(DelfiResultDataPostProcessor.class);
 

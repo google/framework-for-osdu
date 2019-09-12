@@ -1,9 +1,7 @@
 package com.osdu.service.delfi;
 
 import com.osdu.exception.OSDUException;
-import com.osdu.model.osdu.delivery.delfi.ProcessingResultStatus;
-import com.osdu.model.osdu.delivery.dto.ResponseItem;
-import com.osdu.model.osdu.delivery.input.InputPayload;
+import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
 import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
 import com.osdu.model.osdu.delivery.input.InputPayload;
 import com.osdu.service.DeliveryService;
@@ -12,7 +10,6 @@ import com.osdu.service.SRNMappingService;
 import com.osdu.service.processing.DataProcessingJob;
 import com.osdu.service.processing.ResultDataConverter;
 import com.osdu.service.processing.delfi.DelfiDataProcessingJob;
-import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.MessageHeaders;
@@ -21,7 +18,6 @@ import org.springframework.stereotype.Service;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

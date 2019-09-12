@@ -13,7 +13,7 @@ import javax.inject.Inject;
 
 @Service
 @Slf4j
-public class DelfiDeliveryPortalService implements PortalService {
+public class DelfiPortalService implements PortalService {
 
     @Inject
     DelfiDeliveryClient deliveryClient;

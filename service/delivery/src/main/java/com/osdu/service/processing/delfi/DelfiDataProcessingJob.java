@@ -4,16 +4,10 @@ import com.osdu.model.osdu.delivery.FileRecord;
 import com.osdu.model.osdu.delivery.Record;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResultStatus;
-import com.osdu.service.DeliveryService;
 import com.osdu.service.PortalService;
 import com.osdu.service.SRNMappingService;
-import com.osdu.service.delfi.DelfiDeliveryPortalService;
-import com.osdu.service.delfi.DelfiDeliveryService;
 import com.osdu.service.processing.DataProcessingJob;
 import lombok.RequiredArgsConstructor;
-
-import java.util.Map;
-import java.util.concurrent.Callable;
 
 @RequiredArgsConstructor
 public class DelfiDataProcessingJob implements DataProcessingJob {

@@ -6,8 +6,7 @@ import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
 import com.osdu.model.osdu.delivery.dto.ResponseItem;
 import com.osdu.service.processing.ResultDataConverter;
 import com.osdu.service.processing.ResultDataPostProcessor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -16,12 +15,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class DelfiResultDataConverter implements ResultDataConverter {
 
-    private final static Logger log = LoggerFactory.getLogger(DelfiResultDataConverter.class);
-
     @Inject
-    private ResultDataPostProcessor resultDataPostProcessor;
+    ResultDataPostProcessor resultDataPostProcessor;
 
     @Override
     public DeliveryResponse convertProcessingResults(List<ProcessingResult> results) {
