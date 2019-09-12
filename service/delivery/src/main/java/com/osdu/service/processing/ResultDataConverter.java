@@ -6,5 +6,6 @@ import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
 import java.util.List;
 
 public interface ResultDataConverter {
-     DeliveryResponse convertProcessingResults(List<ProcessingResult> results);
+
+  DeliveryResponse convertProcessingResults(List<ProcessingResult> results);
 }

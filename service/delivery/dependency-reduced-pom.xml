@@ -99,6 +99,13 @@
           </buildArgs>
         </configuration>
       </plugin>
+      <plugin>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>3.1.0</version>
+        <configuration>
+          <configLocation>google_checks.xml</configLocation>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
   <dependencies>

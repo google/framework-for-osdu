@@ -8,8 +8,8 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableFeignClients(basePackages = {"com.osdu"})
 public class DataTransferApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(DataTransferApplication.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(DataTransferApplication.class, args);
+  }
 
 }

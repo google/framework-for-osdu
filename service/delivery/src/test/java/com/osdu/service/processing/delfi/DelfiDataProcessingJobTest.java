@@ -5,7 +5,7 @@ import com.osdu.model.osdu.delivery.Record;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResultStatus;
 import com.osdu.service.PortalService;
-import com.osdu.service.SRNMappingService;
+import com.osdu.service.SrnMappingService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 public class DelfiDataProcessingJobTest {
 
     @Mock
-    private SRNMappingService srnMappingService;
+    private SrnMappingService srnMappingService;
 
     @Mock
     private PortalService portalService;
@@ -46,7 +46,7 @@ public class DelfiDataProcessingJobTest {
     @Test
     public void testNoLocation() {
         // given
-        when(srnMappingService.mapSRNToKind(eq(srn))).thenReturn(odesId);
+        when(srnMappingService.mapSrnToKind(eq(srn))).thenReturn(odesId);
 
         Record record = new Record() {
         };
@@ -75,7 +75,7 @@ public class DelfiDataProcessingJobTest {
     @Test
     public void testWithFileLocation() {
         // given
-        when(srnMappingService.mapSRNToKind(eq(srn))).thenReturn(odesId);
+        when(srnMappingService.mapSrnToKind(eq(srn))).thenReturn(odesId);
 
         Record record = new Record() {
         };
@@ -108,7 +108,7 @@ public class DelfiDataProcessingJobTest {
     @Test
     public void testNoMapping() {
         // given
-        when(srnMappingService.mapSRNToKind(eq(srn))).thenReturn(null);
+        when(srnMappingService.mapSrnToKind(eq(srn))).thenReturn(null);
 
         // when
         ProcessingResult result = dataProcessingJob.call();

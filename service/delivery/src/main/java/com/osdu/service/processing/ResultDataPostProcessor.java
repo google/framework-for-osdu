@@ -1,5 +1,6 @@
 package com.osdu.service.processing;
 
 public interface ResultDataPostProcessor {
-    Object processData(Object data);
+
+  Object processData(Object data);
 }

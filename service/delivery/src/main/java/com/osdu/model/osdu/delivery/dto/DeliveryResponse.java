@@ -1,18 +1,19 @@
 package com.osdu.model.osdu.delivery.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 public class DeliveryResponse {
 
-    List<String> unprocessedSRNs;
+  List<String> unprocessedSrns;
 
-    @JsonProperty("Result")
-    List<ResponseItem> result;
+  @JsonProperty("Result")
+  List<ResponseItem> result;
 
 }

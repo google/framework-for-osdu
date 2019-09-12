@@ -38,7 +38,7 @@ public class DelfiResultDataConverterTest {
 
         DeliveryResponse response = resultDataConverter.convertProcessingResults(Collections.singletonList(dataResult));
 
-        assertThat(response.getUnprocessedSRNs()).isEmpty();
+        assertThat(response.getUnprocessedSrns()).isEmpty();
         assertThat(response.getResult()).hasSize(1);
         assertThat(response.getResult().get(0).getData()).isEqualTo(data);
         assertThat(response.getResult().get(0).getFileLocation()).isNull();
@@ -69,8 +69,8 @@ public class DelfiResultDataConverterTest {
         assertThat(response.getResult().get(1).getFileLocation()).isEqualTo("http://url.com");
         assertThat(response.getResult().get(1).getSrn()).isEqualTo("srn_2");
 
-        assertThat(response.getUnprocessedSRNs()).hasSize(1);
-        assertThat(response.getUnprocessedSRNs().get(0)).isEqualTo("srn_3");
+        assertThat(response.getUnprocessedSrns()).hasSize(1);
+        assertThat(response.getUnprocessedSrns().get(0)).isEqualTo("srn_3");
     }
 
     private ProcessingResult createProcessingResult(ProcessingResultStatus status, String fileLocation, Object data, String srn) {
