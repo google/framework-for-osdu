@@ -50,8 +50,8 @@ public class DelfiDeliveryService implements DeliveryService {
     log.debug("Getting resources for following SRNs and headers : {}, {}", inputPayload, headers);
     ExecutorService executor = Executors.newFixedThreadPool(threadPoolCapacity);
 
-    String authorizationToken = extractHeaders(headers, AUTHORIZATION_HEADER_KEY);
-    String partition = extractHeaders(headers, PARTITION_HEADER_KEY);
+    String authorizationToken = extractHeaderByName(headers, AUTHORIZATION_HEADER_KEY);
+    String partition = extractHeaderByName(headers, PARTITION_HEADER_KEY);
 
     List<DataProcessingJob> jobs = inputPayload.getSrns().stream()
         .map(srn -> new DelfiDataProcessingJob(srn, srnMappingService, portalService,
@@ -69,7 +69,7 @@ public class DelfiDeliveryService implements DeliveryService {
         results.add(job.get());
       } catch (ExecutionException e) {
         log.error("Error execution srn", e);
-        throw new OSDUException("Error execution srn");
+        throw new OSDUException("Error execution srn", e);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       }
@@ -79,7 +79,7 @@ public class DelfiDeliveryService implements DeliveryService {
     return resultDataConverter.convertProcessingResults(results);
   }
 
-  private String extractHeaders(MessageHeaders headers, String headerKey) {
+  private String extractHeaderByName(MessageHeaders headers, String headerKey) {
     log.debug("Extracting header with name : {} from map : {}", headerKey, headers);
     if (headers.containsKey(headerKey)) {
       String result = (String) headers.get(headerKey);

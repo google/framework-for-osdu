@@ -8,8 +8,6 @@ import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -19,49 +17,60 @@ public class DelfiResultDataPostProcessor implements ResultDataPostProcessor {
 
   /**
    * Constructor for DelfiResultDataPostProcessor.
+   *
    * @param fieldsToStrip fields to remove from input
    */
   public DelfiResultDataPostProcessor(
       @Value("${osdu.processing.fields-to-strip}") List<String> fieldsToStrip) {
     this.fieldsToStrip = fieldsToStrip;
-    fileRecordPostProcessor = new FileRecordPostProcessor();
-    recordPostProcessor = new RecordPostProcessor();
+    processFileRecordCommand = new ProcessFileRecordCommand();
+    processRecordCommand = new ProcessRecordCommand();
   }
 
   List<String> fieldsToStrip;
-  FileRecordPostProcessor fileRecordPostProcessor;
-  RecordPostProcessor recordPostProcessor;
+  ProcessFileRecordCommand processFileRecordCommand;
+  ProcessRecordCommand processRecordCommand;
 
   @Override
   public Object processData(Object data) {
 
     if (data instanceof FileRecord) {
-      fileRecordPostProcessor.processData((FileRecord) data);
-    } else if (data instanceof Record) {
-      recordPostProcessor.processData((Record) data);
-    } else {
-      log.info("No data post processor defined for result data type");
+      return processFileRecordCommand.execute(data);
     }
+    if (data instanceof Record) {
+      return processRecordCommand.execute(data);
+    }
+    log.info("No data post processor defined for result data type");
+
     return data;
   }
 
-  class FileRecordPostProcessor {
+  class ProcessFileRecordCommand implements Command {
 
-    FileRecord processData(FileRecord data) {
-      data.getDetails().entrySet().removeIf(entry -> fieldsToStrip.contains(entry.getKey()));
+    @Override
+    public Object execute(Object data) {
+      ((FileRecord) data).getDetails().entrySet()
+          .removeIf(entry -> fieldsToStrip.contains(entry.getKey()));
       return data;
     }
   }
 
-  class RecordPostProcessor {
+  class ProcessRecordCommand implements Command {
 
-    Record processData(Record data) {
-      if (data.getData() != null) {
-        data.getData().entrySet().removeIf(entry -> fieldsToStrip.contains(entry.getKey()));
+    @Override
+    public Object execute(Object data) {
+      Record record = (Record) data;
+      if (record.getData() != null) {
+        record.getData().entrySet().removeIf(entry -> fieldsToStrip.contains(entry.getKey()));
       }
-      data.getDetails().entrySet().removeIf(entry -> fieldsToStrip.contains(entry.getKey()));
+      record.getDetails().entrySet().removeIf(entry -> fieldsToStrip.contains(entry.getKey()));
       return data;
     }
+  }
+
+  interface Command {
+
+    Object execute(Object data);
   }
 }
 

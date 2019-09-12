@@ -26,6 +26,8 @@
         <org.json.version>20190722</org.json.version>
         <org.apache.httpcomponents.version>4.3.4</org.apache.httpcomponents.version>
         <com.fasterxml.jackson.core.version>2.10.0.pr1</com.fasterxml.jackson.core.version>
+        <org.assertj.assertj-core.version>3.13.2</org.assertj.assertj-core.version>
+        <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>

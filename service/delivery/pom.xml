@@ -13,7 +13,7 @@
     <artifactId>osdu-gcp-service-delivery</artifactId>
     <version>1.0.1-SNAPSHOT</version>
     <name>delivery-service</name>
-    <description>TODO</description>
+    <description>Delivery service working with data in OSDU format</description>
 
     <properties>
         <docker.image.prefix>springio</docker.image.prefix>
@@ -118,14 +118,12 @@
             <artifactId>jackson-core</artifactId>
             <version>${com.fasterxml.jackson.core.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.13.2</version>
+            <version>${org.assertj.assertj-core.version}</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <dependencyManagement>
@@ -240,7 +238,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>${maven-checkstyle-plugin.version}</version>
                 <configuration>
                     <configLocation>google_checks.xml</configLocation>
                 </configuration>

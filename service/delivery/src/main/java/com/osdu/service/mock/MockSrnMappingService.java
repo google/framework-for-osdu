@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class MockSrnMappingService implements SrnMappingService {
 
-  Map<String, String> srnToKindMap;
+  final Map<String, String> srnToKindMap;
 
   /**
    * Constructor for MockSrnMappingService.
