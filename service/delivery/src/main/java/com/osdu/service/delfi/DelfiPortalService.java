@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import javax.inject.Inject;
 
 @Service
-public class DelfiDeliveryPortalService implements PortalService {
+public class DelfiPortalService implements PortalService {
 
     private final static Logger log = LoggerFactory.getLogger(PortalService.class);
 

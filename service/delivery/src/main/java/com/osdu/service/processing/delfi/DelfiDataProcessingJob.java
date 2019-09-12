@@ -4,22 +4,18 @@ import com.osdu.model.osdu.delivery.FileRecord;
 import com.osdu.model.osdu.delivery.Record;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResultStatus;
-import com.osdu.service.DeliveryService;
 import com.osdu.service.PortalService;
 import com.osdu.service.SRNMappingService;
-import com.osdu.service.delfi.DelfiDeliveryPortalService;
-import com.osdu.service.delfi.DelfiDeliveryService;
 import com.osdu.service.processing.DataProcessingJob;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Map;
-import java.util.concurrent.Callable;
-
 @RequiredArgsConstructor
+@Data
 public class DelfiDataProcessingJob implements DataProcessingJob {
 
-    private static final String FILE_LOCATION_KEY = "signedUrl";
-    private static final String LOCATION_KEY = "location";
+    static final String FILE_LOCATION_KEY = "signedUrl";
+    static final String LOCATION_KEY = "location";
     private final String srn;
     private final SRNMappingService srnMappingService;
     private final PortalService portalService;
@@ -38,7 +34,7 @@ public class DelfiDataProcessingJob implements DataProcessingJob {
             return result;
         }
         final Record record = portalService.getRecord(odesId, authorizationToken, partition);
-        if ((record.getData()).containsKey(LOCATION_KEY)) {
+        if (record.getData().containsKey(LOCATION_KEY)) {
             final FileRecord file = portalService.getFile((record.getData()).get(LOCATION_KEY).toString(), authorizationToken, partition);
             result.setProcessingResultStatus(ProcessingResultStatus.FILE);
             result.setData(file);
