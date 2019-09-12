@@ -7,5 +7,5 @@ import lombok.Data;
 public class ManifestObject {
 
     @JsonAlias("DeliveryManifest")
-    private DeliveryManifestObject deliveryManifestObject;
+    DeliveryManifestObject deliveryManifestObject;
 }

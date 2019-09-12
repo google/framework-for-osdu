@@ -2,6 +2,7 @@ package com.osdu.service.mock;
 
 import com.osdu.service.PortalService;
 import com.osdu.service.SRNMappingService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -13,11 +14,10 @@ import java.util.Map;
  * Temporary service to return Kinds while mapping is not yet implemented
  */
 @Service
+@Slf4j
 public class MockSRNMappingService implements SRNMappingService {
 
-    private final static Logger log = LoggerFactory.getLogger(SRNMappingService.class);
-
-    private Map<String, String> srnToKindMap;
+    Map<String, String> srnToKindMap;
 
     public MockSRNMappingService() {
         srnToKindMap = new HashMap<>();

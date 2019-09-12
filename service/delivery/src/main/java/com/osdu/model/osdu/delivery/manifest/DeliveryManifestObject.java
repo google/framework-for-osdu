@@ -7,5 +7,5 @@ import lombok.Data;
 public class DeliveryManifestObject {
 
     @JsonAlias("Resources")
-    private Resource[] resources;
+    Resource[] resources;
 }

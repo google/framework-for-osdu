@@ -2,14 +2,14 @@ package com.osdu.service.processing;
 
 import com.osdu.model.osdu.delivery.FileRecord;
 import com.osdu.model.osdu.delivery.Record;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Slf4j
 public class ResultDataPostProcessor {
 
     public ResultDataPostProcessor(@Value("${osdu.processing.fields-to-strip}") List<String> fieldsToStrip) {
@@ -18,11 +18,9 @@ public class ResultDataPostProcessor {
         recordPostProcessor = new RecordPostProcessor();
     }
 
-    private List<String> fieldsToStrip;
-    private FileRecordPostProcessor fileRecordPostProcessor;
-    private RecordPostProcessor recordPostProcessor;
-
-    private final static Logger log = LoggerFactory.getLogger(ResultDataPostProcessor.class);
+    List<String> fieldsToStrip;
+    FileRecordPostProcessor fileRecordPostProcessor;
+    RecordPostProcessor recordPostProcessor;
 
     public Object processData(Object data) {
 

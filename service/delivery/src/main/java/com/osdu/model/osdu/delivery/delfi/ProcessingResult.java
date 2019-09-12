@@ -9,9 +9,9 @@ public class ProcessingResult {
     //2 - Reference/Master
     //3 - File url;
 
-    private ProcessingResultStatus processingResultStatus;
-    private String fileLocation;
-    private Object data;
-    private String srn;
+    ProcessingResultStatus processingResultStatus;
+    String fileLocation;
+    Object data;
+    String srn;
 
 }

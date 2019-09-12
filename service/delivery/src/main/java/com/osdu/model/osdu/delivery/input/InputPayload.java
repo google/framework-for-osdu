@@ -9,9 +9,9 @@ import java.util.List;
 @Data
 public class InputPayload {
 
-    private List<String> srns;
+    List<String> srns;
 
-    private String regionId;
+    String regionId;
 
     @JsonCreator
     public InputPayload(@JsonProperty(value = "SRNS", required = true) List<String> srns,

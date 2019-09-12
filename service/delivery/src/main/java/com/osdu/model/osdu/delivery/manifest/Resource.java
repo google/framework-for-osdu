@@ -7,6 +7,6 @@ import lombok.Data;
 public class Resource {
 
     @JsonAlias("SRN")
-    private String srn;
+    String srn;
 
 }

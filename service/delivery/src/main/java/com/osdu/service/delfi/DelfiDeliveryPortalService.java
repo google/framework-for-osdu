@@ -5,26 +5,24 @@ import com.osdu.client.delfi.DelfiFileClient;
 import com.osdu.model.osdu.delivery.FileRecord;
 import com.osdu.model.osdu.delivery.Record;
 import com.osdu.service.PortalService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 
 @Service
+@Slf4j
 public class DelfiDeliveryPortalService implements PortalService {
 
-    private final static Logger log = LoggerFactory.getLogger(PortalService.class);
+    @Inject
+    DelfiDeliveryClient deliveryClient;
 
     @Inject
-    private DelfiDeliveryClient deliveryClient;
-
-    @Inject
-    private DelfiFileClient delfiFileClient;
+    DelfiFileClient delfiFileClient;
 
     @Value("${osdu.delfi.portal.appkey}")
-    private String appKey;
+    String appKey;
 
     @Override
     public Record getRecord(String id, String authorizationToken, String partition) {

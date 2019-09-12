@@ -18,13 +18,13 @@ import java.util.concurrent.Callable;
 @RequiredArgsConstructor
 public class DelfiDataProcessingJob implements DataProcessingJob {
 
-    private static final String FILE_LOCATION_KEY = "signedUrl";
-    private static final String LOCATION_KEY = "location";
-    private final String srn;
-    private final SRNMappingService srnMappingService;
-    private final PortalService portalService;
-    private final String authorizationToken;
-    private final String partition;
+    static final String FILE_LOCATION_KEY = "signedUrl";
+    static final String LOCATION_KEY = "location";
+    final String srn;
+    final SRNMappingService srnMappingService;
+    final PortalService portalService;
+    final String authorizationToken;
+    final String partition;
 
     @Override
     public ProcessingResult call() {

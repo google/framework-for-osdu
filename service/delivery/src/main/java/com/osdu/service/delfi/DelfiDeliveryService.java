@@ -1,10 +1,6 @@
 package com.osdu.service.delfi;
 
-import com.osdu.client.delfi.DelfiDeliveryClient;
-import com.osdu.client.delfi.DelfiFileClient;
 import com.osdu.exception.OSDUException;
-import com.osdu.model.osdu.delivery.FileRecord;
-import com.osdu.model.osdu.delivery.Record;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResultStatus;
 import com.osdu.model.osdu.delivery.dto.ResponseItem;
 import com.osdu.model.osdu.delivery.input.InputPayload;
@@ -16,8 +12,7 @@ import com.osdu.service.processing.ResultDataPostProcessor;
 import com.osdu.service.processing.DataProcessingJob;
 import com.osdu.service.processing.delfi.DelfiDataProcessingJob;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
@@ -32,23 +27,23 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class DelfiDeliveryService implements DeliveryService {
 
-    private final static Logger log = LoggerFactory.getLogger(DelfiDeliveryService.class);
-    private static final String PARTITION_HEADER_KEY = "partition";
-    private static final String AUTHORIZATION_HEADER_KEY = "authorization";
+    static final String PARTITION_HEADER_KEY = "partition";
+    static final String AUTHORIZATION_HEADER_KEY = "authorization";
 
     @Inject
-    private SRNMappingService srnMappingService;
+    SRNMappingService srnMappingService;
 
     @Inject
-    private PortalService portalService;
+    PortalService portalService;
 
     @Inject
-    private ResultDataPostProcessor resultDataPostProcessor;
+    ResultDataPostProcessor resultDataPostProcessor;
 
     @Value("${osdu.processing.thread-pool-capacity}")
-    private int threadPoolCapacity;
+    int threadPoolCapacity;
 
     @Override
     public DeliveryResponse getResources(InputPayload inputPayload, MessageHeaders headers) {

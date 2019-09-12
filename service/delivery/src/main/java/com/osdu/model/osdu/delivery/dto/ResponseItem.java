@@ -9,12 +9,12 @@ import lombok.Data;
 public class ResponseItem {
 
     @JsonProperty("FileLocation")
-    private String fileLocation;
+    String fileLocation;
 
     @JsonProperty("Data")
-    private Object data;
+    Object data;
 
     @JsonProperty("SRN")
-    private String srn;
+    String srn;
 
 }

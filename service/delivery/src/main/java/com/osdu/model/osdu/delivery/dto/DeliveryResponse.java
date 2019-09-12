@@ -10,9 +10,9 @@ import java.util.List;
 @NoArgsConstructor
 public class DeliveryResponse {
 
-    private List<String> unprocessedSRNs;
+    List<String> unprocessedSRNs;
 
     @JsonProperty("Result")
-    private List<ResponseItem> result;
+    List<ResponseItem> result;
 
 }
