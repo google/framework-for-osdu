@@ -1,21 +1,18 @@
 package com.osdu.service.delfi;
 
-import com.osdu.client.delfi.DelfiDeliveryClient;
-import com.osdu.client.delfi.DelfiFileClient;
 import com.osdu.exception.OSDUException;
-import com.osdu.model.osdu.delivery.FileRecord;
-import com.osdu.model.osdu.delivery.Record;
+import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResultStatus;
+import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
+import com.osdu.model.osdu.delivery.dto.ResponseFileLocation;
 import com.osdu.model.osdu.delivery.dto.ResponseItem;
 import com.osdu.model.osdu.delivery.input.InputPayload;
-import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
 import com.osdu.service.DeliveryService;
 import com.osdu.service.PortalService;
 import com.osdu.service.SRNMappingService;
-import com.osdu.service.processing.ResultDataPostProcessor;
 import com.osdu.service.processing.DataProcessingJob;
+import com.osdu.service.processing.ResultDataPostProcessor;
 import com.osdu.service.processing.delfi.DelfiDataProcessingJob;
-import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +22,7 @@ import org.springframework.stereotype.Service;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -84,18 +82,22 @@ public class DelfiDeliveryService implements DeliveryService {
 
     private DeliveryResponse processResults(List<ProcessingResult> results) {
         log.debug("Processing results : {}", results);
-        List<ResponseItem> responseItems = new ArrayList<>();
-        List<String> unprocessedSrns = new ArrayList<>();
-        results.stream().forEach(result -> {
-            if (!result.getProcessingResultStatus().equals(ProcessingResultStatus.NO_MAPPING)) {
-                responseItems.add(ResponseItem.builder()
-                        .fileLocation(result.getFileLocation())
+
+        Map<Boolean, List<ProcessingResult>> precessedToResultMap = results.stream()
+                .collect(Collectors.partitioningBy(
+                        result -> !result.getProcessingResultStatus().equals(ProcessingResultStatus.NO_MAPPING)));
+
+        List<String> unprocessedSrns = precessedToResultMap.get(Boolean.FALSE).stream().
+                map(ProcessingResult::getSrn)
+                .collect(Collectors.toList());
+
+        List<ResponseItem> responseItems = precessedToResultMap.get(Boolean.TRUE).stream()
+                .map(result -> ResponseItem.builder()
+                        .fileLocation(result.getFileLocation() == null ? null :
+                                new ResponseFileLocation(result.getFileLocation()))
                         .data(result.getData())
-                        .srn(result.getSrn()).build());
-            } else {
-                unprocessedSrns.add(result.getSrn());
-            }
-        });
+                        .srn(result.getSrn()).build())
+                .collect(Collectors.toList());
 
         responseItems.forEach(result -> resultDataPostProcessor.processData(result.getData()));
 
