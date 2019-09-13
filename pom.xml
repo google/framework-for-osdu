@@ -22,5 +22,9 @@
         <com.fasterxml.jackson.core.version>2.10.0.pr1</com.fasterxml.jackson.core.version>
     </properties>
 
+    <modules>
+        <module>service</module>
+    </modules>
+
 
 </project>
