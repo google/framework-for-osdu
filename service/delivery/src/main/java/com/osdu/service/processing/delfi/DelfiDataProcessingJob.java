@@ -13,8 +13,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DelfiDataProcessingJob implements DataProcessingJob {
 
-  static final String FILE_LOCATION_KEY = "signedUrl";
-  static final String LOCATION_KEY = "location";
+  public static final String FILE_LOCATION_KEY = "signedUrl";
+  public static final String LOCATION_KEY = "location";
   final String srn;
   final SrnMappingService srnMappingService;
   final PortalService portalService;

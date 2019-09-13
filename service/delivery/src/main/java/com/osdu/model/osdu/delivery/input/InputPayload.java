@@ -10,8 +10,10 @@ import lombok.Data;
 @Data
 public class InputPayload {
 
+  @JsonProperty(value = "SRNS")
   List<String> srns;
 
+  @JsonProperty(value = "TargetRegionID")
   String regionId;
 
   @JsonCreator

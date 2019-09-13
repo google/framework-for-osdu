@@ -5,6 +5,6 @@ import com.osdu.model.osdu.delivery.FileRecord;
 import lombok.Data;
 
 @Data
-public class DelfiFireRecord extends FileRecord {
+public class DelfiFileRecord extends FileRecord {
 
 }

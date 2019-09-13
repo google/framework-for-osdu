@@ -30,8 +30,8 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class DelfiDeliveryService implements DeliveryService {
 
-  static final String PARTITION_HEADER_KEY = "partition";
-  static final String AUTHORIZATION_HEADER_KEY = "authorization";
+  public static final String PARTITION_HEADER_KEY = "partition";
+  public static final String AUTHORIZATION_HEADER_KEY = "authorization";
 
   @Inject
   SrnMappingService srnMappingService;
