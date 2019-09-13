@@ -1,14 +1,14 @@
 package com.osdu.mapper;
 
 import com.osdu.model.delfi.DelfiSearchResult;
-import com.osdu.model.osdu.OSDUSearchObject;
-import com.osdu.model.osdu.OSDUSearchResult;
+import com.osdu.model.osdu.OsduSearchObject;
+import com.osdu.model.osdu.OsduSearchResult;
 import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper
-@DecoratedWith(OSDUSearchResultMapperDecorator.class)
+@DecoratedWith(OsduSearchResultMapperDecorator.class)
 public interface SearchResultMapper {
 
   /**
@@ -21,7 +21,7 @@ public interface SearchResultMapper {
    * @return result of the search against Delfi Portal in OSDU compliant format.
    */
   @Mapping(source = "searchResult.totalCount", target = "totalHits")
-  OSDUSearchResult delfiSearchResultToOSDUSearchResult(DelfiSearchResult searchResult,
-      OSDUSearchObject osduSearchObject);
+  OsduSearchResult delfiSearchResultToOsduSearchResult(DelfiSearchResult searchResult,
+      OsduSearchObject osduSearchObject);
 
 }

@@ -8,7 +8,7 @@ import com.osdu.model.delfi.geo.ByGeoPolygon;
 import com.osdu.model.delfi.geo.GeoType;
 import com.osdu.model.delfi.geo.SpatialFilter;
 import com.osdu.model.delfi.geo.exception.GeoLocationException;
-import com.osdu.model.osdu.OSDUSearchObject;
+import com.osdu.model.osdu.OsduSearchObject;
 import com.osdu.model.osdu.SortOption;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMa
   SearchObjectMapper delegate;
 
   @Override
-  public DelfiSearchObject osduSearchObjectToDelfiSearchObject(OSDUSearchObject osduSearchObject,
+  public DelfiSearchObject osduSearchObjectToDelfiSearchObject(OsduSearchObject osduSearchObject,
       String kind, String partition) throws GeoLocationException {
     log.debug("Mapping request for object : {}", osduSearchObject);
     DelfiSearchObject result = delegate
@@ -42,7 +42,7 @@ public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMa
     return result;
   }
 
-  private void mapGeoParameters(OSDUSearchObject osduSearchObject, DelfiSearchObject result)
+  private void mapGeoParameters(OsduSearchObject osduSearchObject, DelfiSearchObject result)
       throws GeoLocationException {
     if (osduSearchObject.getGeoLocation() != null) {
       log.debug("Mapping geoLocation object: {}", osduSearchObject.getGeoLocation());
@@ -66,7 +66,7 @@ public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMa
     }
   }
 
-  private String mapMetadata(OSDUSearchObject osduSearchObject) {
+  private String mapMetadata(OsduSearchObject osduSearchObject) {
     log.debug("Mapping metadata object: {}", osduSearchObject.getMetadata());
     if (osduSearchObject.getMetadata() != null) {
       StringBuilder stringBuilder = new StringBuilder();
@@ -104,7 +104,7 @@ public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMa
    * @param osduSearchObject
    * @return
    */
-  private Sort mapSort(OSDUSearchObject osduSearchObject) {
+  private Sort mapSort(OsduSearchObject osduSearchObject) {
     List<String> fields = new ArrayList<>();
     List<String> orders = new ArrayList<>();
 
@@ -129,7 +129,7 @@ public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMa
    * @return
    * @throws GeoLocationException
    */
-  private SpatialFilter mapGeoCentroidObject(OSDUSearchObject osduSearchObject)
+  private SpatialFilter mapGeoCentroidObject(OsduSearchObject osduSearchObject)
       throws GeoLocationException {
     SpatialFilter spatialFilter = new SpatialFilter();
 
@@ -162,7 +162,7 @@ public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMa
    * @return
    * @throws GeoLocationException
    */
-  private SpatialFilter mapGeoLocationObject(OSDUSearchObject osduSearchObject)
+  private SpatialFilter mapGeoLocationObject(OsduSearchObject osduSearchObject)
       throws GeoLocationException {
     SpatialFilter spatialFilter = new SpatialFilter();
     switch (GeoType.lookup(osduSearchObject.getGeoLocation().getType())) {

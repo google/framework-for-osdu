@@ -8,7 +8,7 @@ import com.osdu.model.SearchResult;
 import com.osdu.model.delfi.DelfiSearchObject;
 import com.osdu.model.delfi.DelfiSearchResult;
 import com.osdu.model.delfi.geo.exception.GeoLocationException;
-import com.osdu.model.osdu.OSDUSearchObject;
+import com.osdu.model.osdu.OsduSearchObject;
 import javax.inject.Inject;
 import javax.inject.Named;
 import lombok.extern.slf4j.Slf4j;
@@ -76,14 +76,14 @@ public class DelfiSearchService implements SearchService {
     String partition = extractHeaders(headers, PARTITION_HEADER_KEY);
 
     DelfiSearchObject delfiSearchObject = searchObjectMapper
-        .osduSearchObjectToDelfiSearchObject((OSDUSearchObject) searchObject, kind, partition);
+        .osduSearchObjectToDelfiSearchObject((OsduSearchObject) searchObject, kind, partition);
     DelfiSearchResult searchResult = delfiSearchClient.searchIndex(
         String.valueOf(headers.get(AUTHORIZATION_HEADER)),
         applicationKey,
         partition,
         delfiSearchObject);
     SearchResult osduSearchResult = searchResultMapper
-        .delfiSearchResultToOSDUSearchResult(searchResult, (OSDUSearchObject) searchObject);
+        .delfiSearchResultToOsduSearchResult(searchResult, (OsduSearchObject) searchObject);
     log.info("Received search result: {}", osduSearchResult);
     return osduSearchResult;
   }

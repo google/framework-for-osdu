@@ -7,7 +7,7 @@ import java.util.Map;
 import lombok.Data;
 
 @Data
-public class OSDUSearchObject extends SearchObject {
+public class OsduSearchObject extends SearchObject {
 
   Integer count;
   Integer start;

@@ -1,8 +1,8 @@
 package com.osdu.function;
 
-import com.osdu.exception.OSDUException;
+import com.osdu.exception.OsduException;
 import com.osdu.model.SearchResult;
-import com.osdu.model.osdu.OSDUSearchObject;
+import com.osdu.model.osdu.OsduSearchObject;
 import com.osdu.service.SearchService;
 import java.util.function.Function;
 import javax.inject.Inject;
@@ -19,13 +19,13 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class MapSearchFieldsFunction implements
-    Function<Message<OSDUSearchObject>, Message<SearchResult>> {
+    Function<Message<OsduSearchObject>, Message<SearchResult>> {
 
   @Inject
   SearchService searchService;
 
   @Override
-  public Message<SearchResult> apply(Message<OSDUSearchObject> messageSource) {
+  public Message<SearchResult> apply(Message<OsduSearchObject> messageSource) {
     try {
       log.info("Received request to search with following arguments: {}", messageSource);
       SearchResult searchResult = searchService
@@ -34,7 +34,7 @@ public class MapSearchFieldsFunction implements
           "Result of the request to search with following arguments: {}, resulted in following object : {}",
           messageSource, searchResult);
       return new GenericMessage<>(searchResult);
-    } catch (OSDUException e) {
+    } catch (OsduException e) {
       log.error("Failed to serve request to search", e);
       throw new RuntimeException(e.getMessage());
     }

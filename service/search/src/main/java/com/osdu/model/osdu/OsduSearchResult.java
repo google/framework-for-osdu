@@ -6,7 +6,7 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class OSDUSearchResult extends SearchResult {
+public class OsduSearchResult extends SearchResult {
 
   @JsonAlias("total_hits")
   int totalHits;
