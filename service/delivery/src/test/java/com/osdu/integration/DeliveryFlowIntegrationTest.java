@@ -124,7 +124,7 @@ public class DeliveryFlowIntegrationTest {
     DeliveryResponse response = (DeliveryResponse) responseEntity.getBody();
 
     assertNotNull(response);
-    assertEquals(response.getUnprocessedSrns(), Collections.singletonList(NO_MAPPING_EXAMPLE));
+    assertEquals(Collections.singletonList(NO_MAPPING_EXAMPLE), response.getUnprocessedSrns());
     assertThat(response.getResult()).hasSize(2);
     List<ResponseItem> items = response.getResult();
 
