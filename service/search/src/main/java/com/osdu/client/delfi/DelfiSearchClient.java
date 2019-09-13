@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 @FeignClient(url = "${search.delfi.client.serverUrl}", name = "search.delfi")
 public interface DelfiSearchClient {
 
-    @PostMapping("${search.mapper.searchEndpoint}")
-    DelfiSearchResult searchIndex(@RequestHeader("Authorization") String authToken,
-                                         @RequestHeader("AppKey") String applicationKey,
-                                         @RequestHeader("slb-data-partition-id") String partition,
-                                         SearchObject searchObject);
+  @PostMapping("${search.mapper.searchEndpoint}")
+  DelfiSearchResult searchIndex(@RequestHeader("Authorization") String authToken,
+      @RequestHeader("AppKey") String applicationKey,
+      @RequestHeader("slb-data-partition-id") String partition,
+      SearchObject searchObject);
 }

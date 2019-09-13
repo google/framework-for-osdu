@@ -2,15 +2,15 @@ package com.osdu.model.osdu;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.osdu.model.SearchResult;
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class OSDUSearchResult extends SearchResult {
-    @JsonAlias("total_hits")
-    private int totalHits;
-    private List<String> facets;
-    private int count;
-    private int start;
+
+  @JsonAlias("total_hits")
+  int totalHits;
+  List<String> facets;
+  int count;
+  int start;
 }

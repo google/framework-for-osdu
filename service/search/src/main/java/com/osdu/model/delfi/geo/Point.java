@@ -6,9 +6,9 @@ import lombok.NonNull;
 @Data
 public class Point {
 
-    @NonNull
-    private Double latitude;
-    @NonNull
-    private Double longitude;
+  @NonNull
+  Double latitude;
+  @NonNull
+  Double longitude;
 
 }

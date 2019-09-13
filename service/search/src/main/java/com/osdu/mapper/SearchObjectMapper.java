@@ -12,11 +12,12 @@ import org.mapstruct.Mapping;
 public interface SearchObjectMapper {
 
 
-    @Mapping(source = "osduSearchObject.count", target = "limit")
-    @Mapping(source = "osduSearchObject.start", target = "offset")
-    @Mapping(source = "osduSearchObject.facets", target = "returnedFields")
-    @Mapping(target = "sort", ignore = true)
-    DelfiSearchObject osduSearchObjectToDelfiSearchObject(OSDUSearchObject osduSearchObject, String kindOverride, String partitionOverride) throws GeoLocationException;
+  @Mapping(source = "osduSearchObject.count", target = "limit")
+  @Mapping(source = "osduSearchObject.start", target = "offset")
+  @Mapping(source = "osduSearchObject.facets", target = "returnedFields")
+  @Mapping(target = "sort", ignore = true)
+  DelfiSearchObject osduSearchObjectToDelfiSearchObject(OSDUSearchObject osduSearchObject,
+      String kindOverride, String partitionOverride) throws GeoLocationException;
 
 
 }

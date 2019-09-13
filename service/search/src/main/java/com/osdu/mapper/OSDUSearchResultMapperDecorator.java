@@ -8,18 +8,20 @@ import javax.inject.Named;
 
 public abstract class OSDUSearchResultMapperDecorator implements SearchResultMapper {
 
-    @Inject
-    @Named("com.osdu.mapper.SearchResultMapperImpl_")
-    private SearchResultMapper searchResultMapper;
+  @Inject
+  @Named("com.osdu.mapper.SearchResultMapperImpl_")
+  SearchResultMapper searchResultMapper;
 
-    @Override
-    public OSDUSearchResult delfiSearchResultToOSDUSearchResult(DelfiSearchResult searchResult, OSDUSearchObject osduSearchObject) {
-        OSDUSearchResult osduSearchResult = searchResultMapper.delfiSearchResultToOSDUSearchResult(searchResult, osduSearchObject);
+  @Override
+  public OSDUSearchResult delfiSearchResultToOSDUSearchResult(DelfiSearchResult searchResult,
+      OSDUSearchObject osduSearchObject) {
+    OSDUSearchResult osduSearchResult = searchResultMapper
+        .delfiSearchResultToOSDUSearchResult(searchResult, osduSearchObject);
 
-        osduSearchResult.setFacets(osduSearchObject.getFacets());
-        osduSearchResult.setCount(osduSearchObject.getCount());
-        osduSearchResult.setStart(osduSearchObject.getStart());
+    osduSearchResult.setFacets(osduSearchObject.getFacets());
+    osduSearchResult.setCount(osduSearchObject.getCount());
+    osduSearchResult.setStart(osduSearchObject.getStart());
 
-        return osduSearchResult;
-    }
+    return osduSearchResult;
+  }
 }

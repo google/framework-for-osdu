@@ -5,7 +5,7 @@ import com.osdu.exception.OSDUException;
 
 public class GeoLocationException extends OSDUException {
 
-    public GeoLocationException(String message) {
-        super(message);
-    }
+  public GeoLocationException(String message) {
+    super(message);
+  }
 }
