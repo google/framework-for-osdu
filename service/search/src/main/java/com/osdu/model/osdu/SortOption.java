@@ -10,8 +10,9 @@ public class SortOption {
 
   String fieldName;
   OrderType orderType;
+
   public enum OrderType {
-    asc, desc
+    ASC, DESC
   }
 
 }

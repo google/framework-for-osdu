@@ -2,7 +2,7 @@ package com.osdu.service.delfi;
 
 import com.osdu.client.delfi.DelfiDeliveryClient;
 import com.osdu.client.delfi.DelfiFileClient;
-import com.osdu.exception.OSDUException;
+import com.osdu.exception.OsduException;
 import com.osdu.model.osdu.delivery.FileRecord;
 import com.osdu.model.osdu.delivery.Record;
 import com.osdu.service.PortalService;
@@ -28,7 +28,7 @@ public class DelfiPortalService implements PortalService {
   public Record getRecord(String id, String authorizationToken, String partition) {
     log.debug("Getting record with params : {}, {}, {}", id, authorizationToken, partition);
     if (id == null || authorizationToken == null || partition == null) {
-      throw new OSDUException(String.format("Invalid parameters passed to client :"
+      throw new OsduException(String.format("Invalid parameters passed to client :"
           + " id:  %s, authorizationToken : %s, partition: %s", id, authorizationToken, partition));
     }
     return deliveryClient.getRecord(id, authorizationToken, partition, appKey);
@@ -38,9 +38,9 @@ public class DelfiPortalService implements PortalService {
   public FileRecord getFile(String location, String authorizationToken, String partition) {
     log.debug("Getting file with params : {}, {}, {}", location, authorizationToken, partition);
     if (location == null || authorizationToken == null || partition == null) {
-      throw new OSDUException(String.format("Invalid parameters passed to client :"
-              + " location:  %s, authorizationToken : %s, partition: %s", location, authorizationToken,
-          partition));
+      throw new OsduException(String.format("Invalid parameters passed to client :"
+              + " location:  %s, authorizationToken : %s, partition: %s", location,
+          authorizationToken, partition));
     }
     return delfiFileClient
         .getSignedUrlForLocation(location, authorizationToken, partition, partition, appKey);

@@ -7,7 +7,6 @@ import com.osdu.model.SearchObject;
 import com.osdu.model.SearchResult;
 import com.osdu.model.delfi.DelfiSearchObject;
 import com.osdu.model.delfi.DelfiSearchResult;
-import com.osdu.model.delfi.geo.exception.GeoLocationException;
 import com.osdu.model.osdu.OsduSearchObject;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -18,7 +17,7 @@ import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
 
 /**
- * Delfi API query service
+ * Delfi API query service.
  */
 @Service
 @Slf4j
@@ -46,7 +45,7 @@ public class DelfiSearchService implements SearchService {
   }
 
   /**
-   * NOT IMPLEMENTED YET Searches Delfi partition using index
+   * NOT IMPLEMENTED YET Searches Delfi partition using index.
    *
    * @param searchObject parameters to use during search
    * @param headers      headers of the orriginal search request to get authorization header from
@@ -59,7 +58,7 @@ public class DelfiSearchService implements SearchService {
   }
 
   /**
-   * Searches Delfi partition
+   * Searches Delfi partition.
    *
    * @param searchObject parameters to use during search
    * @param headers      headers of the orriginal search request to get authorization header from
@@ -67,8 +66,7 @@ public class DelfiSearchService implements SearchService {
    * @return {@link SearchResult} the result of the search from Delfi portal
    */
   @Override
-  public SearchResult searchIndex(SearchObject searchObject, MessageHeaders headers)
-      throws GeoLocationException {
+  public SearchResult searchIndex(SearchObject searchObject, MessageHeaders headers) {
     log.info("Received request to query Delfi Portal for data with following arguments: {},{}",
         searchObject, headers);
 

@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 public interface DelfiSearchClient {
 
 
-    @PostMapping("${search.mapper.searchEndpoint}")
-    DelfiSearchResult searchIndex(@RequestHeader(Header.AUTHORIZATION) String authToken,
-                                         @RequestHeader(Header.APP_KEY) String applicationKey,
-                                         @RequestHeader(Header.SLB_DATA_PARTITION_ID) String partition,
-                                         SearchObject searchObject);
+  @PostMapping("${search.mapper.searchEndpoint}")
+  DelfiSearchResult searchIndex(@RequestHeader(Header.AUTHORIZATION) String authToken,
+      @RequestHeader(Header.APP_KEY) String applicationKey,
+      @RequestHeader(Header.SLB_DATA_PARTITION_ID) String partition,
+      SearchObject searchObject);
 }

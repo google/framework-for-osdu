@@ -4,6 +4,9 @@ import java.util.List;
 
 public class GeoUtils {
 
+  private GeoUtils() {
+  }
+
   public static Point coordinatesToPoint(Object coordinates) {
     List<Double> pointCoordinates = (List<Double>) coordinates;
     return new Point(pointCoordinates.get(0), pointCoordinates.get(1));

@@ -23,6 +23,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class DelfiResultDataConverterTest {
 
+  public static final String SRN_1 = "srn_1";
   @Mock
   private ResultDataPostProcessor resultDataPostProcessor;
 
@@ -36,7 +37,7 @@ public class DelfiResultDataConverterTest {
     data.put("one", "test");
     data.put("two", "test");
     ProcessingResult dataResult = createProcessingResult(ProcessingResultStatus.DATA, null, data,
-        "srn_1");
+        SRN_1);
 
     DeliveryResponse response = resultDataConverter
         .convertProcessingResults(Collections.singletonList(dataResult));
@@ -45,7 +46,7 @@ public class DelfiResultDataConverterTest {
     assertThat(response.getResult()).hasSize(1);
     assertThat(response.getResult().get(0).getData()).isEqualTo(data);
     assertThat(response.getResult().get(0).getFileLocation()).isNull();
-    assertThat(response.getResult().get(0).getSrn()).isEqualTo("srn_1");
+    assertThat(response.getResult().get(0).getSrn()).isEqualTo(SRN_1);
   }
 
   @Test
@@ -55,7 +56,7 @@ public class DelfiResultDataConverterTest {
     data.put("one", "test");
     data.put("two", "test");
     ProcessingResult dataResult = createProcessingResult(ProcessingResultStatus.DATA, null, data,
-        "srn_1");
+        SRN_1);
 
     ProcessingResult fileResult = createProcessingResult(ProcessingResultStatus.FILE,
         "http://url.com", data, "srn_2");
@@ -69,7 +70,7 @@ public class DelfiResultDataConverterTest {
     assertThat(response.getResult()).hasSize(2);
     assertThat(response.getResult().get(0).getData()).isEqualTo(data);
     assertThat(response.getResult().get(0).getFileLocation()).isNull();
-    assertThat(response.getResult().get(0).getSrn()).isEqualTo("srn_1");
+    assertThat(response.getResult().get(0).getSrn()).isEqualTo(SRN_1);
 
     assertThat(response.getResult().get(1).getData()).isEqualTo(data);
     assertThat(response.getResult().get(1).getFileLocation()).isEqualTo("http://url.com");

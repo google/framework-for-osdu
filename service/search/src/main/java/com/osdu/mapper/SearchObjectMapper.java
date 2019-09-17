@@ -1,7 +1,6 @@
 package com.osdu.mapper;
 
 import com.osdu.model.delfi.DelfiSearchObject;
-import com.osdu.model.delfi.geo.exception.GeoLocationException;
 import com.osdu.model.osdu.OsduSearchObject;
 import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
@@ -17,7 +16,7 @@ public interface SearchObjectMapper {
   @Mapping(source = "osduSearchObject.facets", target = "returnedFields")
   @Mapping(target = "sort", ignore = true)
   DelfiSearchObject osduSearchObjectToDelfiSearchObject(OsduSearchObject osduSearchObject,
-      String kindOverride, String partitionOverride) throws GeoLocationException;
+      String kindOverride, String partitionOverride);
 
 
 }

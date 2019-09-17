@@ -12,7 +12,11 @@ public class ByBoundingBox implements GeoLocation {
   @NonNull
   Point bottomRight;
 
-  public ByBoundingBox(Object[] coordinates) throws GeoLocationException {
+  /**
+   * Constructor.
+   * @param coordinates coordinates
+   */
+  public ByBoundingBox(Object[] coordinates) {
     if (coordinates.length != 2) {
       throw new GeoLocationException(
           "Bounding box GeoJSON requires exactly 2 points for creation, actual, received "

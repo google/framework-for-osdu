@@ -10,17 +10,21 @@ public class ByGeoPolygon implements GeoLocation {
 
   Point[] points;
 
-  public ByGeoPolygon(Object[] coordinates) throws GeoLocationException {
+  /**
+   * Constructor.
+   * @param coordinates coordinates
+   */
+  public ByGeoPolygon(Object[] coordinates) {
     if (coordinates.length < 3) {
       throw new GeoLocationException(
           "Polygon GeoJSON requires at least 3 points for creation, actual, received "
               + coordinates.length);
     }
-    List<Point> points = new ArrayList<>();
+    List<Point> pointsList = new ArrayList<>();
     for (Object coordinate : coordinates) {
-      points.add(GeoUtils.coordinatesToPoint(coordinate));
+      pointsList.add(GeoUtils.coordinatesToPoint(coordinate));
     }
-    points.toArray(this.points);
+    pointsList.toArray(this.points);
   }
 
 }

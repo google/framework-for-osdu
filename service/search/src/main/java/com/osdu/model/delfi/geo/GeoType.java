@@ -14,7 +14,12 @@ public enum GeoType {
     this.typeFieldName = typeFieldName;
   }
 
-  public static GeoType lookup(String fieldName) throws GeoLocationException {
+  /**
+   * Lookup for GeoType depends on fieldName.
+   * @param fieldName field name
+   * @return GeoType
+   */
+  public static GeoType lookup(String fieldName) {
     for (GeoType value : GeoType.values()) {
       if (value.getTypeFieldName().equals(fieldName)) {
         return value;

@@ -1,6 +1,6 @@
 package com.osdu.service.delfi;
 
-import com.osdu.exception.OSDUException;
+import com.osdu.exception.OsduException;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
 import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
 import com.osdu.model.osdu.delivery.input.InputPayload;
@@ -69,7 +69,7 @@ public class DelfiDeliveryService implements DeliveryService {
         results.add(job.get());
       } catch (ExecutionException e) {
         log.error("Error execution srn", e);
-        throw new OSDUException("Error execution srn", e);
+        throw new OsduException("Error execution srn", e);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       }

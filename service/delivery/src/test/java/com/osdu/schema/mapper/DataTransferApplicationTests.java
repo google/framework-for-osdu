@@ -13,7 +13,7 @@ public class DataTransferApplicationTests {
 
   @Test
   public void contextLoads() {
-  	assertNull(null);
+    assertNull(null);
   }
 
 }

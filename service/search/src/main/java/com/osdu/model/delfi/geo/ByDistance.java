@@ -15,7 +15,12 @@ public class ByDistance implements GeoLocation {
   @NonNull
   Double distance;
 
-  public ByDistance(Object[] coordinates, Double distance) throws GeoLocationException {
+  /**
+   * Constructor.
+   * @param coordinates coordinates
+   * @param distance distance
+   */
+  public ByDistance(Object[] coordinates, Double distance) {
     if (coordinates.length != 1) {
       throw new GeoLocationException(
           " By Distance GeoJSON requires exactly 1 point for creation, actual, received "

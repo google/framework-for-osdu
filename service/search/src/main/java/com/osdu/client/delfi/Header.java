@@ -2,6 +2,9 @@ package com.osdu.client.delfi;
 
 public class Header {
 
+  private Header() {
+
+  }
 
   public static final String AUTHORIZATION = "Authorization";
   public static final String APP_KEY = "AppKey";

@@ -27,7 +27,7 @@ public class SortOptionDeserializer extends JsonDeserializer<SortOption> {
 
     if (!node.fields().hasNext()) {
       sortOption.setFieldName(node.asText());
-      sortOption.setOrderType(SortOption.OrderType.asc);
+      sortOption.setOrderType(SortOption.OrderType.ASC);
     } else {
       Iterator<Map.Entry<String, JsonNode>> it = node.fields();
 

@@ -7,7 +7,6 @@ import com.osdu.model.delfi.geo.ByDistance;
 import com.osdu.model.delfi.geo.ByGeoPolygon;
 import com.osdu.model.delfi.geo.GeoType;
 import com.osdu.model.delfi.geo.SpatialFilter;
-import com.osdu.model.delfi.geo.exception.GeoLocationException;
 import com.osdu.model.osdu.OsduSearchObject;
 import com.osdu.model.osdu.SortOption;
 import java.util.ArrayList;
@@ -24,6 +23,7 @@ public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMa
   static final double DEFAULT_ZERO_DISTANCE = 0.0;
   static final String LUCENE_AND_TERM = " AND ";
   static final String LUCENE_OR_TERM = " OR ";
+  static final String RESULT_OF_MAPPING = "Result of mapping: {}";
 
   @Inject
   @Named("com.osdu.mapper.SearchObjectMapperImpl_")
@@ -31,7 +31,7 @@ public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMa
 
   @Override
   public DelfiSearchObject osduSearchObjectToDelfiSearchObject(OsduSearchObject osduSearchObject,
-      String kind, String partition) throws GeoLocationException {
+      String kind, String partition) {
     log.debug("Mapping request for object : {}", osduSearchObject);
     DelfiSearchObject result = delegate
         .osduSearchObjectToDelfiSearchObject(osduSearchObject, kind, partition);
@@ -42,27 +42,26 @@ public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMa
     return result;
   }
 
-  private void mapGeoParameters(OsduSearchObject osduSearchObject, DelfiSearchObject result)
-      throws GeoLocationException {
+  private void mapGeoParameters(OsduSearchObject osduSearchObject, DelfiSearchObject result) {
     if (osduSearchObject.getGeoLocation() != null) {
       log.debug("Mapping geoLocation object: {}", osduSearchObject.getGeoLocation());
       SpatialFilter spatialFilter = mapGeoLocationObject(osduSearchObject);
       result.setSpatialFilter(spatialFilter);
-      log.debug("Result of mapping: {}", spatialFilter);
+      log.debug(RESULT_OF_MAPPING, spatialFilter);
     }
 
     if (osduSearchObject.getGeoLocation() == null && osduSearchObject.getGeoCentroid() != null) {
       log.debug("Mapping geoCentroid object: {}", osduSearchObject.getGeoCentroid());
       SpatialFilter spatialFilter = mapGeoCentroidObject(osduSearchObject);
       result.setSpatialFilter(spatialFilter);
-      log.debug("Result of mapping: {}", spatialFilter);
+      log.debug(RESULT_OF_MAPPING, spatialFilter);
     }
 
     if (osduSearchObject.getSort() != null) {
       log.debug("Mapping sort object: {}", osduSearchObject.getSort());
       Sort sort = mapSort(osduSearchObject);
       result.setSort(sort);
-      log.debug("Result of mapping: {}", sort);
+      log.debug(RESULT_OF_MAPPING, sort);
     }
   }
 
@@ -75,7 +74,7 @@ public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMa
       }
       stringBuilder.deleteCharAt(stringBuilder.length() - 1);
       String result = stringBuilder.toString();
-      log.debug("Result of mapping: {}", result);
+      log.debug(RESULT_OF_MAPPING, result);
       return result;
     }
     return null;
@@ -101,7 +100,7 @@ public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMa
    * have different structure ) and at the same time they do not have common fields that could at
    * least partially justify the reason for creating a mapper for them.
    *
-   * @param osduSearchObject
+   * @param osduSearchObject search object
    * @return
    */
   private Sort mapSort(OsduSearchObject osduSearchObject) {
@@ -125,12 +124,10 @@ public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMa
    * Map GeoCentroid. Not mapped via mapstruct for same reasons as geoLocation, but in this case
    * mapping of this field is optional and based on the mapping of the geoLocation object
    *
-   * @param osduSearchObject
-   * @return
-   * @throws GeoLocationException
+   * @param osduSearchObject search object
+   * @return SpatialFilter filter
    */
-  private SpatialFilter mapGeoCentroidObject(OsduSearchObject osduSearchObject)
-      throws GeoLocationException {
+  private SpatialFilter mapGeoCentroidObject(OsduSearchObject osduSearchObject) {
     SpatialFilter spatialFilter = new SpatialFilter();
 
     //there is no direct match between OSDU GeoCentroid and Delfi GeoLocation.
@@ -138,8 +135,8 @@ public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMa
     //we don't have data in the GeoLocation OSDU field.
     //1 - One Point is present - this can only be a Point type
     //2 - This is a unique "BoundingBox" type that is not present in RFC for GeoJson
-    //3+- This is something else. But given that we know other types that can be used by Delfi Portal
-    //    this is the only possible option.
+    //3+- This is something else. But given that we know other types that can be used by
+    // Delfi Portal this is the only possible option.
     switch (osduSearchObject.getGeoCentroid().length) {
       case 1:
         spatialFilter.setByDistance(
@@ -158,12 +155,10 @@ public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMa
    * Manually map sort objects. They are not extracted into mapstruct mappers since they are quite
    * small but have completely different format.
    *
-   * @param osduSearchObject
-   * @return
-   * @throws GeoLocationException
+   * @param osduSearchObject search object
+   * @return SpatialFilter filter
    */
-  private SpatialFilter mapGeoLocationObject(OsduSearchObject osduSearchObject)
-      throws GeoLocationException {
+  private SpatialFilter mapGeoLocationObject(OsduSearchObject osduSearchObject) {
     SpatialFilter spatialFilter = new SpatialFilter();
     switch (GeoType.lookup(osduSearchObject.getGeoLocation().getType())) {
       case BY_BOUNDING_BOX:
@@ -185,6 +180,7 @@ public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMa
             new ByDistance(osduSearchObject.getGeoLocation().getCoordinates(),
                 DEFAULT_ZERO_DISTANCE));
         break;
+      default:
     }
     if (osduSearchObject.getGeoLocation().getType().equals("ByBoundingBox")) {
       spatialFilter

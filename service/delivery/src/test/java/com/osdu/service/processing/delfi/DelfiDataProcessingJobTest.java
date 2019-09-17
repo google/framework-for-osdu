@@ -31,24 +31,24 @@ public class DelfiDataProcessingJobTest {
   @Mock
   private PortalService portalService;
 
-  private static final String authorizationToken = "authToken";
-  private static final String partition = "partition";
-  private static final String srn = "srn";
-  private static final String odesId = "odesId";
+  private static final String AUTHORIZATION_TOKEN = "authToken";
+  private static final String PARTITION = "partition";
+  private static final String SRN = "srn";
+  private static final String ODES_ID = "odesId";
   private static final String SIGNED_URL = "signedUrl";
 
   private DelfiDataProcessingJob dataProcessingJob;
 
   @Before
   public void init() {
-    dataProcessingJob = new DelfiDataProcessingJob(srn, srnMappingService, portalService,
-        authorizationToken, partition);
+    dataProcessingJob = new DelfiDataProcessingJob(SRN, srnMappingService, portalService,
+        AUTHORIZATION_TOKEN, PARTITION);
   }
 
   @Test
   public void testNoLocation() {
     // given
-    when(srnMappingService.mapSrnToKind(eq(srn))).thenReturn(odesId);
+    when(srnMappingService.mapSrnToKind(eq(SRN))).thenReturn(ODES_ID);
 
     Record record = new Record() {
     };
@@ -61,7 +61,7 @@ public class DelfiDataProcessingJobTest {
     record.setDetails(details);
     record.setData(data);
 
-    when(portalService.getRecord(eq(odesId), eq(authorizationToken), eq(partition)))
+    when(portalService.getRecord(eq(ODES_ID), eq(AUTHORIZATION_TOKEN), eq(PARTITION)))
         .thenReturn(record);
 
     // when
@@ -70,7 +70,7 @@ public class DelfiDataProcessingJobTest {
     // then
     assertThat(result.getProcessingResultStatus()).isEqualTo(ProcessingResultStatus.DATA);
     assertThat(result.getFileLocation()).isNull();
-    assertThat(result.getSrn()).isEqualTo(srn);
+    assertThat(result.getSrn()).isEqualTo(SRN);
     assertThat(result.getData()).isEqualTo(record);
   }
 
@@ -78,7 +78,7 @@ public class DelfiDataProcessingJobTest {
   @Test
   public void testWithFileLocation() {
     // given
-    when(srnMappingService.mapSrnToKind(eq(srn))).thenReturn(odesId);
+    when(srnMappingService.mapSrnToKind(eq(SRN))).thenReturn(ODES_ID);
 
     Record record = new Record() {
     };
@@ -88,7 +88,7 @@ public class DelfiDataProcessingJobTest {
     details.put("two", "test");
     record.setDetails(details);
     record.setData(data);
-    when(portalService.getRecord(eq(odesId), eq(authorizationToken), eq(partition)))
+    when(portalService.getRecord(eq(ODES_ID), eq(AUTHORIZATION_TOKEN), eq(PARTITION)))
         .thenReturn(record);
 
     Map<String, Object> fileRecordDetails = new HashMap<>();
@@ -97,7 +97,7 @@ public class DelfiDataProcessingJobTest {
     FileRecord fileRecord = new FileRecord() {
     };
     fileRecord.setDetails(fileRecordDetails);
-    when(portalService.getFile(eq("test location"), eq(authorizationToken), eq(partition)))
+    when(portalService.getFile(eq("test location"), eq(AUTHORIZATION_TOKEN), eq(PARTITION)))
         .thenReturn(fileRecord);
 
     // when
@@ -106,14 +106,14 @@ public class DelfiDataProcessingJobTest {
     // then
     assertThat(result.getProcessingResultStatus()).isEqualTo(ProcessingResultStatus.FILE);
     assertThat(result.getFileLocation()).isEqualTo(SIGNED_URL);
-    assertThat(result.getSrn()).isEqualTo(srn);
+    assertThat(result.getSrn()).isEqualTo(SRN);
     assertThat(result.getData()).isEqualTo(fileRecord);
   }
 
   @Test
   public void testNoMapping() {
     // given
-    when(srnMappingService.mapSrnToKind(eq(srn))).thenReturn(null);
+    when(srnMappingService.mapSrnToKind(eq(SRN))).thenReturn(null);
 
     // when
     ProcessingResult result = dataProcessingJob.call();
@@ -121,7 +121,7 @@ public class DelfiDataProcessingJobTest {
     // then
     assertThat(result.getProcessingResultStatus()).isEqualTo(ProcessingResultStatus.NO_MAPPING);
     assertThat(result.getFileLocation()).isNull();
-    assertThat(result.getSrn()).isEqualTo(srn);
+    assertThat(result.getSrn()).isEqualTo(SRN);
     assertThat(result.getData()).isNull();
   }
 }
