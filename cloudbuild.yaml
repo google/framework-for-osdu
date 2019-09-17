@@ -1,0 +1,11 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '--build-arg'
+      - 'SERVICE_NAME=${_SERVICE_NAME}'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/${_GCP_SERVICE_NAME}'
+      - '.'
+images:
+  - 'gcr.io/$PROJECT_ID/${_GCP_SERVICE_NAME}'
