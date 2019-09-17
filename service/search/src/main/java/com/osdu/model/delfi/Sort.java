@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class Sort {
 
-    private String[] field;
-    private String[] order;
+  String[] field;
+  String[] order;
 
 }

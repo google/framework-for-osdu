@@ -1,0 +1,10 @@
+osdu:
+  processing:
+    thread-pool-capacity: 3
+    fields-to-strip: location, kind
+  delfi:
+    filePortal:
+      url: http://localhost:8082/
+    portal:
+      appkey: PtVguojl2DUr0qimhDclNMwZAeAJwK1T
+      url: https://api.evq.csp.slb.com/

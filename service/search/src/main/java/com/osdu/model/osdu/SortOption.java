@@ -8,11 +8,11 @@ import lombok.Data;
 @JsonDeserialize(using = SortOptionDeserializer.class)
 public class SortOption {
 
-    public enum OrderType{
-        asc,desc
-    }
+  String fieldName;
+  OrderType orderType;
 
-    private String fieldName;
-    private OrderType orderType;
+  public enum OrderType {
+    ASC, DESC
+  }
 
 }

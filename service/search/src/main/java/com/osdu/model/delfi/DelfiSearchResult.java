@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 public class DelfiSearchResult extends SearchResult {
 
-    Integer totalCount;
+  Integer totalCount;
 
 }
