@@ -128,6 +128,11 @@
             <artifactId>guava</artifactId>
             <version>28.1-jre</version>
         </dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>4.1.1</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
