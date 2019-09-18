@@ -5,6 +5,7 @@ import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
+import com.osdu.exception.IngestException;
 import com.osdu.exception.OsduException;
 import com.osdu.service.JsonValidationService;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class DelfiJsonValidationService implements JsonValidationService {
       return schema.validate(toValidate);
 
     } catch (ProcessingException e) {
-      throw new OsduException(
+      throw new IngestException(
           String.format("Error creating json validation schema from json object: %s",
               schemaJson.asText()), e);
     }

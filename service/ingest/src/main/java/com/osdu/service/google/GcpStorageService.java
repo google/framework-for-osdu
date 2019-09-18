@@ -1,21 +1,26 @@
 package com.osdu.service.google;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.cloud.WriteChannel;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
+import com.google.gson.JsonObject;
 import com.osdu.service.StorageService;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
+import org.springframework.stereotype.Service;
 
+@Service
 public class GcpStorageService implements StorageService {
 
 
   @Inject
   private Storage googleCloudStorage;
+
 
   public void writeFileToStorage(URL signedUrl) {
 
@@ -41,5 +46,10 @@ public class GcpStorageService implements StorageService {
     System.out.println("curl '" + url + "'");
 
     return url;
+  }
+
+  @Override
+  public JsonNode getSchemaByLink(String schemaLink) {
+    return null;
   }
 }

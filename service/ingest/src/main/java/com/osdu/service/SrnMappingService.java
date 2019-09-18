@@ -5,5 +5,5 @@ import java.util.List;
 
 public interface SrnMappingService {
   String mapSRNToKind(String srn);
-  List<SchemaData> getSchemaDataForSrn(String srn);
+  SchemaData getSchemaDataForSrn(String srn);
 }

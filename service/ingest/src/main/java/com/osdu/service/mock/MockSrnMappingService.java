@@ -12,23 +12,23 @@ import org.springframework.stereotype.Service;
 public class MockSrnMappingService implements SrnMappingService {
 
   Map<String, String> srnToKindMap;
-  Map<String, List<SchemaData>> srnToSchemaDataMap;
+  Map<String, SchemaData> srnToSchemaDataMap;
 
   public MockSrnMappingService() {
     srnToKindMap = new HashMap<>();
     srnToKindMap.put("valid-srn-example", "valid-kind-result");
     srnToKindMap.put("srn-with-no-schema", "kind-for-srn-with-no-schema");
     srnToSchemaDataMap = new HashMap<>();
-    srnToSchemaDataMap.put("valid-srn-example", Collections.singletonList(new SchemaData()));
+    srnToSchemaDataMap.put("valid-srn-example", new SchemaData());
   }
 
   @Override
   public String mapSRNToKind(String srn) {
-    return null;
+    return srnToKindMap.get(srn);
   }
 
   @Override
-  public List<SchemaData> getSchemaDataForSrn(String srn) {
-    return null;
+  public SchemaData getSchemaDataForSrn(String srn) {
+    return srnToSchemaDataMap.get(srn);
   }
 }

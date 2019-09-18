@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 public class LoadManifest {
 
-  Map<String, Object> results;
+  Map<String, Object> data;
   
 }
