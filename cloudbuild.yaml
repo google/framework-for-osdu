@@ -1,11 +1,21 @@
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args:
-      - 'build'
-      - '--build-arg'
-      - 'SERVICE_NAME=${_SERVICE_NAME}'
-      - '-t'
-      - 'gcr.io/$PROJECT_ID/${_GCP_SERVICE_NAME}'
-      - '.'
+    args: ['pull', 'gcr.io/$PROJECT_ID/osdu-gcp:builder' ]
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+            'build',
+            '--cache-from', 'gcr.io/$PROJECT_ID/osdu-gcp:builder',
+            '--target', 'builder',
+            '-t', 'gcr.io/$PROJECT_ID/osdu-gcp:builder',
+            '.' ]
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+            'build',
+            '--cache-from', 'gcr.io/$PROJECT_ID/osdu-gcp:builder',
+            '--build-arg', 'SERVICE_NAME=${_SERVICE_NAME}',
+            '-t', 'gcr.io/$PROJECT_ID/osdu-gcp-${_SERVICE_NAME}:$_SHORT_SHA',
+            '-t', 'gcr.io/$PROJECT_ID/osdu-gcp-${_SERVICE_NAME}:latest',
+            '.' ]
 images:
-  - 'gcr.io/$PROJECT_ID/${_GCP_SERVICE_NAME}'
+  - 'gcr.io/$PROJECT_ID/osdu-gcp:builder'
+  - 'gcr.io/$PROJECT_ID/osdu-gcp-${_SERVICE_NAME}'
