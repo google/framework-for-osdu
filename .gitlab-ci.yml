@@ -18,43 +18,45 @@ verify:
   script:
     - mvn $MAVEN_CLI_OPTS verify sonar:sonar -Dsonar.host.url=https://sonar.osdu-gcp.dev -Dsonar.projectKey=osdu-gcp -Dsonar.login=$SONAR_TOKEN
 
-deploy_search:
+.deploy_template: &deploy_template
   stage: deploy
   image: google/cloud-sdk
   script:
     - echo "$GCP_SVC_ACCT" > account.json
     - gcloud auth activate-service-account --key-file account.json
     - gcloud config set project $GCP_PROJECT
-    - gcloud builds submit \
-      --substitutions=_SERVICE_NAME=search,_SHORT_SHA=$CI_COMMIT_SHORT_SHA
-    - gcloud beta run deploy search \
-      --image gcr.io/$GCP_PROJECT/osdu-gcp-search:$CI_COMMIT_SHORT_SHA \
-      --platform managed --region us-central1 --allow-unauthenticated
+    - gcloud builds submit --substitutions=_SERVICE_NAME=$SERVICE,_SHORT_SHA=$CI_COMMIT_SHORT_SHA
+    - gcloud beta run deploy $SERVICE --image gcr.io/$GCP_PROJECT/osdu-gcp-$SERVICE:$CI_COMMIT_SHORT_SHA --platform managed --region us-central1 --allow-unauthenticated
   only:
-    - master
-    - develop
-  except:
+
+deploy_search:
+  <<: *deploy_template
+  variables:
+    SERVICE: search
+  only:
+    refs:
+      - master
+      - develop
     changes:
-      - service/delivery/*
-      - .gitignore
-      - "*.md"
+      - pom.xml
+      - service/pom.xml
+      - common/*
+      - service/search/*
+      - Dockerfile
+      - cloudbuild.yaml
 
 deploy_delivery:
-  stage: deploy
-  image: google/cloud-sdk
-  script:
-    - echo "$GCP_SVC_ACCT" > account.json
-    - gcloud auth activate-service-account --key-file account.json
-    - gcloud config set project $GCP_PROJECT
-    - gcloud builds submit --substitutions=_SERVICE_NAME=delivery,_SHORT_SHA=$CI_COMMIT_SHORT_SHA
-    - gcloud beta run deploy delivery \
-      --image gcr.io/$GCP_PROJECT/osdu-gcp-delivery:$CI_COMMIT_SHORT_SHA \
-      --platform managed --region us-central1 --allow-unauthenticated
+  <<: *deploy_template
+  variables:
+    SERVICE: delivery
   only:
-    - master
-    - develop
-  except:
+    refs:
+      - master
+      - develop
     changes:
+      - pom.xml
+      - service/pom.xml
+      - common/*
       - service/search/*
-      - .gitignore
-      - "*.md"
+      - Dockerfile
+      - cloudbuild.yaml
