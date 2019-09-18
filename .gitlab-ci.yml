@@ -21,13 +21,13 @@ verify:
 .deploy_template: &deploy_template
   stage: deploy
   image: google/cloud-sdk
+  cache: {}
   script:
     - echo "$GCP_SVC_ACCT" > account.json
     - gcloud auth activate-service-account --key-file account.json
     - gcloud config set project $GCP_PROJECT
     - gcloud builds submit --substitutions=_SERVICE_NAME=$SERVICE,_SHORT_SHA=$CI_COMMIT_SHORT_SHA
     - gcloud beta run deploy $SERVICE --image gcr.io/$GCP_PROJECT/osdu-gcp-$SERVICE:$CI_COMMIT_SHORT_SHA --platform managed --region us-central1 --allow-unauthenticated
-  only:
 
 deploy_search:
   <<: *deploy_template
