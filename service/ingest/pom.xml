@@ -43,11 +43,6 @@
       <artifactId>spring-cloud-function-context</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>javax.inject</groupId>
       <artifactId>javax.inject</artifactId>
       <version>${javax.inject.version}</version>
@@ -246,7 +241,7 @@
         <configuration>
           <repository>${docker.image.prefix}/${project.artifactId}</repository>
           <buildArgs>
-            <JAR_FILE>./target/${artifactId}-${version}-exec.jar</JAR_FILE>
+            <JAR_FILE>./target/${project.artifactId}-${project.version}-exec.jar</JAR_FILE>
           </buildArgs>
         </configuration>
       </plugin>

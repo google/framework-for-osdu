@@ -228,7 +228,7 @@
         <configuration>
           <repository>${docker.image.prefix}/${project.artifactId}</repository>
           <buildArgs>
-            <JAR_FILE>./target/${artifactId}-${version}-exec.jar</JAR_FILE>
+            <JAR_FILE>./target/${project.artifactId}-${project.version}-exec.jar</JAR_FILE>
           </buildArgs>
         </configuration>
       </plugin>
