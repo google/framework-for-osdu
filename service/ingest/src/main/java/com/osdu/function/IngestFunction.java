@@ -1,7 +1,7 @@
 package com.osdu.function;
 
 import com.osdu.model.IngestResult;
-import com.osdu.model.LoadManifest;
+import com.osdu.model.manifest.LoadManifest;
 import com.osdu.service.IngestService;
 import java.util.function.Function;
 import javax.inject.Inject;
@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 @Component
 @Slf4j
