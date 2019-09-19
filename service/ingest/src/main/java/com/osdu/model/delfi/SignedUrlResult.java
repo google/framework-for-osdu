@@ -1,12 +1,13 @@
 package com.osdu.model.delfi;
 
+import java.net.URL;
 import lombok.Data;
 
 @Data
 public class SignedUrlResult {
 
   Integer responseCode;
-  String locationUrl;
+  URL locationUrl;
   String relativeFilePath;
 
 }

@@ -4,10 +4,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
+import com.google.cloud.storage.Blob;
 import com.google.gson.JsonObject;
+import com.osdu.client.DelfiIngestionClient;
 import com.osdu.exception.IngestException;
 import com.osdu.model.IngestResult;
 import com.osdu.model.SchemaData;
+import com.osdu.model.delfi.SignedUrlResult;
 import com.osdu.model.manifest.File;
 import com.osdu.model.manifest.LoadManifest;
 import com.osdu.service.IngestService;
@@ -16,11 +19,15 @@ import com.osdu.service.SrnMappingService;
 import com.osdu.service.StorageService;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +36,8 @@ import org.springframework.stereotype.Service;
 public class DelfiIngestService implements IngestService {
 
   static final String SRN_MANIFEST_KEY = "SRN";
+  static final String PARTITION_HEADER_KEY = "partition";
+  static final String AUTHORIZATION_HEADER_KEY = "authorization";
 
   @Inject
   SrnMappingService srnMappingService;
@@ -39,6 +48,12 @@ public class DelfiIngestService implements IngestService {
   @Inject
   JsonValidationService jsonValidationService;
 
+  @Inject
+  DelfiIngestionClient delfiIngestionClient;
+
+  @Value("${osdu.delfi.portal.appkey}")
+  String appKey;
+
   @Override
   public IngestResult ingestManifest(LoadManifest loadManifest,
       MessageHeaders headers) {
@@ -46,6 +61,9 @@ public class DelfiIngestService implements IngestService {
         headers);
 
     final ProcessingReport validationResult = validateManifest(loadManifest);
+
+    String authorizationToken = extractHeaderByName(headers, AUTHORIZATION_HEADER_KEY);
+    String partition = extractHeaderByName(headers, PARTITION_HEADER_KEY);
 
     if (!validationResult.isSuccess()) {
       throw new IngestException(String
@@ -55,7 +73,10 @@ public class DelfiIngestService implements IngestService {
 
     //get link to file
     final List<URL> fileUrls = getFileUrls(loadManifest);
-    //upload file to delfi
+
+    List<URL> resultFilesUrls = fileUrls.stream()
+        .map(url -> transferFile(url, authorizationToken, partition)).collect(Collectors.toList());
+
     //submit job
     //poll job for readiness
     //run enrichment
@@ -125,7 +146,41 @@ public class DelfiIngestService implements IngestService {
 
   }
 
+  private URL transferFile(URL fileUrl, String authToken, String partition) {
+    String filename = getFileNameFromUrl(fileUrl);
+    Blob blob = storageService.uploadFileToStorage(fileUrl, filename);
+    URL delfiSignedUrl = getDelfiSignedUrl(filename, authToken, partition);
+
+    return storageService.writeFileToSignedUrlLocation(blob, delfiSignedUrl);
+  }
+
   private void validateSchema(LoadManifest loadManifest, JsonObject schema) {
 
+  }
+
+  private String extractHeaderByName(MessageHeaders headers, String headerKey) {
+    log.debug("Extracting header with name : {} from map : {}", headerKey, headers);
+    if (headers.containsKey(headerKey)) {
+      String result = (String) headers.get(headerKey);
+      log.debug("Found header in the request with following key:value pair : {}:{}", headerKey,
+          result);
+      return result;
+    }
+    return null;
+  }
+
+  private URL getDelfiSignedUrl(String fileName, String authToken, String partition) {
+    SignedUrlResult signedUrlForLocation = delfiIngestionClient
+        .getSignedUrlForLocation(fileName, authToken, appKey, partition, partition);
+
+    return signedUrlForLocation.getLocationUrl();
+  }
+
+  private String getFileNameFromUrl(URL fileUrl) {
+    try {
+      return Paths.get(new URI(fileUrl.toString()).getPath()).getFileName().toString();
+    } catch (URISyntaxException e) {
+      throw new IngestException(String.format("Can not get file name from URL: %s", fileUrl), e);
+    }
   }
 }

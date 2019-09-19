@@ -3,3 +3,8 @@ osdu:
     portal:
       appkey: PtVguojl2DUr0qimhDclNMwZAeAJwK1T
       url: https://api.evq.csp.slb.com/
+gcp:
+  starage:
+    bucket:
+      schema: schama
+      temp-location: temp
