@@ -95,7 +95,7 @@
         <artifactId>dockerfile-maven-plugin</artifactId>
         <configuration>
           <buildArgs>
-            <JAR_FILE>./target/${artifactId}-${version}-exec.jar</JAR_FILE>
+            <JAR_FILE>./target/${project.artifactId}-${project.version}-exec.jar</JAR_FILE>
           </buildArgs>
           <repository>${docker.image.prefix}/${project.artifactId}</repository>
         </configuration>
@@ -133,11 +133,6 @@
     <dependency>
       <artifactId>spring-cloud-function-context</artifactId>
       <groupId>org.springframework.cloud</groupId>
-    </dependency>
-    <dependency>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <groupId>org.springframework.boot</groupId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <artifactId>javax.inject</artifactId>
