@@ -9,13 +9,9 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <modules>
-        <module>delivery</module>
-        <module>search</module>
-    </modules>
-
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>osdu-gcp-service</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
+    <artifactId>osdu-gcp-common</artifactId>
+    <version>1.0.1-SNAPSHOT</version>
+    <name>common</name>
+
 </project>

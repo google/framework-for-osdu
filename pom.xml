@@ -8,6 +8,12 @@
     <version>1.0.0-SNAPSHOT</version>
     <description>OSDU GCP Root Pom</description>
     <packaging>pom</packaging>
+
+    <modules>
+        <module>common</module>
+        <module>service</module>
+    </modules>
+
     <properties>
         <java.version>1.8</java.version>
         <spring-cloud.version>Greenwich.SR2</spring-cloud.version>
