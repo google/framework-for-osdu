@@ -6,7 +6,7 @@ stages:
   - deploy
 
 variables:
-  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
+  MAVEN_CLI_OPTS: "-T2 --batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
   MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
 
 cache:
@@ -16,22 +16,47 @@ cache:
 verify:
   stage: test
   script:
-    - 'mvn $MAVEN_CLI_OPTS verify'
-  except:
-    - master
+    - mvn $MAVEN_CLI_OPTS verify sonar:sonar -Dsonar.host.url=https://sonar.osdu-gcp.dev -Dsonar.projectKey=osdu-gcp -Dsonar.login=$SONAR_TOKEN
 
-build:
-  stage: build
-  script:
-    - mvn $MAVEN_CLI_OPTS package
-  only:
-    - master
-
-deploy:
+.deploy_template: &deploy_template
   stage: deploy
   image: google/cloud-sdk
+  cache: {}
   script:
-    - gcloud builds submit -t gcr.io/$GCP_PROJECT/$CI_PROJECT_NAME
-    - gcloud beta run deploy $CI_PROJECT_NAME --image gcr.io/$GCP_PROJECT/$CI_PROJECT_NAME --platform managed --region us-central1
-  only: 
-    - master
+    - echo "$GCP_SVC_ACCT" > account.json
+    - gcloud auth activate-service-account --key-file account.json
+    - gcloud config set project $GCP_PROJECT
+    - gcloud builds submit --substitutions=_SERVICE_NAME=$SERVICE,_SHORT_SHA=$CI_COMMIT_SHORT_SHA
+    - gcloud beta run deploy $SERVICE --image gcr.io/$GCP_PROJECT/osdu-gcp-$SERVICE:$CI_COMMIT_SHORT_SHA --platform managed --region us-central1 --allow-unauthenticated
+
+deploy_search:
+  <<: *deploy_template
+  variables:
+    SERVICE: search
+  only:
+    refs:
+      - master
+      - develop
+    changes:
+      - pom.xml
+      - service/pom.xml
+      - common/*
+      - service/search/*
+      - Dockerfile
+      - cloudbuild.yaml
+
+deploy_delivery:
+  <<: *deploy_template
+  variables:
+    SERVICE: delivery
+  only:
+    refs:
+      - master
+      - develop
+    changes:
+      - pom.xml
+      - service/pom.xml
+      - common/*
+      - service/search/*
+      - Dockerfile
+      - cloudbuild.yaml
