@@ -31,7 +31,8 @@ public class MetadataDeserializer extends JsonDeserializer<Map<String, List<Stri
   @Override
   public Map<String, List<String>> deserialize(JsonParser jsonParser,
       DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
-
+    log.debug("Deserializing metadata : jsonParser : {}, context : {}", jsonParser,
+        deserializationContext);
     JsonNode node = jsonParser.getCodec().readTree(jsonParser);
     if (!node.fields().hasNext()) {
       return null;
@@ -40,7 +41,7 @@ public class MetadataDeserializer extends JsonDeserializer<Map<String, List<Stri
     ObjectReader reader = new ObjectMapper().reader().forType(new TypeReference<List<String>>() {
     });
     Iterable<Entry<String, JsonNode>> iterable = node::fields;
-    return StreamSupport.stream(iterable.spliterator(), false)
+    final Map<String, List<String>> collect = StreamSupport.stream(iterable.spliterator(), false)
         .collect(Collectors
             .toMap(Entry::getKey,
                 metadataEntry -> {
@@ -54,5 +55,7 @@ public class MetadataDeserializer extends JsonDeserializer<Map<String, List<Stri
                             deserializationContext), e);
                   }
                 }));
+    log.debug("Result of deserialization of metadata : {} ", collect);
+    return collect;
   }
 }
