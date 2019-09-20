@@ -14,7 +14,7 @@
   <artifactId>osdu-gcp-service-ingest</artifactId>
   <version>1.0.1-SNAPSHOT</version>
   <name>search-service</name>
-  <description>Search service working with data in OSDU format</description>
+  <description>Ingest service working with data in OSDU format</description>
 
   <properties>
     <docker.image.prefix>springio</docker.image.prefix>
