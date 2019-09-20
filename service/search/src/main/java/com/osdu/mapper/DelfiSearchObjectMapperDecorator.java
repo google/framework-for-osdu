@@ -90,21 +90,6 @@ public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMa
     return null;
   }
 
-  private void createQueryEntry(StringBuilder stringBuilder, String key, Object value) {
-    if (value instanceof List) {
-      for (Object o : (List) value) {
-        createQueryEntry(stringBuilder, key, o);
-        stringBuilder.append(LUCENE_OR_TERM);
-      }
-      stringBuilder.delete(stringBuilder.lastIndexOf(LUCENE_OR_TERM), stringBuilder.length() - 1);
-    } else {
-      stringBuilder.append(key);
-      stringBuilder.append(":");
-      stringBuilder.append("\"").append(value).append("\"");
-      stringBuilder.append(",");
-    }
-  }
-
   /**
    * Maps sort objects. This is not done via mapstruct since the objects are very different ( they
    * have different structure ) and at the same time they do not have common fields that could at
