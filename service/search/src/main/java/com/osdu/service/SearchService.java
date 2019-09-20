@@ -9,7 +9,6 @@ public interface SearchService {
 
   SearchResult searchIndexWithCursor(SearchObject searchObject, MessageHeaders headers);
 
-  SearchResult searchIndex(SearchObject searchObject, MessageHeaders headers)
-      throws GeoLocationException;
+  SearchResult searchIndex(SearchObject searchObject, MessageHeaders headers);
 
 }

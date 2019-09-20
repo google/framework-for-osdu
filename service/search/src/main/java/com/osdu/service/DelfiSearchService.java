@@ -7,7 +7,6 @@ import com.osdu.model.SearchObject;
 import com.osdu.model.SearchResult;
 import com.osdu.model.delfi.DelfiSearchObject;
 import com.osdu.model.delfi.DelfiSearchResult;
-import com.osdu.model.delfi.geo.exception.GeoLocationException;
 import com.osdu.model.osdu.OsduSearchObject;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -67,8 +66,7 @@ public class DelfiSearchService implements SearchService {
    * @return {@link SearchResult} the result of the search from Delfi portal
    */
   @Override
-  public SearchResult searchIndex(SearchObject searchObject, MessageHeaders headers)
-      throws GeoLocationException {
+  public SearchResult searchIndex(SearchObject searchObject, MessageHeaders headers) {
     log.info("Received request to query Delfi Portal for data with following arguments: {},{}",
         searchObject, headers);
 
