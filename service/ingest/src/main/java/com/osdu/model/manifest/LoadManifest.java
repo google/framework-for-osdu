@@ -8,9 +8,9 @@ import lombok.Data;
 @Data
 public class LoadManifest {
 
-  Map<String, Object> WorkProduct;
+  Map<String, Object> workProduct;
   Map<String, Object> files;
-  Map<String, Object> WorkProductComponents;
+  Map<String, Object> workProductComponents;
   Map<String, Object> additionalParameters;
 
   @JsonAnyGetter
