@@ -39,14 +39,14 @@
         <version>3.12.0</version>
         <configuration>
           <targetJdk>1.8</targetJdk>
-					<excludes>
+          <excludes>
             <exclude>**/*Bean.java</exclude>
             <exclude>**/generated/*.java</exclude>
           </excludes>
-					<excludeRoots>
+          <excludeRoots>
             <excludeRoot>target/generated-sources/</excludeRoot>
           </excludeRoots>
-				</configuration>
+        </configuration>
         <executions>
           <execution>
             <goals>
@@ -56,16 +56,35 @@
           </execution>
         </executions>
       </plugin>
-			<plugin>
+      <plugin>
         <groupId>com.github.spotbugs</groupId>
         <artifactId>spotbugs-maven-plugin</artifactId>
         <version>3.1.12</version>
-				<executions>
+        <executions>
           <execution>
             <goals>
               <goal>spotbugs</goal>
             </goals>
             <phase>verify</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.4</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>report</id>
+            <phase>test</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
           </execution>
         </executions>
       </plugin>
