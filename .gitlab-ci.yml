@@ -16,7 +16,12 @@ cache:
 verify:
   stage: test
   script:
-    - mvn $MAVEN_CLI_OPTS verify sonar:sonar -Dsonar.host.url=https://sonar.osdu-gcp.dev -Dsonar.projectKey=osdu-gcp -Dsonar.login=$SONAR_TOKEN
+    - mvn $MAVEN_CLI_OPTS verify sonar:sonar -Dsonar.host.url=https://sonar.osdu-gcp.dev -Dsonar.projectKey=osdu-gcp -Dsonar.login=$SONAR_TOKEN -Dsonar.coverage.jacoco.xmlReportsPath=target/site/jacoco/jacoco.xml
+  only:
+    changes:
+      - pom.xml
+      - service/*
+      - common/*
 
 .deploy_template: &deploy_template
   stage: deploy
