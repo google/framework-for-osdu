@@ -89,7 +89,6 @@ public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMa
     }
     return null;
   }
-
   /**
    * Maps sort objects. This is not done via mapstruct since the objects are very different ( they
    * have different structure ) and at the same time they do not have common fields that could at
