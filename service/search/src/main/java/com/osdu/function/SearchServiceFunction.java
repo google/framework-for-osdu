@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Slf4j
-public class MapSearchFieldsFunction implements
+public class SearchServiceFunction implements
     Function<Message<OsduSearchObject>, Message<SearchResult>> {
 
   @Inject
@@ -27,10 +27,10 @@ public class MapSearchFieldsFunction implements
 
   @Override
   public Message<SearchResult> apply(Message<OsduSearchObject> messageSource) {
-    log.info("Received request to search with following arguments: {}", messageSource);
+    log.debug("Received request to search with following arguments: {}", messageSource);
     SearchResult searchResult = searchService
         .searchIndex(messageSource.getPayload(), messageSource.getHeaders());
-    log.info(
+    log.debug(
         "Result of the request to search with following arguments: {}, resulted in following object : {}",
         messageSource, searchResult);
     return new GenericMessage<>(searchResult);

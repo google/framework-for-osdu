@@ -23,15 +23,15 @@ public class SortOptionDeserializer extends JsonDeserializer<SortOption> {
     JsonNode node = p.getCodec().readTree(p);
     SortOption sortOption = new SortOption();
 
-    if (!node.fields().hasNext()) {
-      sortOption.setFieldName(node.asText());
-      sortOption.setOrderType(SortOption.OrderType.asc);
-    } else {
+    if (node.fields().hasNext()) {
       Map.Entry<String, JsonNode> sortEntry = node.fields().next();
       sortOption.setFieldName(sortEntry.getKey());
       sortOption
           .setOrderType(
               SortOption.OrderType.valueOf(sortEntry.getValue().get(ORDER_JSON_KEY).asText()));
+    } else {
+      sortOption.setFieldName(node.asText());
+      sortOption.setOrderType(SortOption.OrderType.asc);
     }
 
     return sortOption;

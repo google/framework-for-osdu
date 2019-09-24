@@ -50,7 +50,7 @@
                   implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                 <transformer
                   implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>com.osdu.SchemaMapperApplication</mainClass>
+                  <mainClass>com.osdu.SearchServiceApplication</mainClass>
                 </transformer>
               </transformers>
             </configuration>
@@ -105,6 +105,11 @@
     </plugins>
   </build>
   <dependencies>
+    <dependency>
+      <groupId>com.google.collections</groupId>
+      <artifactId>google-collections</artifactId>
+      <version>1.0</version>
+    </dependency>
     <dependency>
       <groupId>com.osdu</groupId>
       <artifactId>osdu-gcp-common</artifactId>
@@ -191,7 +196,6 @@
       <artifactId>spring-security-test</artifactId>
       <groupId>org.springframework.security</groupId>
       <scope>test</scope>
-      <version>${org.springfrawork.security.test.version}</version>
     </dependency>
     <dependency>
       <artifactId>jackson-annotations</artifactId>
@@ -212,6 +216,34 @@
         <scope>import</scope>
         <type>pom</type>
         <version>${spring-cloud.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-framework-bom</artifactId>
+        <version>5.1.9.RELEASE</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-bom</artifactId>
+        <version>5.1.6.RELEASE</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-bom</artifactId>
+        <version>5.1.6.RELEASE</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.integration</groupId>
+        <artifactId>spring-integration-bom</artifactId>
+        <version>5.1.7.RELEASE</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>

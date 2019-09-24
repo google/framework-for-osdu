@@ -67,22 +67,22 @@ public class DelfiSearchService implements SearchService {
    */
   @Override
   public SearchResult searchIndex(SearchObject searchObject, MessageHeaders headers) {
-    log.info("Received request to query Delfi Portal for data with following arguments: {},{}",
+    log.debug("Received request to query Delfi Portal for data with following arguments: {},{}",
         searchObject, headers);
 
     String kind = extractHeaders(headers, KIND_HEADER_KEY);
     String partition = extractHeaders(headers, PARTITION_HEADER_KEY);
 
     DelfiSearchObject delfiSearchObject = searchObjectMapper
-        .osduSearchObjectToDelfiSearchObject((OsduSearchObject) searchObject, kind, partition);
-    DelfiSearchResult searchResult = delfiSearchClient.searchIndex(
+        .osduToDelfi((OsduSearchObject) searchObject, kind, partition);
+    DelfiSearchResult searchResult =delfiSearchClient.searchIndex(
         String.valueOf(headers.get(AUTHORIZATION_HEADER)),
         applicationKey,
         partition,
         delfiSearchObject);
     SearchResult osduSearchResult = searchResultMapper
-        .delfiSearchResultToOsduSearchResult(searchResult, (OsduSearchObject) searchObject);
-    log.info("Received search result: {}", osduSearchResult);
+        .delfiToOsdu(searchResult, (OsduSearchObject) searchObject);
+    log.debug("Received search result: {}", osduSearchResult);
     return osduSearchResult;
   }
 

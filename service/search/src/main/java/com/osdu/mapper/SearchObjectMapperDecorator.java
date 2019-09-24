@@ -10,7 +10,6 @@ import com.osdu.model.delfi.geo.SpatialFilter;
 import com.osdu.model.osdu.GeoLocation;
 import com.osdu.model.osdu.OsduSearchObject;
 import com.osdu.model.osdu.SortOption;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -19,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 @Slf4j
-public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMapper {
+public abstract class SearchObjectMapperDecorator implements SearchObjectMapper {
 
   static final double DEFAULT_ZERO_DISTANCE = 0.0;
   static final String LUCENE_AND_TERM = " AND ";
@@ -31,47 +30,46 @@ public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMa
   SearchObjectMapper delegate;
 
   @Override
-  public DelfiSearchObject osduSearchObjectToDelfiSearchObject(OsduSearchObject osduSearchObject,
+  public DelfiSearchObject osduToDelfi(OsduSearchObject osduSearchObject,
       String kind, String partition) {
     log.debug("Mapping request for object : {}", osduSearchObject);
     DelfiSearchObject result = delegate
-        .osduSearchObjectToDelfiSearchObject(osduSearchObject, kind, partition);
+        .osduToDelfi(osduSearchObject, kind, partition);
     addToQuery(result, osduSearchObject.getFulltext(), mapMetadata(osduSearchObject));
     result.setKind(kind);
 
     if (osduSearchObject.getGeoLocation() != null) {
-      mapGeoParametersFromGeoLocation(osduSearchObject.getGeoLocation(), result);
+      result.setSpatialFilter(mapGeoParametersFromGeoLocation(osduSearchObject.getGeoLocation()));
     } else if (osduSearchObject.getGeoCentroid() != null) {
-      mapGeoParametersFromGeoCentroid(osduSearchObject.getGeoCentroid(), result);
+      result.setSpatialFilter(mapGeoParametersFromGeoCentroid(osduSearchObject.getGeoCentroid()));
     }
-    mapSort(osduSearchObject.getSort(), result);
+    result.setSort(mapSort(osduSearchObject.getSort()));
     log.debug("Result of mapping : {}", result);
     return result;
   }
 
-  private void mapSort(SortOption[] sortOptions, DelfiSearchObject result) {
+  private Sort mapSort(SortOption[] sortOptions) {
     log.debug("Mapping sort object: {}", sortOptions);
     if (sortOptions != null) {
-      Sort sort = mapSort(sortOptions);
-      result.setSort(sort);
+      Sort sort = osduToDelfiSort(sortOptions);
       log.debug("Result of mapping: {}", sort);
+      return sort;
     }
+    return null;
   }
 
-  private void mapGeoParametersFromGeoCentroid(List<Double>[] geoCentroidList,
-      DelfiSearchObject result) {
+  private SpatialFilter mapGeoParametersFromGeoCentroid(List<Double>[] geoCentroidList) {
     log.debug("Mapping geoCentroid object: {}", geoCentroidList);
     SpatialFilter spatialFilter = mapGeoCentroidObject(geoCentroidList);
-    result.setSpatialFilter(spatialFilter);
     log.debug("Result of mapping: {}", spatialFilter);
+    return spatialFilter;
   }
 
-  private void mapGeoParametersFromGeoLocation(GeoLocation geoLocation,
-      DelfiSearchObject result) {
+  private SpatialFilter mapGeoParametersFromGeoLocation(GeoLocation geoLocation) {
     log.debug("Mapping geoLocation object: {}", geoLocation);
     SpatialFilter spatialFilter = mapGeoLocationObject(geoLocation);
-    result.setSpatialFilter(spatialFilter);
     log.debug("Result of mapping: {}", spatialFilter);
+    return spatialFilter;
   }
 
   private String mapMetadata(OsduSearchObject osduSearchObject) {
@@ -89,6 +87,7 @@ public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMa
     }
     return null;
   }
+
   /**
    * Maps sort objects. This is not done via mapstruct since the objects are very different ( they
    * have different structure ) and at the same time they do not have common fields that could at
@@ -97,20 +96,18 @@ public abstract class DelfiSearchObjectMapperDecorator implements SearchObjectMa
    * @param sortOptions
    * @return
    */
-  private Sort mapSort(SortOption[] sortOptions) {
-    List<String> fields = new ArrayList<>();
-    List<String> orders = new ArrayList<>();
+  private Sort osduToDelfiSort(SortOption[] sortOptions) {
+    String[] fields = new String[sortOptions.length];
+    String[] orders = new String[sortOptions.length];
 
-    for (SortOption sortOption : sortOptions) {
-      fields.add(sortOption.getFieldName());
-      orders.add(sortOption.getOrderType().toString().toLowerCase());
+    for (int i = 0; i < sortOptions.length; i++) {
+      fields[i] = sortOptions[i].getFieldName();
+      orders[i] = sortOptions[i].getOrderType().toString().toLowerCase();
     }
 
     Sort sort = new Sort();
-    sort.setField(new String[fields.size()]);
-    sort.setOrder(new String[orders.size()]);
-    fields.toArray(sort.getField());
-    orders.toArray(sort.getOrder());
+    sort.setField(fields);
+    sort.setOrder(orders);
     return sort;
   }
 

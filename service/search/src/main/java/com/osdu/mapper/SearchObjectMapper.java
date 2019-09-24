@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper
-@DecoratedWith(DelfiSearchObjectMapperDecorator.class)
+@DecoratedWith(SearchObjectMapperDecorator.class)
 public interface SearchObjectMapper {
 
 
@@ -15,7 +15,7 @@ public interface SearchObjectMapper {
   @Mapping(source = "osduSearchObject.start", target = "offset")
   @Mapping(source = "osduSearchObject.facets", target = "returnedFields")
   @Mapping(target = "sort", ignore = true)
-  DelfiSearchObject osduSearchObjectToDelfiSearchObject(OsduSearchObject osduSearchObject,
+  DelfiSearchObject osduToDelfi(OsduSearchObject osduSearchObject,
       String kindOverride, String partitionOverride);
 
 

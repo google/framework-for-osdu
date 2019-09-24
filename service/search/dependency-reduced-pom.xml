@@ -33,7 +33,7 @@
                 </transformer>
                 <transformer />
                 <transformer>
-                  <mainClass>com.osdu.SchemaMapperApplication</mainClass>
+                  <mainClass>com.osdu.SearchServiceApplication</mainClass>
                 </transformer>
               </transformers>
             </configuration>

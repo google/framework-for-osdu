@@ -2,16 +2,11 @@ package com.osdu.deserializer;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.osdu.exception.SearchException;
+import com.osdu.model.deserializer.MetadataEntry;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -34,28 +29,18 @@ public class MetadataDeserializer extends JsonDeserializer<Map<String, List<Stri
     log.debug("Deserializing metadata : jsonParser : {}, context : {}", jsonParser,
         deserializationContext);
     JsonNode node = jsonParser.getCodec().readTree(jsonParser);
+
     if (!node.fields().hasNext()) {
       return null;
     }
 
-    ObjectReader reader = new ObjectMapper().reader().forType(new TypeReference<List<String>>() {
-    });
     Iterable<Entry<String, JsonNode>> iterable = node::fields;
-    final Map<String, List<String>> collect = StreamSupport.stream(iterable.spliterator(), false)
-        .collect(Collectors
-            .toMap(Entry::getKey,
-                metadataEntry -> {
-                  try {
-                    return (metadataEntry.getValue() instanceof ArrayNode)
-                        ? reader.readValue(metadataEntry.getValue())
-                        : Collections.singletonList(metadataEntry.getValue().asText());
-                  } catch (IOException e) {
-                    throw new SearchException(String
-                        .format("Failed to map metadata : %s, context : %s", jsonParser,
-                            deserializationContext), e);
-                  }
-                }));
-    log.debug("Result of deserialization of metadata : {} ", collect);
-    return collect;
+    final Map<String, List<String>> metadataMap = StreamSupport
+        .stream(iterable.spliterator(), false).map(MetadataEntry::new).collect(Collectors.toMap(
+            MetadataEntry::getKey, MetadataEntry::getValue));
+
+    log.debug("Result of deserialization of metadata : {} ", metadataMap);
+    return metadataMap;
   }
 }
+
