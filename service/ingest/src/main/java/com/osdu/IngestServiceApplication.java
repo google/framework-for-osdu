@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 
 @SpringBootApplication
-@EnableFeignClients(basePackages = {"com.osdu"})
+@EnableFeignClients
 @Configuration
 public class IngestServiceApplication {
 

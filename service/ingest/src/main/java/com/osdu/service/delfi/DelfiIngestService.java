@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.google.cloud.storage.Blob;
-import com.google.gson.JsonObject;
 import com.osdu.client.DelfiIngestionClient;
 import com.osdu.exception.IngestException;
 import com.osdu.model.IngestResult;
@@ -94,12 +93,10 @@ public class DelfiIngestService implements IngestService {
 
     final SchemaData schemaDataForSrn = srnMappingService.getSchemaDataForSrn(schemaSrn);
 
-    final JsonNode schemaForSrn = storageService
-        .getSchemaByLink(schemaDataForSrn.getSchemaLink());
     final JsonNode jsonNodeFromManifest = getJsonNodeFromManifest(loadManifest);
 
     return jsonValidationService
-        .validate(schemaForSrn, jsonNodeFromManifest);
+        .validate(schemaDataForSrn.getSchema(), jsonNodeFromManifest);
 
 
   }
@@ -142,20 +139,12 @@ public class DelfiIngestService implements IngestService {
     }
   }
 
-  private void extractSrns() {
-
-  }
-
   private URL transferFile(URL fileUrl, String authToken, String partition) {
     String filename = getFileNameFromUrl(fileUrl);
     Blob blob = storageService.uploadFileToStorage(fileUrl, filename);
     URL delfiSignedUrl = getDelfiSignedUrl(filename, authToken, partition);
 
     return storageService.writeFileToSignedUrlLocation(blob, delfiSignedUrl);
-  }
-
-  private void validateSchema(LoadManifest loadManifest, JsonObject schema) {
-
   }
 
   private String extractHeaderByName(MessageHeaders headers, String headerKey) {
