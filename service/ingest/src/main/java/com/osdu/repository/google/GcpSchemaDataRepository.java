@@ -7,13 +7,10 @@ import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
 import com.osdu.exception.IngestException;
-import com.osdu.mapper.SchemaDataMapper;
 import com.osdu.model.dto.SchemaDataDto;
 import com.osdu.repository.SchemaDataRepository;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import javax.inject.Inject;
-import javax.inject.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
