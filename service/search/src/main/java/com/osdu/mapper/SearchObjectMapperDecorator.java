@@ -39,9 +39,9 @@ public abstract class SearchObjectMapperDecorator implements SearchObjectMapper 
     result.setKind(kind);
 
     if (osduSearchObject.getGeoLocation() != null) {
-      result.setSpatialFilter(mapGeoParametersFromGeoLocation(osduSearchObject.getGeoLocation()));
+      result.setSpatialFilter(mapGeoParameters(osduSearchObject.getGeoLocation()));
     } else if (osduSearchObject.getGeoCentroid() != null) {
-      result.setSpatialFilter(mapGeoParametersFromGeoCentroid(osduSearchObject.getGeoCentroid()));
+      result.setSpatialFilter(mapGeoParameters(osduSearchObject.getGeoCentroid()));
     }
     result.setSort(mapSort(osduSearchObject.getSort()));
     log.debug("Result of mapping : {}", result);
@@ -58,14 +58,14 @@ public abstract class SearchObjectMapperDecorator implements SearchObjectMapper 
     return null;
   }
 
-  private SpatialFilter mapGeoParametersFromGeoCentroid(List<Double>[] geoCentroidList) {
+  private SpatialFilter mapGeoParameters(List<Double>[] geoCentroidList) {
     log.debug("Mapping geoCentroid object: {}", geoCentroidList);
     SpatialFilter spatialFilter = mapGeoCentroidObject(geoCentroidList);
     log.debug("Result of mapping: {}", spatialFilter);
     return spatialFilter;
   }
 
-  private SpatialFilter mapGeoParametersFromGeoLocation(GeoLocation geoLocation) {
+  private SpatialFilter mapGeoParameters(GeoLocation geoLocation) {
     log.debug("Mapping geoLocation object: {}", geoLocation);
     SpatialFilter spatialFilter = mapGeoLocationObject(geoLocation);
     log.debug("Result of mapping: {}", spatialFilter);

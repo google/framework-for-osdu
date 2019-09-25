@@ -16,7 +16,7 @@ public interface SearchObjectMapper {
   @Mapping(source = "osduSearchObject.facets", target = "returnedFields")
   @Mapping(target = "sort", ignore = true)
   DelfiSearchObject osduToDelfi(OsduSearchObject osduSearchObject,
-      String kindOverride, String partitionOverride);
+      String kind, String partition);
 
 
 }
