@@ -30,7 +30,6 @@ public class GcpSchemaDataRepository implements SchemaDataRepository {
   @Override
   public SchemaDataDto findBySrn(String srn) {
     log.debug("Requesting srn : {}", srn);
-    log.debug("Log:{}", firestore);
     final ApiFuture<QuerySnapshot> query = firestore.collection(COLLECTION_NAME)
         .whereEqualTo(SRN_FIELD_NAME, srn).get();
     final QuerySnapshot querySnapshot;
