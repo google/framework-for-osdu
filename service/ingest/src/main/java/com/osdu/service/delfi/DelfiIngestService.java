@@ -91,7 +91,7 @@ public class DelfiIngestService implements IngestService {
   private ProcessingReport validateManifest(LoadManifest loadManifest) {
     String schemaSrn = getSchemaSrn(loadManifest);
 
-    final SchemaData schemaDataForSrn = srnMappingService.getSchemaDataForSrn(schemaSrn);
+    final SchemaData schemaDataForSrn = srnMappingService.getSchemaData(schemaSrn);
 
     final JsonNode jsonNodeFromManifest = getJsonNodeFromManifest(loadManifest);
 
