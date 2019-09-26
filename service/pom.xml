@@ -13,6 +13,7 @@
   <modules>
     <module>delivery</module>
     <module>search</module>
+    <module>srn-mapper</module>
     <module>ingest</module>
   </modules>
 
