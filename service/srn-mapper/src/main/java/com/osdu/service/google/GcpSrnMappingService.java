@@ -22,7 +22,7 @@ public class GcpSrnMappingService implements SrnMappingService {
   SchemaDataMapper schemaDataMapper;
 
   @Override
-  public SchemaData getSchemaDataForSrn(String srn) {
+  public SchemaData getSchemaData(String srn) {
     log.debug("Request to get SchemaData by SRN : {}", srn);
     final SchemaDataDto bySrn = schemaDataRepository.findBySrn(srn);
     log.debug("Found SchemaData : {}", bySrn);
@@ -30,7 +30,7 @@ public class GcpSrnMappingService implements SrnMappingService {
   }
 
   @Override
-  public void saveSchemaData(SchemaData schemaData) {
+  public void save(SchemaData schemaData) {
     log.debug("Request to save SchemaData : {}", schemaData);
     schemaDataRepository
         .save(schemaDataMapper.schemaDataToSchemaDataDto(schemaData));
