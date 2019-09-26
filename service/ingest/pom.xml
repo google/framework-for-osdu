@@ -13,7 +13,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>osdu-gcp-service-ingest</artifactId>
   <version>1.0.1-SNAPSHOT</version>
-  <name>search-service</name>
+  <name>ingest-service</name>
   <description>Ingest service working with data in OSDU format</description>
 
   <properties>
@@ -251,6 +251,14 @@
           <buildArgs>
             <JAR_FILE>./target/${project.artifactId}-${project.version}-exec.jar</JAR_FILE>
           </buildArgs>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>${maven-checkstyle-plugin.version}</version>
+        <configuration>
+          <configLocation>google_checks.xml</configLocation>
         </configuration>
       </plugin>
     </plugins>
