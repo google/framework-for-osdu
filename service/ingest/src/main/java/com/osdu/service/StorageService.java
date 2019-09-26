@@ -1,12 +1,14 @@
 package com.osdu.service;
 
-import com.google.api.client.http.HttpResponse;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.cloud.storage.Blob;
 import java.net.URL;
 
 public interface StorageService {
 
+  JsonNode getSchemaByLink(String schemaLink);
+
   Blob uploadFileToStorage(URL fileUrl, String fileName);
 
-  HttpResponse writeFileToSignedUrlLocation(Blob file, URL signedUrl);
+  URL writeFileToSignedUrlLocation(Blob file, URL signedUrl);
 }

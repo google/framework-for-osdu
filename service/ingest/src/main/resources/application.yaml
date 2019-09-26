@@ -4,6 +4,7 @@ osdu:
       appkey: PtVguojl2DUr0qimhDclNMwZAeAJwK1T
       url: https://api.evq.csp.slb.com/
 gcp:
-  storage:
+  starage:
     bucket:
-      temp-location: osdu-dev-pasha-1
+      schema: schama
+      temp-location: temp

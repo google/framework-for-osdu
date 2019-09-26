@@ -73,9 +73,8 @@ public class DelfiIngestService implements IngestService {
     //get link to file
     final List<URL> fileUrls = getFileUrls(loadManifest);
 
-    List<String> resultFilePaths = fileUrls.stream()
-        .map(url -> transferFile(url, authorizationToken, partition))
-        .collect(Collectors.toList());
+    List<URL> resultFilesUrls = fileUrls.stream()
+        .map(url -> transferFile(url, authorizationToken, partition)).collect(Collectors.toList());
 
     //submit job
     //poll job for readiness
@@ -140,15 +139,12 @@ public class DelfiIngestService implements IngestService {
     }
   }
 
-  public String transferFile(URL fileUrl, String authToken, String partition) {
-    String fileName = getFileNameFromUrl(fileUrl);
-    Blob blob = storageService.uploadFileToStorage(fileUrl, fileName);
+  private URL transferFile(URL fileUrl, String authToken, String partition) {
+    String filename = getFileNameFromUrl(fileUrl);
+    Blob blob = storageService.uploadFileToStorage(fileUrl, filename);
+    URL delfiSignedUrl = getDelfiSignedUrl(filename, authToken, partition);
 
-    SignedUrlResult signedUrlResult = delfiIngestionClient
-        .getSignedUrlForLocation(fileName, authToken, appKey, partition, partition);
-
-    storageService.writeFileToSignedUrlLocation(blob, signedUrlResult.getLocationUrl());
-    return signedUrlResult.getRelativeFilePath();
+    return storageService.writeFileToSignedUrlLocation(blob, delfiSignedUrl);
   }
 
   private String extractHeaderByName(MessageHeaders headers, String headerKey) {
@@ -162,6 +158,12 @@ public class DelfiIngestService implements IngestService {
     return null;
   }
 
+  private URL getDelfiSignedUrl(String fileName, String authToken, String partition) {
+    SignedUrlResult signedUrlForLocation = delfiIngestionClient
+        .getSignedUrlForLocation(fileName, authToken, appKey, partition, partition);
+
+    return signedUrlForLocation.getLocationUrl();
+  }
 
   private String getFileNameFromUrl(URL fileUrl) {
     try {
