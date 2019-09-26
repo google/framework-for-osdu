@@ -27,7 +27,7 @@ public class DelfiDataProcessingJob implements DataProcessingJob {
     ProcessingResult result = new ProcessingResult();
     result.setSrn(srn);
 
-    final SchemaData schemaDataForSrn = srnMappingService.getSchemaDataForSrn(srn);
+    final SchemaData schemaDataForSrn = srnMappingService.getSchemaData(srn);
     String kind = schemaDataForSrn.getKind();
     if (kind == null) {
       result.setProcessingResultStatus(ProcessingResultStatus.NO_MAPPING);
