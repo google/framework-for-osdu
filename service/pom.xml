@@ -11,9 +11,9 @@
   </parent>
 
   <modules>
+    <module>srn-mapping</module>
     <module>delivery</module>
     <module>search</module>
-    <module>srn-mapping</module>
   </modules>
 
   <modelVersion>4.0.0</modelVersion>
