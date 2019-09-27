@@ -22,7 +22,7 @@ public class LoadManifest {
   Map<String, Object> additionalProperties = new LinkedHashMap<>();
 
   @JsonAnySetter
-  void setDetail(String key, Object value) {
+  void setAdditionalProperties(String key, Object value) {
     additionalProperties.put(key, value);
   }
 }
