@@ -8,7 +8,6 @@ import com.google.cloud.storage.Blob;
 import com.osdu.client.DelfiIngestionClient;
 import com.osdu.exception.IngestException;
 import com.osdu.model.IngestResult;
-import com.osdu.model.SchemaData;
 import com.osdu.model.delfi.SignedUrlResult;
 import com.osdu.model.manifest.File;
 import com.osdu.model.manifest.LoadManifest;
@@ -37,6 +36,7 @@ public class DelfiIngestService implements IngestService {
   static final String SRN_MANIFEST_KEY = "SRN";
   static final String PARTITION_HEADER_KEY = "partition";
   static final String AUTHORIZATION_HEADER_KEY = "authorization";
+  static final String DEFAULT_MANIFEST_SCHEMA_NAME = "LoadManifestSchema.json";
 
   @Inject
   SrnMappingService srnMappingService;
@@ -89,16 +89,23 @@ public class DelfiIngestService implements IngestService {
   }
 
   private ProcessingReport validateManifest(LoadManifest loadManifest) {
-    String schemaSrn = getSchemaSrn(loadManifest);
-
-    final SchemaData schemaDataForSrn = srnMappingService.getSchemaData(schemaSrn);
+    final JsonNode manifestDefaultSchema = getDefaultManifestSchema();
 
     final JsonNode jsonNodeFromManifest = getJsonNodeFromManifest(loadManifest);
 
     return jsonValidationService
-        .validate(schemaDataForSrn.getSchema(), jsonNodeFromManifest);
+        .validate(manifestDefaultSchema, jsonNodeFromManifest);
+  }
 
-
+  private JsonNode getDefaultManifestSchema() {
+    try {
+      ObjectMapper objectMapper = new ObjectMapper();
+      final JsonNode jsonNode = objectMapper
+          .readTree(getClass().getClassLoader().getResource(DEFAULT_MANIFEST_SCHEMA_NAME));
+      return jsonNode;
+    } catch (IOException e) {
+      throw new IngestException("Failed to get default schema for manigests", e);
+    }
   }
 
   private String getSchemaSrn(LoadManifest loadManifest) {
