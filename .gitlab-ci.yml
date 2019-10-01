@@ -62,7 +62,7 @@ deploy_delivery:
       - pom.xml
       - service/pom.xml
       - common/*
-      - service/search/*
+      - service/delivery/*
       - Dockerfile
       - cloudbuild.yaml
 
