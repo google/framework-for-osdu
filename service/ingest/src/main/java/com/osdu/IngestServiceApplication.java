@@ -18,10 +18,11 @@ public class IngestServiceApplication {
     SpringApplication.run(IngestServiceApplication.class, args);
   }
 
+  /**
+   * Object to work with Google Cloud Storage.
+   */
   @Bean
   public Storage googleCloudStorage() {
-    // Assuming that Application Default Credentials have been set
-    // according to https://cloud.google.com/docs/authentication/production
     return StorageOptions.getDefaultInstance().getService();
   }
 
