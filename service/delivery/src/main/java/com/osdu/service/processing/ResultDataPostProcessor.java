@@ -1,6 +1,8 @@
 package com.osdu.service.processing;
 
+import com.osdu.model.BaseRecord;
+
 public interface ResultDataPostProcessor {
 
-  Object processData(Object data);
+  BaseRecord processData(BaseRecord data);
 }

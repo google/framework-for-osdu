@@ -2,83 +2,24 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
   <parent>
-    <groupId>com.osdu</groupId>
     <artifactId>osdu-gcp-service</artifactId>
+    <groupId>com.osdu</groupId>
     <version>1.0.0-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
   </parent>
-
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>osdu-gcp-service-ingest</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
-  <name>ingest-service</name>
-  <description>Ingest service working with data in OSDU format</description>
 
-  <properties>
-    <docker.image.prefix>springio</docker.image.prefix>
-  </properties>
-
+  <artifactId>delfi-client</artifactId>
   <dependencies>
     <dependency>
-      <groupId>com.osdu</groupId>
-      <artifactId>osdu-gcp-service-srn-mapper</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>${org.apache.httpcomponents.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.osdu</groupId>
-      <artifactId>delfi-client</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.cloud</groupId>
-      <artifactId>google-cloud-firestore</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.google.api.grpc</groupId>
-      <artifactId>grpc-google-cloud-firestore-v1</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.osdu</groupId>
-      <artifactId>osdu-gcp-common</artifactId>
-      <version>1.0.1-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-dependencies</artifactId>
-      <version>${spring-boot.version}</version>
-      <type>pom</type>
-      <scope>import</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-function-web</artifactId>
-      <version>1.0.1.RELEASE</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-function-context</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>javax.inject</groupId>
-      <artifactId>javax.inject</artifactId>
-      <version>${javax.inject.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-openfeign</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-dependencies</artifactId>
-      <version>${spring-cloud.version}</version>
-      <type>pom</type>
-      <scope>import</scope>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.10.0.pr3</version>
     </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
@@ -87,35 +28,9 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.json</groupId>
-      <artifactId>json</artifactId>
-      <version>${org.json.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-      <version>${org.springframwork.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-function-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
-      <version>${org.apache.httpcomponents.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <version>${org.springframwork.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-test</artifactId>
-      <version>${org.springfrawork.security.test.version}</version>
-      <scope>test</scope>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+      <version>${javax.inject.version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -128,39 +43,36 @@
       <version>${com.fasterxml.jackson.core.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.google.cloud</groupId>
-      <artifactId>google-cloud-storage</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <version>${org.springframwork.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.google.cloud</groupId>
-      <artifactId>google-cloud-nio</artifactId>
+      <groupId>com.osdu</groupId>
+      <artifactId>osdu-gcp-common</artifactId>
+      <version>1.0.1-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>io.rest-assured</groupId>
-      <artifactId>json-schema-validator</artifactId>
-      <version>4.1.1</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.apis</groupId>
-      <artifactId>google-api-services-storage</artifactId>
-      <version>${google-api-services-storage.version}</version>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-openfeign</artifactId>
     </dependency>
   </dependencies>
 
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-dependencies</artifactId>
         <version>${spring-cloud.version}</version>
         <type>pom</type>
         <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.google.cloud</groupId>
-        <artifactId>google-cloud-bom</artifactId>
-        <version>0.111.0-alpha</version>
-        <type>pom</type>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -193,7 +105,6 @@
                   implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                 <transformer
                   implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>com.osdu.IngestServiceApplication</mainClass>
                 </transformer>
               </transformers>
             </configuration>
@@ -224,7 +135,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.6.1</version>
+        <version>3.8.0</version>
         <configuration>
           <source>${java.version}</source>
           <target>${java.version}</target>

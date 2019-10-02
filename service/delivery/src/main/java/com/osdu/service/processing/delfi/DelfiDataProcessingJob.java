@@ -1,8 +1,8 @@
 package com.osdu.service.processing.delfi;
 
+import com.osdu.model.FileRecord;
+import com.osdu.model.Record;
 import com.osdu.model.SchemaData;
-import com.osdu.model.osdu.delivery.FileRecord;
-import com.osdu.model.osdu.delivery.Record;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResultStatus;
 import com.osdu.service.PortalService;
