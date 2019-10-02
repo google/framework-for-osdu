@@ -1,10 +1,10 @@
 package com.osdu.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.osdu.client.delfi.DelfiDeliveryClient;
-import com.osdu.client.delfi.DelfiFileClient;
-import com.osdu.model.osdu.delivery.delfi.DelfiFileRecord;
-import com.osdu.model.osdu.delivery.delfi.DelfiRecord;
+import com.osdu.client.DelfiDeliveryClient;
+import com.osdu.client.DelfiFileClient;
+import com.osdu.model.delfi.DelfiFileRecord;
+import com.osdu.model.delfi.DelfiRecord;
 import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
 import com.osdu.model.osdu.delivery.dto.ResponseItem;
 import com.osdu.model.osdu.delivery.input.InputPayload;

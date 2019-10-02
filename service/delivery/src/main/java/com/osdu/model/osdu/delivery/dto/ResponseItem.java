@@ -1,6 +1,7 @@
 package com.osdu.model.osdu.delivery.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.osdu.model.BaseRecord;
 
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +14,7 @@ public class ResponseItem {
   String fileLocation;
 
   @JsonProperty("Data")
-  Object data;
+  BaseRecord data;
 
   @JsonProperty("SRN")
   String srn;

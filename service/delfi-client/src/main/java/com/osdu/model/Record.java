@@ -1,14 +1,14 @@
-package com.osdu.model.osdu.delivery;
+package com.osdu.model;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import lombok.Data;
+import lombok.ToString;
 
 @Data
-public abstract class Record {
+@ToString
+public abstract class Record implements BaseRecord {
 
   Map<String, Object> data;
 

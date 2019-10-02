@@ -1,5 +1,6 @@
 package com.osdu.service.delfi;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,9 +9,12 @@ import com.google.cloud.storage.Blob;
 import com.osdu.client.DelfiIngestionClient;
 import com.osdu.exception.IngestException;
 import com.osdu.model.IngestResult;
+import com.osdu.model.Record;
 import com.osdu.model.delfi.SignedUrlResult;
 import com.osdu.model.manifest.File;
+import com.osdu.model.manifest.GroupTypeProperties;
 import com.osdu.model.manifest.LoadManifest;
+import com.osdu.service.EnrichService;
 import com.osdu.service.IngestService;
 import com.osdu.service.JsonValidationService;
 import com.osdu.service.SrnMappingService;
@@ -21,6 +25,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -49,6 +54,9 @@ public class DelfiIngestService implements IngestService {
 
   @Inject
   DelfiIngestionClient delfiIngestionClient;
+
+  @Inject
+  EnrichService enrichService;
 
   @Value("${osdu.delfi.portal.appkey}")
   String appKey;
@@ -79,6 +87,16 @@ public class DelfiIngestService implements IngestService {
 
     //submit job
     //poll job for readiness
+
+    List<String> odesIds = new ArrayList<>();
+
+    LoadManifest reducedLoadManifest = stripRedundantFields(loadManifest);
+
+    List<Record> records = odesIds.stream()
+        .map(odesId -> enrichService
+            .enrichRecord(odesId, reducedLoadManifest, authorizationToken, partition))
+        .collect(Collectors.toList());
+
     //run enrichment
     //create SRN
     //store new SRN
@@ -110,7 +128,7 @@ public class DelfiIngestService implements IngestService {
   }
 
   private String getSchemaSrn(LoadManifest loadManifest) {
-    return (String) loadManifest.getWorkProduct().get(SRN_MANIFEST_KEY);
+    return (String) loadManifest.getWorkProduct().getData().get(SRN_MANIFEST_KEY);
   }
 
   private List<URL> getFileUrls(LoadManifest loadManifest) {
@@ -175,6 +193,33 @@ public class DelfiIngestService implements IngestService {
       return Paths.get(new URI(fileUrl.toString()).getPath()).getFileName().toString();
     } catch (URISyntaxException e) {
       throw new IngestException(String.format("Can not get file name from URL: %s", fileUrl), e);
+    }
+  }
+
+  private LoadManifest stripRedundantFields(LoadManifest initialLoadManifest) {
+    LoadManifest loadManifest = deepCopy(initialLoadManifest);
+    loadManifest.setFiles(loadManifest.getFiles().stream()
+        .map(file -> {
+          GroupTypeProperties properties = file.getData().getGroupTypeProperties();
+          properties.setFileSource(null);
+          properties.setOriginalFilePath(null);
+          properties.setStagingFilePath(null);
+          file.getData().setGroupTypeProperties(properties);
+
+          return file;
+        }).collect(Collectors.toList()));
+
+    return loadManifest;
+  }
+
+  private LoadManifest deepCopy(LoadManifest loadManifest) {
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    try {
+      return objectMapper.readValue(objectMapper.writeValueAsString(loadManifest),
+          LoadManifest.class);
+    } catch (JsonProcessingException e) {
+      throw new IngestException("Error processing LoadManifest json for odesId", e);
     }
   }
 }
