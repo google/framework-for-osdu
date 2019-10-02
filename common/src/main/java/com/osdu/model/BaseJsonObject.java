@@ -11,7 +11,7 @@ public class BaseJsonObject {
 
   Map<String, Object> additionalProperties = new LinkedHashMap<>();
 
-  @JsonAnySetter()
+  @JsonAnySetter
   void setAdditionalProperties(String key, Object value) {
     additionalProperties.put(key, value);
   }
