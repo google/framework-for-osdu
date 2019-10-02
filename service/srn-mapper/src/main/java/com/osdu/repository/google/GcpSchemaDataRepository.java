@@ -46,10 +46,10 @@ public class GcpSchemaDataRepository implements SchemaDataRepository {
               documents.size(), srn));
     }
 
-    SchemaDataDto schemaDataDTO =
+    SchemaDataDto schemaDataDto =
         documents.size() == 0 ? null : documents.get(0).toObject(SchemaDataDto.class);
-    log.debug("SRN request resulted in schema data : {}", schemaDataDTO);
-    return schemaDataDTO;
+    log.debug("SRN request resulted in schema data : {}", schemaDataDto);
+    return schemaDataDto;
   }
 
   @Override
