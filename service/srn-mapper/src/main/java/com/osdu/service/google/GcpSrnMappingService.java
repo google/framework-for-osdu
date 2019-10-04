@@ -26,7 +26,8 @@ public class GcpSrnMappingService implements SrnMappingService {
     log.debug("Request to get SchemaData by SRN : {}", srn);
     final SchemaDataDto bySrn = schemaDataRepository.findBySrn(srn);
     log.debug("Found SchemaData : {}", bySrn);
-    return schemaDataMapper.schemaDataDtoToSchemaData(bySrn);
+
+    return bySrn == null ? null : schemaDataMapper.schemaDataDtoToSchemaData(bySrn);
   }
 
   @Override

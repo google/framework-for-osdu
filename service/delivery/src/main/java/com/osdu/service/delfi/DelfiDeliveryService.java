@@ -4,6 +4,7 @@ import com.osdu.exception.OsduException;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
 import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
 import com.osdu.model.osdu.delivery.input.InputPayload;
+import com.osdu.service.AuthenticationService;
 import com.osdu.service.DeliveryService;
 import com.osdu.service.PortalService;
 import com.osdu.service.SrnMappingService;
@@ -42,6 +43,9 @@ public class DelfiDeliveryService implements DeliveryService {
   @Inject
   ResultDataConverter resultDataConverter;
 
+  @Inject
+  AuthenticationService authenticationService;
+
   @Value("${osdu.processing.thread-pool-capacity}")
   int threadPoolCapacity;
 
@@ -52,6 +56,8 @@ public class DelfiDeliveryService implements DeliveryService {
 
     String authorizationToken = extractHeaderByName(headers, AUTHORIZATION_HEADER_KEY);
     String partition = extractHeaderByName(headers, PARTITION_HEADER_KEY);
+
+    authenticationService.checkAuthentication(authorizationToken, partition);
 
     List<DataProcessingJob> jobs = inputPayload.getSrns().stream()
         .map(srn -> new DelfiDataProcessingJob(srn, srnMappingService, portalService,

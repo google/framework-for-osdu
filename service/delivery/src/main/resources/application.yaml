@@ -1,7 +1,7 @@
 osdu:
   processing:
     thread-pool-capacity: 3
-    fields-to-strip: location, kind
+    fields-to-strip: location, kind, signedUrl
   delfi:
     filePortal:
       url: https://signed-url-dot-p4d-ddl-eu-services.appspot.com/
