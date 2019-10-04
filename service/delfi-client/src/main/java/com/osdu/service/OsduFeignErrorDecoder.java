@@ -29,6 +29,6 @@ public class OsduFeignErrorDecoder implements ErrorDecoder {
   public Exception decode(String methodKey, Response response) {
 
     return exceptionToStatusMap
-        .getOrDefault(response.status(), new OsduException("Exception while integration"));
+        .getOrDefault(response.status(), new OsduException("Unknown exception"));
   }
 }
