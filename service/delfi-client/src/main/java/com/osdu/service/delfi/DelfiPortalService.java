@@ -7,24 +7,22 @@ import com.osdu.model.FileRecord;
 import com.osdu.model.Record;
 import com.osdu.model.delfi.DelfiFileRecord;
 import com.osdu.model.delfi.DelfiRecord;
+import com.osdu.model.property.DelfiPortalProperties;
 import com.osdu.service.PortalService;
-import javax.inject.Inject;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class DelfiPortalService implements PortalService {
 
-  @Inject
-  DelfiDeliveryClient deliveryClient;
+  final DelfiDeliveryClient deliveryClient;
 
-  @Inject
-  DelfiFileClient fileClient;
+  final DelfiFileClient fileClient;
 
-  @Value("${osdu.delfi.portal.appkey}")
-  String appKey;
+  final DelfiPortalProperties portalProperties;
 
   @Override
   public Record getRecord(String id, String authorizationToken, String partition) {
@@ -33,7 +31,8 @@ public class DelfiPortalService implements PortalService {
       throw new OsduException(String.format("Invalid parameters passed to client :"
           + " id:  %s, authorizationToken : %s, partition: %s", id, authorizationToken, partition));
     }
-    DelfiRecord record = deliveryClient.getRecord(id, authorizationToken, partition, appKey);
+    DelfiRecord record = deliveryClient
+        .getRecord(id, authorizationToken, partition, portalProperties.getAppKey());
     log.debug("Got record: /n" + record.toString());
 
     return record;
@@ -48,7 +47,8 @@ public class DelfiPortalService implements PortalService {
           authorizationToken, partition));
     }
     DelfiFileRecord fileRecord = fileClient
-        .getSignedUrlForLocation(location, authorizationToken, partition, partition, appKey);
+        .getSignedUrlForLocation(location, authorizationToken, partition, partition,
+            portalProperties.getAppKey());
     log.debug("Got file record: /n" + fileRecord.toString());
     return fileRecord;
   }
@@ -61,7 +61,7 @@ public class DelfiPortalService implements PortalService {
           + " id:  %s, authorizationToken : %s, partition: %s", id, authorizationToken, partition));
     }
     DelfiRecord resultRecord = deliveryClient.putRecord(record, authorizationToken, partition,
-        appKey);
+        portalProperties.getAppKey());
     log.debug("Put record finished: " + resultRecord.toString());
     return resultRecord;
   }

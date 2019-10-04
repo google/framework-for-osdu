@@ -1,28 +1,28 @@
 package com.osdu.service.delfi;
 
 import com.osdu.client.DelfiEntitlementsClient;
+import com.osdu.model.property.DelfiPortalProperties;
 import com.osdu.service.AuthenticationService;
-import javax.inject.Inject;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class DelfiAuthenticationService implements AuthenticationService {
 
-  @Inject
-  DelfiEntitlementsClient delfiEntitlementsClient;
+  final DelfiEntitlementsClient delfiEntitlementsClient;
 
-  @Value("${osdu.delfi.portal.appkey}")
-  String appKey;
+  final DelfiPortalProperties portalProperties;
 
   @Override
   public void checkCredentials(String authorizationToken, String partition) {
-    log.debug("Start authentication : {}, {}, {}", authorizationToken, appKey, partition);
+    log.debug("Start authentication : {}, {}, {}", authorizationToken, portalProperties.getAppKey(),
+        partition);
 
     delfiEntitlementsClient
-        .getUserGroups(authorizationToken, appKey, partition);
+        .getUserGroups(authorizationToken, portalProperties.getAppKey(), partition);
 
     log.debug("Authentication finished");
   }
