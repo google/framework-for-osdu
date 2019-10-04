@@ -77,7 +77,7 @@ public class DelfiSearchService implements SearchService {
     String partition = extractHeaders(headers, PARTITION_HEADER_KEY);
     String authorizationToken = extractHeaders(headers, AUTHORIZATION_HEADER);
 
-    authenticationService.checkCredentials(authorizationToken, partition);
+    authenticationService.checkAuthentication(authorizationToken, partition);
 
     DelfiSearchObject delfiSearchObject = searchObjectMapper
         .osduSearchObjectToDelfiSearchObject((OsduSearchObject) searchObject, kind, partition);

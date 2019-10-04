@@ -1,6 +1,7 @@
 package com.osdu.service.delfi;
 
 import com.osdu.client.DelfiEntitlementsClient;
+import com.osdu.model.delfi.entitlement.UserGroups;
 import com.osdu.model.property.DelfiPortalProperties;
 import com.osdu.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
@@ -17,14 +18,16 @@ public class DelfiAuthenticationService implements AuthenticationService {
   final DelfiPortalProperties portalProperties;
 
   @Override
-  public void checkCredentials(String authorizationToken, String partition) {
+  public UserGroups checkAuthentication(String authorizationToken, String partition) {
     log.debug("Start authentication : {}, {}, {}", authorizationToken, portalProperties.getAppKey(),
         partition);
 
-    delfiEntitlementsClient
+    UserGroups userGroups = delfiEntitlementsClient
         .getUserGroups(authorizationToken, portalProperties.getAppKey(), partition);
 
-    log.debug("Authentication finished");
+    log.debug("Authentication finished. User belongs to groups: " + userGroups.toString());
+
+    return userGroups;
   }
 }
 

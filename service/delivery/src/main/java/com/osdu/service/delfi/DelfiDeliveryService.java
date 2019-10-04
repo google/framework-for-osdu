@@ -57,7 +57,7 @@ public class DelfiDeliveryService implements DeliveryService {
     String authorizationToken = extractHeaderByName(headers, AUTHORIZATION_HEADER_KEY);
     String partition = extractHeaderByName(headers, PARTITION_HEADER_KEY);
 
-    authenticationService.checkCredentials(authorizationToken, partition);
+    authenticationService.checkAuthentication(authorizationToken, partition);
 
     List<DataProcessingJob> jobs = inputPayload.getSrns().stream()
         .map(srn -> new DelfiDataProcessingJob(srn, srnMappingService, portalService,
