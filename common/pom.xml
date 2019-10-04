@@ -27,6 +27,11 @@
       <artifactId>jackson-annotations</artifactId>
       <version>${com.fasterxml.jackson.core.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <version>${org.springframwork.version}</version>
+    </dependency>
   </dependencies>
 
   <build>
