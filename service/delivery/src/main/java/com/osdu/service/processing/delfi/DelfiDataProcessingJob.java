@@ -28,11 +28,11 @@ public class DelfiDataProcessingJob implements DataProcessingJob {
     result.setSrn(srn);
 
     final SchemaData schemaDataForSrn = srnMappingService.getSchemaData(srn);
-    String kind = schemaDataForSrn.getKind();
-    if (kind == null) {
+    if (schemaDataForSrn == null) {
       result.setProcessingResultStatus(ProcessingResultStatus.NO_MAPPING);
       return result;
     }
+    String kind = schemaDataForSrn.getKind();
     final Record record = portalService.getRecord(kind, authorizationToken, partition);
     if (record.getData().containsKey(LOCATION_KEY)) {
       final FileRecord file = portalService

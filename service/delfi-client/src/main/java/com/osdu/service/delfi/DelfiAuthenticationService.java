@@ -1,6 +1,7 @@
 package com.osdu.service.delfi;
 
 import com.osdu.client.DelfiEntitlementsClient;
+import com.osdu.exception.OsduUnauthorizedException;
 import com.osdu.model.delfi.entitlement.UserGroups;
 import com.osdu.model.property.DelfiPortalProperties;
 import com.osdu.service.AuthenticationService;
@@ -21,6 +22,11 @@ public class DelfiAuthenticationService implements AuthenticationService {
   public UserGroups checkAuthentication(String authorizationToken, String partition) {
     log.debug("Start authentication : {}, {}, {}", authorizationToken, portalProperties.getAppKey(),
         partition);
+
+    // Delfi client returns Internal server error if no authorization token, so we check it here
+    if (authorizationToken == null) {
+      throw new OsduUnauthorizedException("UnauthorizedException");
+    }
 
     UserGroups userGroups = delfiEntitlementsClient
         .getUserGroups(authorizationToken, portalProperties.getAppKey(), partition);
