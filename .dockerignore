@@ -1,0 +1,4 @@
+.git
+.gitlab-ci.yml
+mvnw.cmd
+target/

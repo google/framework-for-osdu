@@ -31,7 +31,7 @@ verify:
     - echo "$GCP_SVC_ACCT" > account.json
     - gcloud auth activate-service-account --key-file account.json
     - gcloud config set project $GCP_PROJECT
-    - gcloud builds submit --substitutions=_SERVICE_NAME=$SERVICE,_SHORT_SHA=$CI_COMMIT_SHORT_SHA
+    - gcloud builds submit --substitutions=_SERVICE_NAME=$SERVICE,_SHORT_SHA=$CI_COMMIT_SHORT_SHA,_CACHE_BUCKET=$GCS_CACHE_BUCKET
     - gcloud beta run deploy $SERVICE --image gcr.io/$GCP_PROJECT/osdu-gcp-$SERVICE:$CI_COMMIT_SHORT_SHA --platform managed --region us-central1 --allow-unauthenticated
 
 deploy_search:
@@ -62,23 +62,6 @@ deploy_delivery:
       - pom.xml
       - service/pom.xml
       - common/*
-      - service/delivery/*
-      - Dockerfile
-      - cloudbuild.yaml
-
-deploy_ingest:
-  <<: *deploy_template
-  variables:
-    SERVICE: ingest
-  only:
-    refs:
-      - master
-      - develop
-      - ingest
-    changes:
-      - pom.xml
-      - service/pom.xml
-      - common/*
-      - service/ingest/*
+      - service/search/*
       - Dockerfile
       - cloudbuild.yaml
