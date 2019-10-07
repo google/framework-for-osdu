@@ -1,5 +1,7 @@
 package com.osdu.service;
 
+import static java.util.Objects.isNull;
+
 import com.osdu.client.delfi.DelfiSearchClient;
 import com.osdu.mapper.SearchObjectMapper;
 import com.osdu.mapper.SearchResultMapper;
@@ -70,6 +72,11 @@ public class DelfiSearchService implements SearchService {
     log.debug("Received request to query Delfi Portal for data with following arguments: {},{}",
         searchObject, headers);
 
+    Boolean valid = checkIfInputParametersValid((OsduSearchObject) searchObject);
+    if (Boolean.FALSE.equals(valid)) {
+      return new SearchResult();
+    }
+
     String kind = extractHeaders(headers, KIND_HEADER_KEY);
     String partition = extractHeaders(headers, PARTITION_HEADER_KEY);
 
@@ -94,5 +101,12 @@ public class DelfiSearchService implements SearchService {
       return result;
     }
     return null;
+  }
+
+  private Boolean checkIfInputParametersValid(OsduSearchObject searchObject) {
+    return !(isNull(searchObject.getFulltext())
+        && isNull(searchObject.getMetadata())
+        && isNull(searchObject.getGeoCentroid())
+        && isNull(searchObject.getGeoLocation()));
   }
 }
