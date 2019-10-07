@@ -25,7 +25,7 @@ public class DelfiAuthenticationService implements AuthenticationService {
 
     // Delfi client returns Internal server error if no authorization token, so we check it here
     if (authorizationToken == null) {
-      throw new OsduUnauthorizedException("UnauthorizedException");
+      throw new OsduUnauthorizedException("Unauthorized");
     }
 
     UserGroups userGroups = delfiEntitlementsClient
