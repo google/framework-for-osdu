@@ -1,8 +1,9 @@
 #!/bin/bash
-WORKDIR="$(dirname "$(readlink -e "$0")")/.."
+WORKDIR=$(cd "$(dirname "$0")"/..; pwd)
 cd "$WORKDIR" || exit 0
 
-[[ -z $1 ]] && cat << EOF
+if [[ -z $1 ]]; then
+  cat << EOF
 Usage: $0 app [service [gcp-region]]
 Build and deploy a container to Cloud Run
 
@@ -11,6 +12,8 @@ Build and deploy a container to Cloud Run
   region    Google Cloud region (default: us-central1)
   
 EOF
+  exit 1
+fi
 
 APP=$1
 SERVICE=$2
@@ -24,11 +27,17 @@ if [[ -z $GOOGLE_CLOUD_PROJECT ]]; then
   read -r GOOGLE_CLOUD_PROJECT
 fi
 
-[[ -z $GOOGLE_CLOUD_PROJECT ]] && GOOGLE_CLOUD_PROJECT="a2ba07aca58-energy-osdu" && CACHE_BUCKET=osdu-gcp-gitlab-cache
+[[ -z $GOOGLE_CLOUD_PROJECT ]] && GOOGLE_CLOUD_PROJECT="a2ba07aca58-energy-osdu"
 gcloud config set project $GOOGLE_CLOUD_PROJECT
+
+[[ "$GOOGLE_CLOUD_PROJECT" = "a2ba07aca58-energy-osdu" ]] && CACHE_BUCKET="osdu-gcp-gitlab-cache"
+if [[ -z $CACHE_BUCKET ]]; then
+  echo "Enter the GCS bucket for caching Cloud Build results"
+  read -r CACHE_BUCKET
+fi
 
 COMMIT_SHA=$(git rev-parse --short HEAD 2>/dev/null)
 [[ -z $COMMIT_SHA ]] && COMMIT_SHA=latest
-gcloud builds submit --substitutions=_SERVICE_NAME="$APP",_SHORT_SHA="$COMMIT_SHA",_CACHE_BUCKET="$CACHE_BUCKET"
+gcloud builds submit --config "${WORKDIR}"/cloudbuild.yaml --substitutions=_SERVICE_NAME="$APP",_SHORT_SHA="$COMMIT_SHA",_CACHE_BUCKET="$CACHE_BUCKET"
 
 gcloud beta run deploy "$SERVICE" --image gcr.io/${GOOGLE_CLOUD_PROJECT}/osdu-gcp-"${APP}":"${COMMIT_SHA}" --platform managed --region "$REGION"
