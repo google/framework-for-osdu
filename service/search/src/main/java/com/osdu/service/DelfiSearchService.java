@@ -75,17 +75,17 @@ public class DelfiSearchService implements SearchService {
     log.debug("Received request to query Delfi Portal for data with following arguments: {},{}",
         searchObject, headers);
 
-    Boolean valid = checkIfInputParametersValid((OsduSearchObject) searchObject);
-    if (Boolean.FALSE.equals(valid)) {
-      log.info("Input parameters validation fail - " + (OsduSearchObject) searchObject);
-      return new SearchResult();
-    }
-
     String kind = extractHeaders(headers, KIND_HEADER_KEY);
     String partition = extractHeaders(headers, PARTITION_HEADER_KEY);
     String authorizationToken = extractHeaders(headers, AUTHORIZATION_HEADER);
 
     authenticationService.checkAuthentication(authorizationToken, partition);
+
+    Boolean valid = checkIfInputParametersValid((OsduSearchObject) searchObject);
+    if (Boolean.FALSE.equals(valid)) {
+      log.info("Input parameters validation fail - " + (OsduSearchObject) searchObject);
+      return new SearchResult();
+    }
 
     DelfiSearchObject delfiSearchObject = searchObjectMapper
         .osduToDelfi((OsduSearchObject) searchObject, kind, partition);
