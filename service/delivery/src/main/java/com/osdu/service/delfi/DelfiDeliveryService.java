@@ -2,7 +2,7 @@ package com.osdu.service.delfi;
 
 import com.osdu.client.delfi.DelfiDeliveryClient;
 import com.osdu.client.delfi.DelfiFileClient;
-import com.osdu.exception.OSDUException;
+import com.osdu.exception.OsduException;
 import com.osdu.model.osdu.delivery.FileRecord;
 import com.osdu.model.osdu.delivery.Record;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResultStatus;
@@ -72,7 +72,7 @@ public class DelfiDeliveryService implements DeliveryService, DelfiDeliveryPorta
                 results.add(job.get());
             } catch (ExecutionException | InterruptedException e) {
                 log.error("Error execution srn", e);
-                throw new OSDUException("Error execution srn");
+                throw new OsduException("Error execution srn");
             }
         }
         executor.shutdown();

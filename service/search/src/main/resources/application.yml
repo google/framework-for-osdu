@@ -3,6 +3,8 @@ git:
     path: resources/git
 search:
   delfi:
+    portal:
+      url: https://api.evq.csp.slb.com/
     client:
       appKeyHeader: AppKey
       authorizationHeader: Authorization
