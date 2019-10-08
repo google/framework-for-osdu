@@ -1,4 +1,4 @@
-package com.osdu.model.delfi;
+package com.osdu.model.delfi.signed;
 
 import java.net.URL;
 import lombok.Data;

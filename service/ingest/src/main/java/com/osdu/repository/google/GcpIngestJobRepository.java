@@ -11,6 +11,7 @@ import com.osdu.exception.SrnMappingException;
 import com.osdu.model.job.IngestJob;
 import com.osdu.repository.IngestJobRepository;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -22,7 +23,7 @@ public class GcpIngestJobRepository implements IngestJobRepository {
   static final String COLLECTION_NAME = "ingestJob";
   static final String ID_FIELD_NAME = "id";
 
-  Firestore firestore;
+  final Firestore firestore;
 
   public GcpIngestJobRepository() {
     this.firestore = FirestoreOptions.getDefaultInstance().getService();
@@ -67,6 +68,21 @@ public class GcpIngestJobRepository implements IngestJobRepository {
     } catch (InterruptedException | ExecutionException e) {
       throw new IngestJobException(
           String.format("Exception during saving of ingest job : %s", ingestJob), e);
+    }
+  }
+
+  @Override
+  public void updateFields(String id, Map<String, Object> fields) {
+    log.debug("Request to update ingest job. Id: {}, fields: {}", id, fields);
+    try {
+      WriteResult writeResult = firestore.collection(COLLECTION_NAME)
+          .document(id)
+          .update(fields).get();
+      log.debug("Ingest job is updated. Id = {}, saved on: {}", id, writeResult.getUpdateTime());
+    } catch (InterruptedException | ExecutionException e) {
+      throw new IngestJobException(
+          String.format("Exception during updating of ingest job. Id: %s, fields: %s", id, fields),
+          e);
     }
   }
 }

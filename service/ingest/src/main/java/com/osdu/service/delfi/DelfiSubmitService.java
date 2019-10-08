@@ -12,16 +12,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.osdu.client.DelfiIngestionClient;
 import com.osdu.exception.IngestException;
-import com.osdu.model.delfi.JobStatusResponse;
 import com.osdu.model.delfi.RequestMeta;
-import com.osdu.model.delfi.SubmitFileObject;
-import com.osdu.model.delfi.SubmitFileResult;
 import com.osdu.model.delfi.status.JobStatus;
+import com.osdu.model.delfi.status.JobStatusResponse;
 import com.osdu.model.delfi.status.JobsPullingResult;
 import com.osdu.model.delfi.status.MasterJobStatus;
 import com.osdu.model.delfi.submit.Acl;
 import com.osdu.model.delfi.submit.AclObject;
 import com.osdu.model.delfi.submit.FileInput;
+import com.osdu.model.delfi.submit.SubmitFileObject;
+import com.osdu.model.delfi.submit.SubmitFileResult;
 import com.osdu.model.delfi.submit.SubmitJobResult;
 import com.osdu.model.property.DelfiPortalProperties;
 import com.osdu.service.SubmitService;
@@ -42,11 +42,8 @@ import org.springframework.stereotype.Service;
 public class DelfiSubmitService implements SubmitService {
 
   final DelfiPortalProperties portalProperties;
-
   final ObjectMapper objectMapper;
-
   final DelfiIngestionClient delfiIngestionClient;
-
 
   @Override
   public JobsPullingResult awaitSubmitJobs(List<String> jobIds, RequestMeta requestMeta) {
@@ -54,7 +51,7 @@ public class DelfiSubmitService implements SubmitService {
     List<JobStatus> failedJobs = new ArrayList<>(runningJobs.size());
     List<JobStatus> completedJobs = new ArrayList<>(runningJobs.size());
 
-    while (runningJobs.size() > 0) {
+    while (!runningJobs.isEmpty()) {
       Map<MasterJobStatus, List<JobStatus>> submittedJobsByStatus = runningJobs.stream()
           .map(jobId -> delfiIngestionClient.getJobStatus(jobId,
               requestMeta.getAuthorizationToken(),
@@ -72,7 +69,8 @@ public class DelfiSubmitService implements SubmitService {
       try {
         Thread.sleep(1000);
       } catch (InterruptedException e) {
-        throw new IngestException("Pulling submitted jobs was unexpected interrupted. JobIds = " + jobIds, e);
+        throw new IngestException("Pulling submitted jobs was unexpected interrupted. JobIds = "
+            + jobIds, e);
       }
     }
 
@@ -85,24 +83,24 @@ public class DelfiSubmitService implements SubmitService {
 
   @Override
   public SubmitJobResult submitFile(String relativeFilePath, RequestMeta requestMeta) {
-      String srn = generateSrn(requestMeta.getSchemaData().getSrn());
-      SubmitFileResult submitFileResult = delfiIngestionClient
-          .submitFile(requestMeta.getAuthorizationToken(),
-              requestMeta.getAppKey(),
-              requestMeta.getPartition(),
-              SubmitFileObject.builder()
-                  .kind(requestMeta.getSchemaData().getKind())
-                  .filePath("gs://" + normalizeRelativePath(relativeFilePath))
-                  .legalTags(requestMeta.getLegalTags())
-                  .acl(getAcl(requestMeta.getUserGroupEmailByName()))
-                  .fileInput(FileInput.FILE_PATH)
-                  .additionalProperties(getAdditionalProperties(srn))
-                  .build());
+    String srn = generateSrn(requestMeta.getSchemaData().getSrn());
+    SubmitFileResult submitFileResult = delfiIngestionClient
+        .submitFile(requestMeta.getAuthorizationToken(),
+            portalProperties.getAppKey(),
+            requestMeta.getPartition(),
+            SubmitFileObject.builder()
+                .kind(requestMeta.getSchemaData().getKind())
+                .filePath("gs://" + normalizeRelativePath(relativeFilePath))
+                .legalTags(requestMeta.getLegalTags())
+                .acl(getAcl(requestMeta.getUserGroupEmailByName()))
+                .fileInput(FileInput.FILE_PATH)
+                .additionalProperties(getAdditionalProperties(srn))
+                .build());
 
-      return SubmitJobResult.builder()
-          .jobId(submitFileResult.getJobId())
-          .srn(srn)
-          .build();
+    return SubmitJobResult.builder()
+        .jobId(submitFileResult.getJobId())
+        .srn(srn)
+        .build();
   }
 
   private String generateSrn(String srn) {

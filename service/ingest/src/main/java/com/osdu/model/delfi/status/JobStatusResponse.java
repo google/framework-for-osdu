@@ -1,6 +1,5 @@
-package com.osdu.model.delfi;
+package com.osdu.model.delfi.status;
 
-import com.osdu.model.delfi.status.JobStatus;
 import lombok.Data;
 
 @Data

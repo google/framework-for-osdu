@@ -1,4 +1,4 @@
-package com.osdu.model.delfi;
+package com.osdu.model.delfi.submit;
 
 import lombok.Data;
 

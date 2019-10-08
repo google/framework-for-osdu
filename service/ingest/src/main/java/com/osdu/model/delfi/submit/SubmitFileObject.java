@@ -1,7 +1,6 @@
-package com.osdu.model.delfi;
+package com.osdu.model.delfi.submit;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
-import com.osdu.model.delfi.submit.FileInput;
 import lombok.Builder;
 import lombok.Data;
 
