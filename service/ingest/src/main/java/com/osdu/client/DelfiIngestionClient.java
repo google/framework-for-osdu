@@ -1,10 +1,10 @@
 package com.osdu.client;
 
 import com.osdu.client.delfi.Header;
-import com.osdu.model.delfi.JobStatusResponse;
-import com.osdu.model.delfi.SignedUrlResult;
-import com.osdu.model.delfi.SubmitFileObject;
-import com.osdu.model.delfi.SubmitFileResult;
+import com.osdu.model.delfi.signed.SignedUrlResult;
+import com.osdu.model.delfi.status.JobStatusResponse;
+import com.osdu.model.delfi.submit.SubmitFileObject;
+import com.osdu.model.delfi.submit.SubmitFileResult;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

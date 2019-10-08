@@ -9,7 +9,6 @@ import lombok.Data;
 @Builder
 public class RequestMeta {
 
-  String appKey;
   String authorizationToken;
   String partition;
   String legalTags;
