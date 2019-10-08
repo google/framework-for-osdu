@@ -1,6 +1,5 @@
 package com.osdu.service.delfi;
 
-import com.google.cloud.Timestamp;
 import com.google.common.collect.ImmutableMap;
 import com.osdu.model.job.IngestJob;
 import com.osdu.model.job.IngestJobStatus;
@@ -36,7 +35,6 @@ public class DelfiJobStatusService implements JobStatusService {
     ingestJobRepository.save(IngestJob.builder()
         .id(jobId)
         .status(IngestJobStatus.RUNNING)
-        .created(Timestamp.now())
         .build());
 
     log.info("Created a new running injection job. JobId: {}", jobId);

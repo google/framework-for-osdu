@@ -5,13 +5,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.osdu.model.BaseJsonObject;
 import java.util.List;
 import java.util.Map;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Builder(toBuilder = true)
+@NoArgsConstructor
+@AllArgsConstructor
 @JsonIgnoreProperties({ "files" })
 public class WorkProductComponent extends BaseJsonObject {
 
