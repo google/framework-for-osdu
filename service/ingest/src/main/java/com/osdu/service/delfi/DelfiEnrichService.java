@@ -38,9 +38,9 @@ public class DelfiEnrichService implements EnrichService {
   }
 
   @Override
-  public List<Record> enrichRecords(List<SubmittedFile> ingestRecords, RequestMeta requestMeta) {
+  public List<Record> enrichRecords(List<SubmittedFile> submittedFiles, RequestMeta requestMeta) {
     // TODO: rework
-    List<Record> records = ingestRecords.stream()
+    List<Record> records = submittedFiles.stream()
         .map(file -> {
           Record record = portalService.getRecord("", requestMeta.getAuthorizationToken(),
               requestMeta.getPartition());
