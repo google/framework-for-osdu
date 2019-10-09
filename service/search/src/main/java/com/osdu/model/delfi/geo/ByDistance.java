@@ -16,7 +16,7 @@ public class ByDistance implements GeoLocation {
   Double distance;
 
   public ByDistance(Object[] coordinates, Double distance) {
-    if (coordinates.length != 1) {
+    if (coordinates.length != 2) {
       throw new GeoLocationException(
           " By Distance GeoJSON requires exactly 1 point for creation, actual, received "
               + coordinates.length);
