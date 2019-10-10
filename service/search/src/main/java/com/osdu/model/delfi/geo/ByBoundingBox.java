@@ -14,6 +14,7 @@ public class ByBoundingBox implements GeoLocation {
 
   /**
    * Constructor.
+   *
    * @param coordinates coordinates
    */
   public ByBoundingBox(Object[] coordinates) {

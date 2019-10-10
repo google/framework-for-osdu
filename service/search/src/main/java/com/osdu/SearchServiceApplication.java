@@ -7,10 +7,10 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
 @EnableFeignClients
-public class SchemaMapperApplication {
+public class SearchServiceApplication {
 
   public static void main(String[] args) {
-    SpringApplication.run(SchemaMapperApplication.class, args);
+    SpringApplication.run(SearchServiceApplication.class, args);
   }
 
 }

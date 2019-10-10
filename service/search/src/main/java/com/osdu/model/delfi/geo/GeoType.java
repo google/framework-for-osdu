@@ -16,6 +16,7 @@ public enum GeoType {
 
   /**
    * Lookup for GeoType depends on fieldName.
+   *
    * @param fieldName field name
    * @return GeoType
    */

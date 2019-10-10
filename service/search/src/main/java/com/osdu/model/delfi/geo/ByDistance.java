@@ -17,8 +17,9 @@ public class ByDistance implements GeoLocation {
 
   /**
    * Constructor.
+   *
    * @param coordinates coordinates
-   * @param distance distance
+   * @param distance    distance
    */
   public ByDistance(Object[] coordinates, Double distance) {
     if (coordinates.length != 1) {

@@ -110,4 +110,9 @@
     <docker.image.prefix>springio</docker.image.prefix>
   </properties>
 
+    <modules>
+        <module>service</module>
+    </modules>
+
+
 </project>

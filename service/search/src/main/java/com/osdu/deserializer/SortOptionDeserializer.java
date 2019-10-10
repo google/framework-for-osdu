@@ -4,10 +4,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.osdu.exception.OsduException;
 import com.osdu.model.osdu.SortOption;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -25,20 +23,15 @@ public class SortOptionDeserializer extends JsonDeserializer<SortOption> {
     JsonNode node = p.getCodec().readTree(p);
     SortOption sortOption = new SortOption();
 
-    if (!node.fields().hasNext()) {
-      sortOption.setFieldName(node.asText());
-      sortOption.setOrderType(SortOption.OrderType.ASC);
-    } else {
-      Iterator<Map.Entry<String, JsonNode>> it = node.fields();
-
-      if (!it.hasNext()) {
-        throw new OsduException(String.format("Couldn't deserialize jsonObject: %s", node));
-      }
-
-      Map.Entry<String, JsonNode> next = it.next();
-      sortOption.setFieldName(next.getKey());
+    if (node.fields().hasNext()) {
+      Map.Entry<String, JsonNode> sortEntry = node.fields().next();
+      sortOption.setFieldName(sortEntry.getKey());
       sortOption
-          .setOrderType(SortOption.OrderType.valueOf(next.getValue().get(ORDER_JSON_KEY).asText()));
+          .setOrderType(
+              SortOption.OrderType.valueOf(sortEntry.getValue().get(ORDER_JSON_KEY).asText()));
+    } else {
+      sortOption.setFieldName(node.asText());
+      sortOption.setOrderType(SortOption.OrderType.asc);
     }
 
     return sortOption;
