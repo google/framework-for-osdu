@@ -31,7 +31,7 @@ public class SortOptionDeserializer extends JsonDeserializer<SortOption> {
               SortOption.OrderType.valueOf(sortEntry.getValue().get(ORDER_JSON_KEY).asText()));
     } else {
       sortOption.setFieldName(node.asText());
-      sortOption.setOrderType(SortOption.OrderType.asc);
+      sortOption.setOrderType(SortOption.OrderType.ASC);
     }
 
     return sortOption;
