@@ -20,7 +20,8 @@ import org.springframework.util.StringUtils;
 @Slf4j
 public abstract class SearchObjectMapperDecorator implements SearchObjectMapper {
 
-  static final double DEFAULT_ZERO_DISTANCE = 0.0;
+  // Business logic - what default distance? Zero causes error on Delfi
+  static final double DEFAULT_DISTANCE = 1000.0;
   static final String LUCENE_AND_TERM = " AND ";
   static final String LUCENE_OR_TERM = " OR ";
   static final String BY_BOUNDING_BOX_GEOLOCATION_TYPE = "ByBoundingBox";
@@ -131,7 +132,7 @@ public abstract class SearchObjectMapperDecorator implements SearchObjectMapper 
     switch (geoCentroidList.length) {
       case 1:
         spatialFilter.setByDistance(
-            new ByDistance(geoCentroidList, DEFAULT_ZERO_DISTANCE));
+            new ByDistance(geoCentroidList, DEFAULT_DISTANCE));
         break;
       case 2:
         spatialFilter.setByBoundingBox(new ByBoundingBox(geoCentroidList));
@@ -169,7 +170,7 @@ public abstract class SearchObjectMapperDecorator implements SearchObjectMapper 
       case POINT:
         spatialFilter.setByDistance(
             new ByDistance(geoLocation.getCoordinates(),
-                DEFAULT_ZERO_DISTANCE));
+                DEFAULT_DISTANCE));
         break;
     }
     if (geoLocation.getType().equals(BY_BOUNDING_BOX_GEOLOCATION_TYPE)) {
