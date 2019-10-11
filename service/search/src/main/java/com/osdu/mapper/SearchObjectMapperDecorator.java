@@ -7,6 +7,7 @@ import com.osdu.model.delfi.geo.ByDistance;
 import com.osdu.model.delfi.geo.ByGeoPolygon;
 import com.osdu.model.delfi.geo.GeoType;
 import com.osdu.model.delfi.geo.SpatialFilter;
+import com.osdu.model.delfi.geo.exception.GeoLocationException;
 import com.osdu.model.osdu.GeoLocation;
 import com.osdu.model.osdu.OsduSearchObject;
 import com.osdu.model.osdu.SortOption;
@@ -151,6 +152,12 @@ public abstract class SearchObjectMapperDecorator implements SearchObjectMapper 
    * @return
    */
   private SpatialFilter mapGeoLocationObject(com.osdu.model.osdu.GeoLocation geoLocation) {
+    if (geoLocation.getCoordinates() == null) {
+      log.warn(
+          "No coordinates were given to geo location search request. GeoLocation - " + geoLocation);
+      throw new GeoLocationException("Invalid parameters were given on search request");
+    }
+
     SpatialFilter spatialFilter = new SpatialFilter();
     switch (GeoType.lookup(geoLocation.getType())) {
       case BY_BOUNDING_BOX:
