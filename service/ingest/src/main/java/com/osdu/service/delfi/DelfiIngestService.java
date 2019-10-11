@@ -1,6 +1,7 @@
 package com.osdu.service.delfi;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import static com.osdu.service.JsonUtils.getJsonNode;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
@@ -66,10 +67,9 @@ public class DelfiIngestService implements IngestService {
   private ProcessingReport validateManifest(LoadManifest loadManifest) {
     final JsonNode manifestDefaultSchema = getDefaultManifestSchema();
 
-    final JsonNode jsonNodeFromManifest = getJsonNodeFromManifest(loadManifest);
+    final JsonNode jsonNodeFromManifest = getJsonNode(loadManifest);
 
-    return jsonValidationService
-        .validate(manifestDefaultSchema, jsonNodeFromManifest);
+    return jsonValidationService.validate(manifestDefaultSchema, jsonNodeFromManifest);
   }
 
   private JsonNode getDefaultManifestSchema() {
@@ -78,23 +78,6 @@ public class DelfiIngestService implements IngestService {
           .getResource(DEFAULT_MANIFEST_SCHEMA_NAME));
     } catch (IOException e) {
       throw new IngestException("Failed to get default schema for load manifest", e);
-    }
-  }
-
-  private JsonNode getJsonNodeFromManifest(LoadManifest loadManifest) {
-    try {
-      return objectMapper.readTree(toJson(loadManifest));
-    } catch (IOException e) {
-      throw new IngestException(
-          String.format("Could not convert object to JSON. Object : %s", loadManifest), e);
-    }
-  }
-
-  private <T> String toJson(T value) {
-    try {
-      return objectMapper.writeValueAsString(value);
-    } catch (JsonProcessingException e) {
-      throw new IngestException("Could not convert object to JSON. Object: " + value);
     }
   }
 
