@@ -1,104 +1,80 @@
 package com.osdu.service.delfi;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import static com.osdu.model.delfi.status.MasterJobStatus.COMPLETED;
+import static com.osdu.request.OsduHeader.RESOURCE_HOME_REGION_ID;
+import static com.osdu.request.OsduHeader.RESOURCE_HOST_REGION_IDS;
+import static com.osdu.request.OsduHeader.extractHeaderByName;
+import static com.osdu.service.JsonUtils.toJson;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.osdu.exception.IngestException;
 import com.osdu.model.Record;
-import com.osdu.model.delfi.IngestRecord;
 import com.osdu.model.delfi.RequestMeta;
 import com.osdu.model.delfi.submit.SubmittedFile;
-import com.osdu.model.manifest.GroupTypeProperties;
-import com.osdu.model.manifest.LoadManifest;
+import com.osdu.model.manifest.WorkProductComponent;
 import com.osdu.service.EnrichService;
 import com.osdu.service.PortalService;
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.time.Clock;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DelfiEnrichService implements EnrichService {
 
   final ObjectMapper objectMapper;
   final PortalService portalService;
 
   @Override
-  public Record enrichRecord(String odesId, LoadManifest loadManifest, String authorizationToken,
-      String partition) {
+  public Record enrichRecord(SubmittedFile file, RequestMeta requestMeta, MessageHeaders headers) {
 
-    LoadManifest reducedLoadManifest = stripRedundantFields(loadManifest);
+    WorkProductComponent wpc = file.getSignedFile().getFile().getWpc();
+    Record record = portalService.getRecord("recordId", requestMeta.getAuthorizationToken(),
+        requestMeta.getPartition());
 
-    final Record record = portalService.getRecord(odesId, authorizationToken, partition);
+    WorkProductComponent reducedWpc = stripRedundantFields(deepCopy(wpc));
+    record.getData().putAll(reducedWpc.getData());
 
-    populateRecordWithManifest(reducedLoadManifest, record);
+    record.getData().putAll(defineAdditionalProperties(headers));
 
-    return portalService.putRecord(odesId, record, authorizationToken, partition);
+    return portalService.putRecord(record, requestMeta.getAuthorizationToken(),
+        requestMeta.getPartition());
   }
 
-  @Override
-  public List<Record> enrichRecords(List<SubmittedFile> submittedFiles, RequestMeta requestMeta) {
-    // TODO: rework
-    List<Record> records = submittedFiles.stream()
-        .map(file -> {
-          Record record = portalService.getRecord("", requestMeta.getAuthorizationToken(),
-              requestMeta.getPartition());
-          return IngestRecord.builder()
-              .submittedFile(file)
-              .record(record)
-              .build();
-        })
-        .map(record -> {
-          // populate wpc: record.getSubmittedFile().getSignedFile().getFile().getWpc()
-          return record.getRecord();
-        })
-        .collect(Collectors.toList());
+  private Map<String, Object> defineAdditionalProperties(MessageHeaders headers) {
+    Map<String, Object> properties = new HashMap<>();
+    properties.put(RESOURCE_HOME_REGION_ID, extractHeaderByName(headers, RESOURCE_HOME_REGION_ID));
+    properties
+        .put(RESOURCE_HOST_REGION_IDS, extractHeaderByName(headers, RESOURCE_HOST_REGION_IDS));
+    Clock clock = Clock.systemUTC();
+    // TODO fix logic with versions
+    properties.put("ResourceObjectCreationDateTime", clock.millis());
+    properties.put("ResourceVersionCreationDateTime", clock.millis());
 
-    // validate
+    properties.put("ResourceCurationStatus", "CREATED");
+    properties.put("ResourceLifecycleStatus", COMPLETED);
+    properties.put("ResourceSecurityClassification", "RESTRICTED");
 
-    return records;
+    return properties;
   }
 
-  private Record populateRecordWithManifest(LoadManifest loadManifest, Record record) {
-    record.getDetails().put("WorkProduct", loadManifest.getWorkProduct());
-    record.getDetails().put("WorkProductComponents", loadManifest.getWorkProductComponents());
-    record.getDetails().put("Files", loadManifest.getFiles());
-    record.getDetails().putAll(loadManifest.getAdditionalProperties());
-
-    return record;
+  private WorkProductComponent stripRedundantFields(WorkProductComponent wpc) {
+    // TODO Remove redundant values from work product component
+    return wpc;
   }
 
-  private LoadManifest stripRedundantFields(LoadManifest initialLoadManifest) {
-    LoadManifest loadManifest = deepCopy(initialLoadManifest);
-    loadManifest.setFiles(loadManifest.getFiles().stream()
-        .map(file -> {
-          GroupTypeProperties properties = file.getData().getGroupTypeProperties();
-          properties.setFileSource(null);
-          properties.setOriginalFilePath(null);
-          properties.setStagingFilePath(null);
-          file.getData().setGroupTypeProperties(properties);
-
-          return file;
-        }).collect(Collectors.toList()));
-
-    return loadManifest;
-  }
-
-  private LoadManifest deepCopy(LoadManifest loadManifest) {
+  private WorkProductComponent deepCopy(WorkProductComponent wpc) {
     try {
-      return objectMapper.readValue(toJson(loadManifest),
-          LoadManifest.class);
+      return objectMapper.readValue(toJson(wpc),
+          WorkProductComponent.class);
     } catch (IOException e) {
-      throw new IngestException("Error processing LoadManifest json for odesId", e);
-    }
-  }
-
-  private <T> String toJson(T value) {
-    try {
-      return objectMapper.writeValueAsString(value);
-    } catch (JsonProcessingException e) {
-      throw new IngestException("Could not convert object to JSON. Object: " + value);
+      throw new IngestException("Error processing WorkProductComponent json", e);
     }
   }
 

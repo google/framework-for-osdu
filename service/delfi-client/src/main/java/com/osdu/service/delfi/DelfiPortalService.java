@@ -54,11 +54,12 @@ public class DelfiPortalService implements PortalService {
   }
 
   @Override
-  public Record putRecord(String id, Record record, String authorizationToken, String partition) {
-    log.debug("Getting record with params : {}, {}, {}", id, authorizationToken, partition);
-    if (id == null || authorizationToken == null || partition == null) {
+  public Record putRecord(Record record, String authorizationToken, String partition) {
+    log.debug("Put record with params : {}, {}, {}", record, authorizationToken, partition);
+    if (authorizationToken == null || partition == null) {
       throw new OsduException(String.format("Invalid parameters passed to client :"
-          + " id:  %s, authorizationToken : %s, partition: %s", id, authorizationToken, partition));
+          + " record:  %s, authorizationToken : %s, partition: %s", record, authorizationToken,
+          partition));
     }
     DelfiRecord resultRecord = deliveryClient.putRecord(record, authorizationToken, partition,
         portalProperties.getAppKey());

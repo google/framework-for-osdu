@@ -1,5 +1,7 @@
 package com.osdu.service.delfi;
 
+import static com.osdu.request.OsduHeader.extractHeaderByName;
+
 import com.osdu.exception.OsduException;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
 import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
@@ -85,15 +87,5 @@ public class DelfiDeliveryService implements DeliveryService {
     return resultDataConverter.convertProcessingResults(results);
   }
 
-  private String extractHeaderByName(MessageHeaders headers, String headerKey) {
-    log.debug("Extracting header with name : {} from map : {}", headerKey, headers);
-    if (headers.containsKey(headerKey)) {
-      String result = (String) headers.get(headerKey);
-      log.debug("Found header in the request with following key:value pair : {}:{}", headerKey,
-          result);
-      return result;
-    }
-    return null;
-  }
 }
 

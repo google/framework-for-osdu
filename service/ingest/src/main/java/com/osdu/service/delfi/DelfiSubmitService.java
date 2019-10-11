@@ -3,6 +3,7 @@ package com.osdu.service.delfi;
 import static com.osdu.model.delfi.status.MasterJobStatus.COMPLETED;
 import static com.osdu.model.delfi.status.MasterJobStatus.FAILED;
 import static com.osdu.model.delfi.status.MasterJobStatus.RUNNING;
+import static com.osdu.service.JsonUtils.toJson;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
@@ -127,11 +128,4 @@ public class DelfiSubmitService implements SubmitService {
     return toJson(properties);
   }
 
-  private <T> String toJson(T value) {
-    try {
-      return objectMapper.writeValueAsString(value);
-    } catch (JsonProcessingException e) {
-      throw new IngestException("Could not convert object to JSON. Object: " + value);
-    }
-  }
 }

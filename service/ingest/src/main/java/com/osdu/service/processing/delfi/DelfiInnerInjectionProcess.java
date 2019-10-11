@@ -1,15 +1,21 @@
 package com.osdu.service.processing.delfi;
 
+import static com.osdu.model.job.IngestJobStatus.FAILED;
+import static com.osdu.request.OsduHeader.extractHeaderByName;
+import static com.osdu.service.JsonUtils.getJsonNode;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.storage.Blob;
 import com.osdu.client.DelfiEntitlementsClient;
 import com.osdu.client.DelfiIngestionClient;
 import com.osdu.exception.IngestException;
+import com.osdu.model.Record;
 import com.osdu.model.SchemaData;
 import com.osdu.model.delfi.RequestMeta;
 import com.osdu.model.delfi.entitlement.Group;
 import com.osdu.model.delfi.signed.SignedFile;
 import com.osdu.model.delfi.signed.SignedUrlResult;
+import com.osdu.model.delfi.status.JobsPullingResult;
 import com.osdu.model.delfi.submit.SubmitJobResult;
 import com.osdu.model.delfi.submit.SubmittedFile;
 import com.osdu.model.job.IngestJobStatus;
@@ -21,6 +27,8 @@ import com.osdu.model.property.DelfiPortalProperties;
 import com.osdu.request.OsduHeader;
 import com.osdu.service.EnrichService;
 import com.osdu.service.JobStatusService;
+import com.osdu.service.JsonValidationService;
+import com.osdu.service.PortalService;
 import com.osdu.service.SrnMappingService;
 import com.osdu.service.StorageService;
 import com.osdu.service.SubmitService;
@@ -32,6 +40,7 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -62,6 +71,8 @@ public class DelfiInnerInjectionProcess implements InnerInjectionProcess {
   final EnrichService enrichService;
   final SubmitService submitService;
   final JobStatusService jobStatusService;
+  final PortalService portalService;
+  final JsonValidationService jsonValidationService;
 
   @Override
   @Async
@@ -102,27 +113,33 @@ public class DelfiInnerInjectionProcess implements InnerInjectionProcess {
               .collect(Collectors.toList());
 
           //poll job for readiness
-          submitService.awaitSubmitJobs(jobIds, requestMeta);
+          JobsPullingResult jobsPullingResult = submitService.awaitSubmitJobs(jobIds, requestMeta);
           log.info("Waited for all submitted jobs to be finished. JobId: {}", innerJobId);
 
+          // fail records if at least one submit job fail
+          if (!jobsPullingResult.getFailedJobs().isEmpty()) {
+            failSubmittedFiles(submittedFiles, requestMeta);
+            return;
+          }
+
           //run enrichment
-          enrichService.enrichRecords(submittedFiles, requestMeta);
+          List<Record> enrichedRecords = submittedFiles.stream()
+              .map(file -> enrichService.enrichRecord(file, requestMeta, headers))
+              .collect(Collectors.toList());
           log.info("Finished the enrichment. JobId: {}", innerJobId);
+
+          // post validation
+          enrichedRecords.stream()
+              .map(record -> jsonValidationService
+                  .validate(schemaData.getSchema(), getJsonNode(record)))
+              .filter(result -> !result.isSuccess())
+              .peek(result -> log.warn("Post submit record validation fail - " + result.toString()))
+              .findFirst()
+              .ifPresent(result -> failRecords(enrichedRecords, requestMeta));
         });
 
     jobStatusService.updateJobStatus(innerJobId, IngestJobStatus.COMPLETE);
     log.info("Finished the internal async injection process. JobId: {}", innerJobId);
-  }
-
-  private String extractHeaderByName(MessageHeaders headers, String headerKey) {
-    log.debug("Extracting header with name : {} from map : {}", headerKey, headers);
-    if (headers.containsKey(headerKey)) {
-      String result = (String) headers.get(headerKey);
-      log.debug("Found header in the request with following key:value pair : {}:{}", headerKey,
-          result);
-      return result;
-    }
-    return null;
   }
 
   private String normalizeString(String str, Pattern pattern) {
@@ -204,6 +221,28 @@ public class DelfiInnerInjectionProcess implements InnerInjectionProcess {
         .srn(result.getSrn())
         .jobId(result.getJobId())
         .build();
+  }
+
+  private List<Record> failSubmittedFiles(List<SubmittedFile> submittedFiles,
+      RequestMeta requestMeta) {
+    // TODO fix get record logic
+    List<Record> foundRecords = submittedFiles.stream()
+        .map(file -> portalService.getRecord(file.getSrn(),
+            requestMeta.getAuthorizationToken(), requestMeta.getPartition()))
+        .filter(Objects::nonNull)
+        .collect(Collectors.toList());
+    return failRecords(foundRecords, requestMeta);
+  }
+
+  private List<Record> failRecords(List<Record> records, RequestMeta requestMeta) {
+    return records.stream()
+        .map(record -> {
+          record.getData().put("ResourceLifecycleStatus", FAILED);
+          // TODO fix get record logic
+          portalService.putRecord(record, requestMeta.getAuthorizationToken(),
+              requestMeta.getPartition());
+          return record;
+        }).collect(Collectors.toList());
   }
 
 }

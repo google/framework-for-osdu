@@ -7,7 +7,7 @@ public interface PortalService {
 
   Record getRecord(String id, String autorizationToken, String partition);
 
-  Record putRecord(String id, Record record, String authorizationToken, String partition);
+  Record putRecord(Record record, String authorizationToken, String partition);
 
   FileRecord getFile(String location, String authorizationToken, String partition);
 }
