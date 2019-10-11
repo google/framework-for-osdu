@@ -1,5 +1,7 @@
 package com.osdu.service;
 
+import static java.util.Objects.isNull;
+
 import com.osdu.client.delfi.DelfiSearchClient;
 import com.osdu.mapper.SearchObjectMapper;
 import com.osdu.mapper.SearchResultMapper;
@@ -37,6 +39,9 @@ public class DelfiSearchService implements SearchService {
   @Named
   SearchResultMapper searchResultMapper;
 
+  @Inject
+  AuthenticationService authenticationService;
+
   @Value("${search.mapper.delfi.appkey}")
   String applicationKey;
 
@@ -72,11 +77,20 @@ public class DelfiSearchService implements SearchService {
 
     String kind = extractHeaders(headers, KIND_HEADER_KEY);
     String partition = extractHeaders(headers, PARTITION_HEADER_KEY);
+    String authorizationToken = extractHeaders(headers, AUTHORIZATION_HEADER);
+
+    authenticationService.checkAuthentication(authorizationToken, partition);
+
+    Boolean valid = checkIfInputParametersValid((OsduSearchObject) searchObject);
+    if (Boolean.FALSE.equals(valid)) {
+      log.info("Input parameters validation fail - " + (OsduSearchObject) searchObject);
+      return new SearchResult();
+    }
 
     DelfiSearchObject delfiSearchObject = searchObjectMapper
         .osduToDelfi((OsduSearchObject) searchObject, kind, partition);
-    DelfiSearchResult searchResult =delfiSearchClient.searchIndex(
-        String.valueOf(headers.get(AUTHORIZATION_HEADER)),
+    DelfiSearchResult searchResult = delfiSearchClient.searchIndex(
+        authorizationToken,
         applicationKey,
         partition,
         delfiSearchObject);
@@ -94,5 +108,12 @@ public class DelfiSearchService implements SearchService {
       return result;
     }
     return null;
+  }
+
+  private Boolean checkIfInputParametersValid(OsduSearchObject searchObject) {
+    return !(isNull(searchObject.getFulltext())
+        && isNull(searchObject.getMetadata())
+        && isNull(searchObject.getGeoCentroid())
+        && isNull(searchObject.getGeoLocation()));
   }
 }

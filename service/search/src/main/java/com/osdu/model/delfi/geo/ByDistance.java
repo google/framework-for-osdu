@@ -1,6 +1,7 @@
 package com.osdu.model.delfi.geo;
 
 import com.osdu.model.delfi.geo.exception.GeoLocationException;
+import java.util.List;
 import lombok.Data;
 import lombok.NonNull;
 
@@ -27,8 +28,9 @@ public class ByDistance implements GeoLocation {
           " By Distance GeoJSON requires exactly 1 point for creation, actual, received "
               + coordinates.length);
     }
-    point = new Point(Double.valueOf(coordinates[X_INDEX].toString()),
-        Double.valueOf(coordinates[Y_INDEX].toString()));
+    List<Double> pointCoordinates = (List<Double>) coordinates[0];
+    this.point = new Point(Double.valueOf(pointCoordinates.get(X_INDEX).toString()),
+        Double.valueOf(pointCoordinates.get(Y_INDEX).toString()));
 
     this.distance = distance;
   }

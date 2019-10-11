@@ -15,6 +15,18 @@
   <version>1.0.1-SNAPSHOT</version>
   <name>common</name>
 
+  <properties>
+    <docker.image.prefix>springio</docker.image.prefix>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <version>${org.springframwork.version}</version>
+    </dependency>
+  </dependencies>
+
   <build>
     <plugins>
       <plugin>
