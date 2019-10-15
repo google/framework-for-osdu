@@ -1,6 +1,6 @@
 package com.osdu.service.delfi;
 
-import com.osdu.client.delfi.DelfiEntitlementsClient;
+import com.osdu.client.DelfiEntitlementsClient;
 import com.osdu.exception.OsduUnauthorizedException;
 import com.osdu.model.delfi.entitlement.UserGroups;
 import com.osdu.service.AuthenticationService;
