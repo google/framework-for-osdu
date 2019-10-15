@@ -6,17 +6,17 @@ import com.osdu.model.osdu.OsduSearchResult;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-public abstract class OsduSearchResultMapperDecorator implements SearchResultMapper {
+public abstract class SearchResultMapperDecorator implements SearchResultMapper {
 
   @Inject
   @Named("com.osdu.mapper.SearchResultMapperImpl_")
   SearchResultMapper searchResultMapper;
 
   @Override
-  public OsduSearchResult delfiSearchResultToOsduSearchResult(DelfiSearchResult searchResult,
+  public OsduSearchResult delfiToOsdu(DelfiSearchResult searchResult,
       OsduSearchObject osduSearchObject) {
     OsduSearchResult osduSearchResult = searchResultMapper
-        .delfiSearchResultToOsduSearchResult(searchResult, osduSearchObject);
+        .delfiToOsdu(searchResult, osduSearchObject);
 
     osduSearchResult.setFacets(osduSearchObject.getFacets());
     osduSearchResult.setCount(osduSearchObject.getCount());

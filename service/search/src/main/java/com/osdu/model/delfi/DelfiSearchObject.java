@@ -6,7 +6,7 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class DelfiSearchObject extends SearchObject {
+public class DelfiSearchObject implements SearchObject {
 
   String kind;
   Integer limit;

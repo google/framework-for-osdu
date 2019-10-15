@@ -1,11 +1,14 @@
 package com.osdu.function;
 
+import com.osdu.exception.OsduException;
 import com.osdu.model.SearchResult;
 import com.osdu.model.osdu.OsduSearchObject;
 import com.osdu.service.SearchService;
 import java.util.function.Function;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.stereotype.Component;
@@ -17,7 +20,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Slf4j
-public class MapSearchFieldsFunction implements
+public class SearchServiceFunction implements
     Function<Message<OsduSearchObject>, Message<SearchResult>> {
 
   @Inject
@@ -25,12 +28,11 @@ public class MapSearchFieldsFunction implements
 
   @Override
   public Message<SearchResult> apply(Message<OsduSearchObject> messageSource) {
-    log.info("Received request to search with following arguments: {}", messageSource);
+    log.debug("Received request to search with following arguments: {}", messageSource);
     SearchResult searchResult = searchService
         .searchIndex(messageSource.getPayload(), messageSource.getHeaders());
-    log.info(
-        "Result of the request to search with following arguments: {}, "
-            + "resulted in following object : {}",
+    log.debug(
+        "Result of the request to search with following arguments: {}, resulted in following object : {}",
         messageSource, searchResult);
     return new GenericMessage<>(searchResult);
   }

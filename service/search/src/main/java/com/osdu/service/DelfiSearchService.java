@@ -1,5 +1,6 @@
 package com.osdu.service;
 
+import static java.util.Objects.isNull;
 import static com.osdu.request.OsduHeader.extractHeaderByName;
 
 import com.osdu.client.delfi.DelfiSearchClient;
@@ -72,7 +73,7 @@ public class DelfiSearchService implements SearchService {
    */
   @Override
   public SearchResult searchIndex(SearchObject searchObject, MessageHeaders headers) {
-    log.info("Received request to query Delfi Portal for data with following arguments: {},{}",
+    log.debug("Received request to query Delfi Portal for data with following arguments: {},{}",
         searchObject, headers);
 
     String kind = extractHeaderByName(headers, KIND_HEADER_KEY);
@@ -81,16 +82,29 @@ public class DelfiSearchService implements SearchService {
 
     authenticationService.checkAuthentication(authorizationToken, partition);
 
+    Boolean valid = checkIfInputParametersValid((OsduSearchObject) searchObject);
+    if (Boolean.FALSE.equals(valid)) {
+      log.info("Input parameters validation fail - " + (OsduSearchObject) searchObject);
+      return new SearchResult();
+    }
+
     DelfiSearchObject delfiSearchObject = searchObjectMapper
-        .osduSearchObjectToDelfiSearchObject((OsduSearchObject) searchObject, kind, partition);
+        .osduToDelfi((OsduSearchObject) searchObject, kind, partition);
     DelfiSearchResult searchResult = delfiSearchClient.searchIndex(
         authorizationToken,
         applicationKey,
         partition,
         delfiSearchObject);
     SearchResult osduSearchResult = searchResultMapper
-        .delfiSearchResultToOsduSearchResult(searchResult, (OsduSearchObject) searchObject);
-    log.info("Received search result: {}", osduSearchResult);
+        .delfiToOsdu(searchResult, (OsduSearchObject) searchObject);
+    log.debug("Received search result: {}", osduSearchResult);
     return osduSearchResult;
+  }
+
+  private Boolean checkIfInputParametersValid(OsduSearchObject searchObject) {
+    return !(isNull(searchObject.getFulltext())
+        && isNull(searchObject.getMetadata())
+        && isNull(searchObject.getGeoCentroid())
+        && isNull(searchObject.getGeoLocation()));
   }
 }

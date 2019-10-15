@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper
-@DecoratedWith(OsduSearchResultMapperDecorator.class)
+@DecoratedWith(SearchResultMapperDecorator.class)
 public interface SearchResultMapper {
 
   /**
@@ -21,7 +21,7 @@ public interface SearchResultMapper {
    * @return result of the search against Delfi Portal in OSDU compliant format.
    */
   @Mapping(source = "searchResult.totalCount", target = "totalHits")
-  OsduSearchResult delfiSearchResultToOsduSearchResult(DelfiSearchResult searchResult,
+  OsduSearchResult delfiToOsdu(DelfiSearchResult searchResult,
       OsduSearchObject osduSearchObject);
 
 }

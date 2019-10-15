@@ -8,9 +8,9 @@ steps:
     entrypoint: 'mvn'
     # parallel builds (-T2) hang for some reason
     args: [
-            'package', '--batch-mode', '--errors', '--fail-at-end', 
-            '--show-version', '-DinstallAtEnd=true', '-DdeployAtEnd=true', '-DskipTests', 
-            '-Dmaven.repo.local=/workspace/.m2/repository', 
+            'package', '--batch-mode', '--errors', '--fail-at-end',
+            '--show-version', '-DinstallAtEnd=true', '-DdeployAtEnd=true', '-DskipTests',
+            '-Dmaven.repo.local=/workspace/.m2/repository',
             '-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN',
             '-Djava.awt.headless=true', '-Dhttps.protocols=TLSv1.2'
           ]
