@@ -1,23 +1,22 @@
 package com.osdu.service.processing.delfi;
 
-import com.osdu.model.FileRecord;
-import com.osdu.model.Record;
-import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
-import com.osdu.model.osdu.delivery.delfi.ProcessingResultStatus;
-
-import com.osdu.service.PortalService;
-import com.osdu.service.SrnMappingService;
-import java.util.HashMap;
-import java.util.Map;
-
 import static com.osdu.service.processing.delfi.DelfiDataProcessingJob.FILE_LOCATION_KEY;
 import static com.osdu.service.processing.delfi.DelfiDataProcessingJob.LOCATION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import com.osdu.model.FileRecord;
+import com.osdu.model.Record;
+import com.osdu.model.SchemaData;
+import com.osdu.model.SrnToRecord;
+import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
+import com.osdu.model.osdu.delivery.delfi.ProcessingResultStatus;
+import com.osdu.service.PortalService;
+import com.osdu.service.SrnMappingService;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -37,6 +36,7 @@ public class DelfiDataProcessingJobTest {
   private static final String SRN = "srn";
   private static final String ODES_ID = "odesId";
   private static final String SIGNED_URL = "signedUrl";
+  private static final String RECORD_ID_1 = "recordId1";
 
   private DelfiDataProcessingJob dataProcessingJob;
 
@@ -47,10 +47,10 @@ public class DelfiDataProcessingJobTest {
   }
 
   @Test
-  @Ignore
   public void testNoLocation() {
     // given
-//    when(srnMappingService.mapSrnToKind(eq(SRN))).thenReturn(ODES_ID);
+    SrnToRecord srnToRecord = SrnToRecord.builder().recordId(RECORD_ID_1).srn(SRN).build();
+    when(srnMappingService.getSrnToRecord(eq(SRN))).thenReturn(srnToRecord);
 
     Record record = new Record() {
     };
@@ -63,7 +63,7 @@ public class DelfiDataProcessingJobTest {
     record.setDetails(details);
     record.setData(data);
 
-    when(portalService.getRecord(eq(ODES_ID), eq(AUTHORIZATION_TOKEN), eq(PARTITION)))
+    when(portalService.getRecord(eq(RECORD_ID_1), eq(AUTHORIZATION_TOKEN), eq(PARTITION)))
         .thenReturn(record);
 
     // when
@@ -76,12 +76,11 @@ public class DelfiDataProcessingJobTest {
     assertThat(result.getData()).isEqualTo(record);
   }
 
-
   @Test
-  @Ignore
   public void testWithFileLocation() {
     // given
-//    when(srnMappingService.mapSrnToKind(eq(SRN))).thenReturn(ODES_ID);
+    SrnToRecord srnToRecord = SrnToRecord.builder().recordId(RECORD_ID_1).srn(SRN).build();
+    when(srnMappingService.getSrnToRecord(eq(SRN))).thenReturn(srnToRecord);
 
     Record record = new Record() {
     };
@@ -91,7 +90,7 @@ public class DelfiDataProcessingJobTest {
     details.put("two", "test");
     record.setDetails(details);
     record.setData(data);
-    when(portalService.getRecord(eq(ODES_ID), eq(AUTHORIZATION_TOKEN), eq(PARTITION)))
+    when(portalService.getRecord(eq(RECORD_ID_1), eq(AUTHORIZATION_TOKEN), eq(PARTITION)))
         .thenReturn(record);
 
     Map<String, Object> fileRecordDetails = new HashMap<>();
@@ -114,10 +113,9 @@ public class DelfiDataProcessingJobTest {
   }
 
   @Test
-  @Ignore
   public void testNoMapping() {
     // given
-//    when(srnMappingService.mapSrnToKind(eq(SRN))).thenReturn(null);
+    when(srnMappingService.getSrnToRecord(eq(SRN))).thenReturn(null);
 
     // when
     ProcessingResult result = dataProcessingJob.call();

@@ -1,21 +1,5 @@
 package com.osdu.integration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.osdu.client.DelfiDeliveryClient;
-import com.osdu.client.DelfiFileClient;
-import com.osdu.model.delfi.DelfiFileRecord;
-import com.osdu.model.delfi.DelfiRecord;
-import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
-import com.osdu.model.osdu.delivery.dto.ResponseItem;
-import com.osdu.model.osdu.delivery.input.InputPayload;
-
-import com.osdu.service.SrnMappingService;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import static com.osdu.service.delfi.DelfiDeliveryService.AUTHORIZATION_HEADER_KEY;
 import static com.osdu.service.delfi.DelfiDeliveryService.PARTITION_HEADER_KEY;
 import static com.osdu.service.processing.delfi.DelfiDataProcessingJob.FILE_LOCATION_KEY;
@@ -24,12 +8,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.junit.Ignore;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.osdu.model.SrnToRecord;
+import com.osdu.model.delfi.DelfiFileRecord;
+import com.osdu.model.delfi.DelfiRecord;
+import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
+import com.osdu.model.osdu.delivery.dto.ResponseItem;
+import com.osdu.model.osdu.delivery.input.InputPayload;
+import com.osdu.service.AuthenticationService;
+import com.osdu.service.PortalService;
+import com.osdu.service.SrnMappingService;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,20 +44,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 @AutoConfigureMockMvc
 public class DeliveryFlowIntegrationTest {
 
-  @MockBean
-  private DelfiDeliveryClient deliveryClient;
-
-  @MockBean
-  private DelfiFileClient delfiFileClient;
-
-  @MockBean
-  private SrnMappingService srnMappingService;
-
-  @Autowired
-  private MockMvc mockMvc;
-
-  private ObjectMapper mapper = new ObjectMapper();
-
   static final String TARGET_REGION = "targetRegion";
   static final String SIGNED_URL = "http://signed-url";
   static final String FILE_LOCATION = "fileLocation";
@@ -69,14 +52,30 @@ public class DeliveryFlowIntegrationTest {
   static final String NO_MAPPING_EXAMPLE = "no-mapping-example";
   static final String NO_LOCATION_EXAMPLE = "no-location-example";
   static final String LOCATION_EXAMPLE = "location-example";
-  static final String ODES_ID_LOCATION = "odesId:location";
+  static final String SRN_1 = "srn1";
+  static final String SRN_2 = "srn2";
+  static final String RECORD_ID_1 = "recordId1";
+  static final String RECORD_ID_2 = "recordId2";
+
+  @MockBean
+  private SrnMappingService srnMappingService;
+  @MockBean
+  private AuthenticationService authenticationService;
+  @MockBean
+  private PortalService portalService;
+  @Autowired
+  private MockMvc mockMvc;
+  private ObjectMapper mapper = new ObjectMapper();
 
   @Test
-  @Ignore
   public void test() throws Exception {
     // given
+
+    when(authenticationService.checkAuthentication(eq(AUTHENTICATION), eq(PARTITION)))
+        .thenReturn(null);
+
     // no mapping record
-//    when(srnMappingService.mapSrnToKind(eq(NO_MAPPING_EXAMPLE))).thenReturn(null);
+    when(srnMappingService.getSchemaData(any())).thenReturn(null);
 
     // no file record
     DelfiRecord recordNoLocation = new DelfiRecord() {
@@ -84,8 +83,9 @@ public class DeliveryFlowIntegrationTest {
     Map<String, Object> data = new HashMap<>();
     data.put("test", "test");
     recordNoLocation.setData(data);
-//    when(srnMappingService.mapSrnToKind(eq(NO_LOCATION_EXAMPLE))).thenReturn("odesId:no:location");
-    when(deliveryClient.getRecord(eq("odesId:no:location"), any(), any(), any()))
+    SrnToRecord srnToRecord1 = SrnToRecord.builder().recordId(RECORD_ID_1).srn(SRN_1).build();
+    when(srnMappingService.getSrnToRecord(eq(NO_LOCATION_EXAMPLE))).thenReturn(srnToRecord1);
+    when(portalService.getRecord(eq(RECORD_ID_1), eq(AUTHENTICATION), eq(PARTITION)))
         .thenReturn(recordNoLocation);
 
     // file record
@@ -95,8 +95,9 @@ public class DeliveryFlowIntegrationTest {
     dataLocation.put("one", "test");
     dataLocation.put(LOCATION_KEY, FILE_LOCATION);
     recordWithLocation.setData(dataLocation);
-//    when(srnMappingService.mapSrnToKind(eq(LOCATION_EXAMPLE))).thenReturn(ODES_ID_LOCATION);
-    when(deliveryClient.getRecord(eq(ODES_ID_LOCATION), any(), any(), any()))
+    SrnToRecord srnToRecord2 = SrnToRecord.builder().recordId(RECORD_ID_2).srn(SRN_2).build();
+    when(srnMappingService.getSrnToRecord(eq(LOCATION_EXAMPLE))).thenReturn(srnToRecord2);
+    when(portalService.getRecord(eq(RECORD_ID_2), eq(AUTHENTICATION), eq(PARTITION)))
         .thenReturn(recordWithLocation);
     DelfiFileRecord fileRecord = new DelfiFileRecord() {
     };
@@ -104,8 +105,7 @@ public class DeliveryFlowIntegrationTest {
     fileRecordDetails.put("data", "data");
     fileRecordDetails.put(FILE_LOCATION_KEY, SIGNED_URL);
     fileRecord.setDetails(fileRecordDetails);
-    when(delfiFileClient.getSignedUrlForLocation(eq(FILE_LOCATION), eq(AUTHENTICATION), eq(
-        PARTITION), eq(PARTITION), anyString()))
+    when(portalService.getFile(eq(FILE_LOCATION), eq(AUTHENTICATION), eq(PARTITION)))
         .thenReturn(fileRecord);
 
     // when
