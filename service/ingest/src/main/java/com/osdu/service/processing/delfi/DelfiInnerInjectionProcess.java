@@ -11,7 +11,9 @@ import com.osdu.client.DelfiIngestionClient;
 import com.osdu.exception.IngestException;
 import com.osdu.model.Record;
 import com.osdu.model.SchemaData;
+import com.osdu.model.SrnToRecord;
 import com.osdu.model.delfi.RequestMeta;
+import com.osdu.model.delfi.enrich.EnrichedFile;
 import com.osdu.model.delfi.entitlement.Group;
 import com.osdu.model.delfi.signed.SignedFile;
 import com.osdu.model.delfi.signed.SignedUrlResult;
@@ -20,7 +22,6 @@ import com.osdu.model.delfi.submit.SubmitJobResult;
 import com.osdu.model.delfi.submit.SubmittedFile;
 import com.osdu.model.job.IngestJobStatus;
 import com.osdu.model.manifest.LoadManifest;
-import com.osdu.model.manifest.ManifestFields;
 import com.osdu.model.manifest.ManifestFile;
 import com.osdu.model.manifest.WorkProductComponent;
 import com.osdu.model.property.DelfiPortalProperties;
@@ -56,8 +57,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class DelfiInnerInjectionProcess implements InnerInjectionProcess {
 
-  static final Pattern PARTITION_PATTERN = Pattern.compile("[^a-zA-Z0-9]+");
-  static final Pattern DOCUMENT_ID_PATTERN = Pattern.compile("[^/]+");
+  private static final Pattern PARTITION_PATTERN = Pattern.compile("[^a-zA-Z0-9]+");
 
   final DelfiPortalProperties portalProperties;
 
@@ -80,8 +80,7 @@ public class DelfiInnerInjectionProcess implements InnerInjectionProcess {
     log.info("Start the internal async injection process. JobId: {}, loadManifest: {}, headers: {}",
         innerJobId, loadManifest, headers);
     String authorizationToken = extractHeaderByName(headers, OsduHeader.AUTHORIZATION);
-    String partition = normalizeString(extractHeaderByName(headers, OsduHeader.PARTITION),
-        PARTITION_PATTERN);
+    String partition = normalizePartition(extractHeaderByName(headers, OsduHeader.PARTITION));
     String legalTags = extractHeaderByName(headers, OsduHeader.LEGAL_TAGS);
 
     Map<String, String> groupEmailByName = delfiEntitlementsClient
@@ -93,7 +92,7 @@ public class DelfiInnerInjectionProcess implements InnerInjectionProcess {
 
     getWorkProductComponents(loadManifest)
         .forEach(wpc -> {
-          SchemaData schemaData = getSchemaData(wpc);
+          SchemaData schemaData = srnMappingService.getSchemaData(wpc.getResourceTypeId());
 
           RequestMeta requestMeta = RequestMeta.builder()
               .authorizationToken(authorizationToken)
@@ -123,27 +122,38 @@ public class DelfiInnerInjectionProcess implements InnerInjectionProcess {
           }
 
           //run enrichment
-          List<Record> enrichedRecords = submittedFiles.stream()
+          List<EnrichedFile> enrichedFiles = submittedFiles.stream()
               .map(file -> enrichService.enrichRecord(file, requestMeta, headers))
               .collect(Collectors.toList());
           log.info("Finished the enrichment. JobId: {}", innerJobId);
 
           // post validation
-          enrichedRecords.stream()
-              .map(record -> jsonValidationService
-                  .validate(schemaData.getSchema(), getJsonNode(record)))
+          enrichedFiles.stream()
+              .map(file -> jsonValidationService
+                  .validate(schemaData.getSchema(), getJsonNode(file.getRecord())))
               .filter(result -> !result.isSuccess())
               .peek(result -> log.warn("Post submit record validation fail - " + result.toString()))
               .findFirst()
-              .ifPresent(result -> failRecords(enrichedRecords, requestMeta));
+              .ifPresent(result -> {
+                List<Record> enrichedRecords = enrichedFiles.stream()
+                    .map(EnrichedFile::getRecord)
+                    .collect(Collectors.toList());
+                failRecords(enrichedRecords, requestMeta);
+              });
+
+          enrichedFiles.forEach(file -> srnMappingService.saveSrnToRecord(
+              SrnToRecord.builder()
+                  .recordId(file.getRecord().getId())
+                  .srn(file.getSubmittedFile().getSrn())
+                  .build()));
         });
 
     jobStatusService.updateJobStatus(innerJobId, IngestJobStatus.COMPLETE);
     log.info("Finished the internal async injection process. JobId: {}", innerJobId);
   }
 
-  private String normalizeString(String str, Pattern pattern) {
-    return RegExUtils.replaceAll(str, pattern, "");
+  private String normalizePartition(String partition) {
+    return RegExUtils.replaceAll(partition, PARTITION_PATTERN, "");
   }
 
   private List<WorkProductComponent> getWorkProductComponents(LoadManifest loadManifest) {
@@ -159,16 +169,6 @@ public class DelfiInnerInjectionProcess implements InnerInjectionProcess {
                 .collect(Collectors.toList()))
             .build())
         .collect(Collectors.toList());
-  }
-
-  private SchemaData getSchemaData(WorkProductComponent wpc) {
-    String wpcTypeId = normalizeString(getWpcTypeId(wpc), DOCUMENT_ID_PATTERN);
-
-    return srnMappingService.getSchemaData(wpcTypeId);
-  }
-
-  private String getWpcTypeId(WorkProductComponent wpc) {
-    return (String) wpc.getData().get(ManifestFields.RESOURCE_TYPE_ID);
   }
 
   private SignedFile uploadFile(ManifestFile file, String authorizationToken, String partition) {

@@ -10,6 +10,8 @@ import lombok.ToString;
 @ToString
 public abstract class Record implements BaseRecord {
 
+  String id;
+
   Map<String, Object> data;
 
   Map<String, Object> details = new LinkedHashMap<>();
