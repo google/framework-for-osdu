@@ -60,3 +60,19 @@ deploy_delivery:
       - service/search/*
       - Dockerfile
       - cloudbuild.yaml
+
+deploy_ingest:
+  <<: *deploy_template
+  variables:
+    SERVICE: ingest
+  only:
+    refs:
+      - master
+      - develop
+    changes:
+      - pom.xml
+      - service/pom.xml
+      - common/*
+      - service/ingest/*
+      - Dockerfile
+      - cloudbuild.yaml
