@@ -6,10 +6,10 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
 @EnableFeignClients(basePackages = {"com.osdu"})
-public class DataTransferApplication {
+public class DeliveryServiceApplication {
 
   public static void main(String[] args) {
-    SpringApplication.run(DataTransferApplication.class, args);
+    SpringApplication.run(DeliveryServiceApplication.class, args);
   }
 
 }
