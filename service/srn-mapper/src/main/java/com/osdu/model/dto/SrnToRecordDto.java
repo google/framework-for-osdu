@@ -2,14 +2,15 @@ package com.osdu.model.dto;
 
 import com.google.cloud.firestore.annotation.ServerTimestamp;
 import java.util.Date;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
-public class SchemaDataDto {
+@Builder
+public class SrnToRecordDto {
 
+  String recordId;
   String srn;
-  String kind;
-  String schema;
   @ServerTimestamp
   Date created;
 

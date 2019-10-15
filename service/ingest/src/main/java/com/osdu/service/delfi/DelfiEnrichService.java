@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.osdu.exception.IngestException;
 import com.osdu.model.Record;
 import com.osdu.model.delfi.RequestMeta;
+import com.osdu.model.delfi.enrich.EnrichedFile;
 import com.osdu.model.delfi.submit.SubmittedFile;
 import com.osdu.model.manifest.WorkProductComponent;
 import com.osdu.service.EnrichService;
@@ -32,7 +33,7 @@ public class DelfiEnrichService implements EnrichService {
   final PortalService portalService;
 
   @Override
-  public Record enrichRecord(SubmittedFile file, RequestMeta requestMeta, MessageHeaders headers) {
+  public EnrichedFile enrichRecord(SubmittedFile file, RequestMeta requestMeta, MessageHeaders headers) {
 
     WorkProductComponent wpc = file.getSignedFile().getFile().getWpc();
     Record record = portalService.getRecord("recordId", requestMeta.getAuthorizationToken(),
@@ -43,8 +44,13 @@ public class DelfiEnrichService implements EnrichService {
 
     record.getData().putAll(defineAdditionalProperties(headers));
 
-    return portalService.putRecord(record, requestMeta.getAuthorizationToken(),
+    Record savedRecord = portalService.putRecord(record, requestMeta.getAuthorizationToken(),
         requestMeta.getPartition());
+
+    return EnrichedFile.builder()
+        .submittedFile(file)
+        .record(savedRecord)
+        .build();
   }
 
   private Map<String, Object> defineAdditionalProperties(MessageHeaders headers) {

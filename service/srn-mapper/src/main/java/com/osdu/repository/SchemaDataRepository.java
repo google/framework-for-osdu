@@ -4,7 +4,9 @@ import com.osdu.model.dto.SchemaDataDto;
 
 public interface SchemaDataRepository {
 
-  SchemaDataDto findBySrn(String srn);
+  SchemaDataDto findExactByTypeId(String typeId);
+
+  SchemaDataDto findLastByTypeId(String typeId);
 
   void save(SchemaDataDto schemaData);
 
