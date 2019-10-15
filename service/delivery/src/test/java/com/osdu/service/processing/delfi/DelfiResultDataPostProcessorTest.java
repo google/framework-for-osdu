@@ -1,14 +1,16 @@
 package com.osdu.service.processing.delfi;
 
-import com.osdu.model.osdu.delivery.FileRecord;
-import com.osdu.model.osdu.delivery.Record;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+
+import com.osdu.model.BaseRecord;
+import com.osdu.model.FileRecord;
+import com.osdu.model.Record;
 import com.osdu.service.processing.ResultDataPostProcessor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,13 +20,17 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 public class DelfiResultDataPostProcessorTest {
 
+  static final String ONE = "one";
+  static final String TWO = "two";
   static final String THREE = "three";
-  private ResultDataPostProcessor resultDataPostProcessor;
+  static final String FOUR = "four";
+  static final String TEST_VALUE = "test";
+  ResultDataPostProcessor resultDataPostProcessor;
 
   @Before
   public void init() {
     List<String> filelsToStrip = new ArrayList<>();
-    filelsToStrip.add("one");
+    filelsToStrip.add(ONE);
     filelsToStrip.add(THREE);
     resultDataPostProcessor = new DelfiResultDataPostProcessor(filelsToStrip);
   }
@@ -36,10 +42,10 @@ public class DelfiResultDataPostProcessorTest {
     };
 
     Map<String, Object> testDetails = new HashMap<>();
-    testDetails.put("one", "test");
-    testDetails.put("two", "test");
-    testDetails.put(THREE, "test");
-    testDetails.put("four", "test");
+    testDetails.put(ONE, TEST_VALUE);
+    testDetails.put(TWO, TEST_VALUE);
+    testDetails.put(THREE, TEST_VALUE);
+    testDetails.put(FOUR, TEST_VALUE);
     fileRecord.setDetails(testDetails);
 
     // when
@@ -47,8 +53,8 @@ public class DelfiResultDataPostProcessorTest {
 
     // then
     Map<String, Object> expectedTestDetails = new HashMap<>();
-    expectedTestDetails.put("two", "test");
-    expectedTestDetails.put("four", "test");
+    expectedTestDetails.put(TWO, TEST_VALUE);
+    expectedTestDetails.put(FOUR, TEST_VALUE);
     assertThat(fileRecord.getDetails()).containsExactlyInAnyOrderEntriesOf(expectedTestDetails);
   }
 
@@ -60,14 +66,14 @@ public class DelfiResultDataPostProcessorTest {
     };
 
     Map<String, Object> testData = new HashMap<>();
-    testData.put("one", "test");
-    testData.put("two", "test");
-    testData.put(THREE, "test");
-    testData.put("four", "test");
+    testData.put(ONE, TEST_VALUE);
+    testData.put(TWO, TEST_VALUE);
+    testData.put(THREE, TEST_VALUE);
+    testData.put(FOUR, TEST_VALUE);
 
     Map<String, Object> testDetails = new HashMap<>();
-    testDetails.put("one", "test");
-    testDetails.put("two", "test");
+    testDetails.put(ONE, TEST_VALUE);
+    testDetails.put(TWO, TEST_VALUE);
 
     record.setData(testData);
     record.setDetails(testDetails);
@@ -77,19 +83,21 @@ public class DelfiResultDataPostProcessorTest {
 
     // then
     Map<String, Object> expectedTestDetails = new HashMap<>();
-    expectedTestDetails.put("two", "test");
+    expectedTestDetails.put(TWO, TEST_VALUE);
     assertThat(record.getDetails()).containsExactlyInAnyOrderEntriesOf(expectedTestDetails);
 
     Map<String, Object> expectedTestData = new HashMap<>();
-    expectedTestData.put("two", "test");
-    expectedTestData.put("four", "test");
+    expectedTestData.put(TWO, TEST_VALUE);
+    expectedTestData.put(FOUR, TEST_VALUE);
     assertThat(record.getData()).containsExactlyInAnyOrderEntriesOf(expectedTestData);
   }
 
   @Test
   public void testUnknown() {
-    Object test = resultDataPostProcessor.processData("test");
-    assertEquals("test", test);
+    BaseRecord br = new BaseRecord() {
+    };
+    Object test = resultDataPostProcessor.processData(br);
+    assertEquals(br, test);
   }
 
 }

@@ -5,6 +5,25 @@
 
   <artifactId>osdu-gcp-service-search</artifactId>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-dependencies</artifactId>
+        <version>${spring-cloud.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <build>
     <plugins>
       <plugin>
@@ -95,7 +114,7 @@
         <artifactId>dockerfile-maven-plugin</artifactId>
         <configuration>
           <buildArgs>
-            <JAR_FILE>./target/${artifactId}-${version}-exec.jar</JAR_FILE>
+            <JAR_FILE>./target/${project.artifactId}-${project.version}-exec.jar</JAR_FILE>
           </buildArgs>
           <repository>${docker.image.prefix}/${project.artifactId}</repository>
         </configuration>
@@ -124,6 +143,12 @@
       <version>1.0.1-SNAPSHOT</version>
     </dependency>
     <dependency>
+      <groupId>com.osdu</groupId>
+      <artifactId>delfi-client</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <artifactId>spring-boot-dependencies</artifactId>
       <groupId>org.springframework.boot</groupId>
       <scope>import</scope>
@@ -133,16 +158,10 @@
     <dependency>
       <artifactId>spring-cloud-starter-function-web</artifactId>
       <groupId>org.springframework.cloud</groupId>
-      <version>1.0.1.RELEASE</version>
     </dependency>
     <dependency>
       <artifactId>spring-cloud-function-context</artifactId>
       <groupId>org.springframework.cloud</groupId>
-    </dependency>
-    <dependency>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <groupId>org.springframework.boot</groupId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <artifactId>javax.inject</artifactId>
@@ -156,13 +175,6 @@
     <dependency>
       <artifactId>spring-cloud-starter-openfeign</artifactId>
       <groupId>org.springframework.cloud</groupId>
-    </dependency>
-    <dependency>
-      <artifactId>spring-cloud-dependencies</artifactId>
-      <groupId>org.springframework.cloud</groupId>
-      <scope>import</scope>
-      <type>pom</type>
-      <version>${spring-cloud.version}</version>
     </dependency>
     <dependency>
       <artifactId>lombok</artifactId>
@@ -183,7 +195,6 @@
     <dependency>
       <artifactId>spring-boot-starter-web</artifactId>
       <groupId>org.springframework.boot</groupId>
-      <version>${org.springframwork.version}</version>
     </dependency>
     <dependency>
       <artifactId>spring-cloud-function-web</artifactId>
@@ -192,70 +203,27 @@
     <dependency>
       <artifactId>httpclient</artifactId>
       <groupId>org.apache.httpcomponents</groupId>
-      <version>${org.apache.httpcomponents.version}</version>
     </dependency>
     <dependency>
       <artifactId>spring-boot-starter-test</artifactId>
       <groupId>org.springframework.boot</groupId>
       <scope>test</scope>
-      <version>${org.springframwork.version}</version>
     </dependency>
     <dependency>
       <artifactId>spring-security-test</artifactId>
       <groupId>org.springframework.security</groupId>
       <scope>test</scope>
-      <version>${org.springfrawork.security.test.version}</version>
     </dependency>
     <dependency>
       <artifactId>jackson-annotations</artifactId>
       <groupId>com.fasterxml.jackson.core</groupId>
-      <version>${com.fasterxml.jackson.core.version}</version>
     </dependency>
     <dependency>
       <artifactId>jackson-core</artifactId>
       <groupId>com.fasterxml.jackson.core</groupId>
-      <version>${com.fasterxml.jackson.core.version}</version>
     </dependency>
   </dependencies>
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <artifactId>spring-cloud-dependencies</artifactId>
-        <groupId>org.springframework.cloud</groupId>
-        <scope>import</scope>
-        <type>pom</type>
-        <version>${spring-cloud.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-framework-bom</artifactId>
-        <version>5.1.9.RELEASE</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.security</groupId>
-        <artifactId>spring-security-bom</artifactId>
-        <version>5.1.6.RELEASE</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.security</groupId>
-        <artifactId>spring-security-bom</artifactId>
-        <version>5.1.6.RELEASE</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.integration</groupId>
-        <artifactId>spring-integration-bom</artifactId>
-        <version>5.1.7.RELEASE</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
+
   <description>Search service working with data in OSDU format</description>
   <modelVersion>4.0.0</modelVersion>
 

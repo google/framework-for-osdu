@@ -13,6 +13,9 @@
   <modules>
     <module>delivery</module>
     <module>search</module>
+    <module>srn-mapper</module>
+    <module>delfi-client</module>
+    <module>ingest</module>
   </modules>
 
   <modelVersion>4.0.0</modelVersion>

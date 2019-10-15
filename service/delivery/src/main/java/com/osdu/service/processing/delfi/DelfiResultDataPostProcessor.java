@@ -1,13 +1,12 @@
 package com.osdu.service.processing.delfi;
 
-import com.osdu.model.osdu.delivery.FileRecord;
-import com.osdu.model.osdu.delivery.Record;
+import com.osdu.model.BaseRecord;
+import com.osdu.model.FileRecord;
+import com.osdu.model.Record;
 import com.osdu.service.processing.ResultDataPostProcessor;
-
+import java.util.Arrays;
 import java.util.List;
-
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -32,23 +31,26 @@ public class DelfiResultDataPostProcessor implements ResultDataPostProcessor {
   ProcessRecordCommand processRecordCommand;
 
   @Override
-  public Object processData(Object data) {
+  public BaseRecord processData(BaseRecord data) {
 
-    if (data instanceof FileRecord) {
-      return processFileRecordCommand.execute(data);
-    }
-    if (data instanceof Record) {
-      return processRecordCommand.execute(data);
-    }
-    log.info("No data post processor defined for result data type");
+    List<Command> commands = Arrays.asList(processFileRecordCommand, processRecordCommand);
 
-    return data;
+    return commands.stream()
+        .filter(command -> command.isSupported(data))
+        .findFirst()
+        .map(command -> command.execute(data))
+        .orElse(data);
   }
 
   class ProcessFileRecordCommand implements Command {
 
     @Override
-    public Object execute(Object data) {
+    public boolean isSupported(BaseRecord data) {
+      return data instanceof FileRecord;
+    }
+
+    @Override
+    public BaseRecord execute(BaseRecord data) {
       ((FileRecord) data).getDetails().entrySet()
           .removeIf(entry -> fieldsToStrip.contains(entry.getKey()));
       return data;
@@ -58,7 +60,12 @@ public class DelfiResultDataPostProcessor implements ResultDataPostProcessor {
   class ProcessRecordCommand implements Command {
 
     @Override
-    public Object execute(Object data) {
+    public boolean isSupported(BaseRecord data) {
+      return data instanceof Record;
+    }
+
+    @Override
+    public BaseRecord execute(BaseRecord data) {
       Record record = (Record) data;
       if (record.getData() != null) {
         record.getData().entrySet().removeIf(entry -> fieldsToStrip.contains(entry.getKey()));
@@ -70,7 +77,9 @@ public class DelfiResultDataPostProcessor implements ResultDataPostProcessor {
 
   interface Command {
 
-    Object execute(Object data);
+    boolean isSupported(BaseRecord data);
+
+    BaseRecord execute(BaseRecord data);
   }
 }
 

@@ -1,6 +1,7 @@
 package com.osdu.service;
 
 import static java.util.Objects.isNull;
+import static com.osdu.request.OsduHeader.extractHeaderByName;
 
 import com.osdu.client.delfi.DelfiSearchClient;
 import com.osdu.mapper.SearchObjectMapper;
@@ -75,9 +76,9 @@ public class DelfiSearchService implements SearchService {
     log.debug("Received request to query Delfi Portal for data with following arguments: {},{}",
         searchObject, headers);
 
-    String kind = extractHeaders(headers, KIND_HEADER_KEY);
-    String partition = extractHeaders(headers, PARTITION_HEADER_KEY);
-    String authorizationToken = extractHeaders(headers, AUTHORIZATION_HEADER);
+    String kind = extractHeaderByName(headers, KIND_HEADER_KEY);
+    String partition = extractHeaderByName(headers, PARTITION_HEADER_KEY);
+    String authorizationToken = extractHeaderByName(headers, AUTHORIZATION_HEADER);
 
     authenticationService.checkAuthentication(authorizationToken, partition);
 
@@ -98,16 +99,6 @@ public class DelfiSearchService implements SearchService {
         .delfiToOsdu(searchResult, (OsduSearchObject) searchObject);
     log.debug("Received search result: {}", osduSearchResult);
     return osduSearchResult;
-  }
-
-  private String extractHeaders(MessageHeaders headers, String headerKey) {
-    if (headers.containsKey(headerKey)) {
-      String result = (String) headers.get(headerKey);
-      log.debug("Found {} override in the request, using following parameter: {}", headerKey,
-          result);
-      return result;
-    }
-    return null;
   }
 
   private Boolean checkIfInputParametersValid(OsduSearchObject searchObject) {
