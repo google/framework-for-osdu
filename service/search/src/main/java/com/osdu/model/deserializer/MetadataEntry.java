@@ -25,7 +25,7 @@ public class MetadataEntry {
    * Creates a metadata entry hiding all underlying actions needed in order to "flatten" metadata to
    * a single-type collection.
    *
-   * @param metadataEntry
+   * @param metadataEntry metadata entry
    */
   public MetadataEntry(Map.Entry<String, JsonNode> metadataEntry) {
     this.key = metadataEntry.getKey();
@@ -53,7 +53,7 @@ public class MetadataEntry {
   }
 
   /**
-   * Checks is the provided Entry is actually a text
+   * Checks is the provided Entry is actually a text.
    *
    * @param jsonNode          jsonNode to be evaluated
    * @param elementsOfTheNode list of it's elements in a convenient form
@@ -66,7 +66,7 @@ public class MetadataEntry {
   }
 
   /**
-   * Checks if the provided entity is actually an array of text values
+   * Checks if the provided entity is actually an array of text values.
    *
    * @param jsonNode          jsonNode to be evaluated
    * @param elementsOfTheNode list of it's elements in a convenient form
@@ -74,7 +74,7 @@ public class MetadataEntry {
    */
   protected boolean isArrayNode(JsonNode jsonNode,
       ArrayList<JsonNode> elementsOfTheNode) {
-    return elementsOfTheNode.size() > 0 && elementsOfTheNode.stream()
+    return !elementsOfTheNode.isEmpty() && elementsOfTheNode.stream()
         .allMatch(node -> node instanceof TextNode)
         && jsonNode instanceof ArrayNode;
   }

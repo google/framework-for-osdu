@@ -9,6 +9,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UploadProgress {
 
+  /**
+   * Constructor for UploadProgress.
+   *
+   * @param mediaContentLength length of content byte array
+   * @param uploadState        state of upload process
+   * @param url                url to upload file to
+   */
   public UploadProgress(Long mediaContentLength, UploadState uploadState, GenericUrl url) {
     this.mediaContentLength = mediaContentLength;
     this.uploadState = uploadState;
@@ -22,6 +29,7 @@ public class UploadProgress {
 
   /**
    * Updates file upload state and log it.
+   *
    * @param uploadState new upload state
    */
   public void updateProgressState(UploadState uploadState) {

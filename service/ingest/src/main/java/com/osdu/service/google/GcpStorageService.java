@@ -12,33 +12,29 @@ import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.osdu.exception.IngestException;
 import com.osdu.exception.OsduException;
+import com.osdu.model.property.CloudStorageProperties;
 import com.osdu.service.StorageService;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.util.UUID;
-import javax.inject.Inject;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class GcpStorageService implements StorageService {
 
-  @Inject
-  Storage googleCloudStorage;
-
-  @Inject
-  CustomMediaHttpUploader uploader;
-
-  @Value("${gcp.storage.bucket.temp-location}")
-  String tempBucket;
+  final Storage googleCloudStorage;
+  final CustomMediaHttpUploader uploader;
+  final CloudStorageProperties storageProperties;
 
   @Override
   public Blob uploadFileToStorage(URL fileUrl, String fileName) {
 
     String objectId = generateUniqueObjectId(fileName);
-    Blob blobToUpload = createBlob(tempBucket, objectId);
+    Blob blobToUpload = createBlob(storageProperties.getTempLocationBucket(), objectId);
 
     try (BufferedInputStream in = new BufferedInputStream(fileUrl.openStream());
         WriteChannel writer = googleCloudStorage.writer(blobToUpload)) {
@@ -49,7 +45,7 @@ public class GcpStorageService implements StorageService {
           + "to cloud storage", fileName, fileUrl), e);
     }
 
-    return googleCloudStorage.get(tempBucket, objectId);
+    return googleCloudStorage.get(storageProperties.getTempLocationBucket(), objectId);
   }
 
   @Override

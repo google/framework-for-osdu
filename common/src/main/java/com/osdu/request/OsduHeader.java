@@ -15,6 +15,13 @@ public final class OsduHeader {
   public static final String RESOURCE_HOME_REGION_ID = "ResourceHomeRegionID";
   public static final String RESOURCE_HOST_REGION_IDS = "ResourceHostRegionIDs";
 
+  /**
+   * Extract header by name.
+   *
+   * @param headers   headers from http request
+   * @param headerKey header key
+   * @return header value
+   */
   public static String extractHeaderByName(MessageHeaders headers, String headerKey) {
     log.debug("Extracting header with name : {} from map : {}", headerKey, headers);
     if (headers.containsKey(headerKey)) {

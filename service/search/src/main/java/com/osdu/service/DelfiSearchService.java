@@ -1,7 +1,7 @@
 package com.osdu.service;
 
-import static java.util.Objects.isNull;
 import static com.osdu.request.OsduHeader.extractHeaderByName;
+import static java.util.Objects.isNull;
 
 import com.osdu.client.delfi.DelfiSearchClient;
 import com.osdu.mapper.SearchObjectMapper;

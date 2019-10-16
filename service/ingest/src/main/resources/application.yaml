@@ -7,5 +7,4 @@ osdu:
       url: https://api.evq.csp.slb.com/
 gcp:
   storage:
-    bucket:
-      temp-location: osdu-gcp-temp-location
+    tempLocationBucket: osdu-gcp-temp-location

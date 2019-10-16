@@ -48,7 +48,8 @@ public class GcpSchemaDataRepository implements SchemaDataRepository {
               documents.size(), typeId));
     }
 
-    SchemaDataDto schemaDataDto = documents.isEmpty() ? null : documents.get(0).toObject(SchemaDataDto.class);
+    SchemaDataDto schemaDataDto =
+        documents.isEmpty() ? null : documents.get(0).toObject(SchemaDataDto.class);
     log.debug("TypeId request resulted in schema data : {}", schemaDataDto);
     return schemaDataDto;
   }
@@ -63,7 +64,7 @@ public class GcpSchemaDataRepository implements SchemaDataRepository {
 
     SchemaDataDto schemaDataDto;
     try {
-       schemaDataDto = query.get().getDocuments().stream()
+      schemaDataDto = query.get().getDocuments().stream()
           .map(doc -> doc.toObject(SchemaDataDto.class))
           .max(Comparator.comparing(SchemaDataDto::getCreated))
           .orElseThrow(() -> new SrnMappingException(

@@ -33,7 +33,8 @@ public class DelfiEnrichService implements EnrichService {
   final PortalService portalService;
 
   @Override
-  public EnrichedFile enrichRecord(SubmittedFile file, RequestMeta requestMeta, MessageHeaders headers) {
+  public EnrichedFile enrichRecord(SubmittedFile file, RequestMeta requestMeta,
+      MessageHeaders headers) {
 
     WorkProductComponent wpc = file.getSignedFile().getFile().getWpc();
     Record record = portalService.getRecord("recordId", requestMeta.getAuthorizationToken(),

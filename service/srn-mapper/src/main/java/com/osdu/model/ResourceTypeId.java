@@ -15,6 +15,11 @@ public class ResourceTypeId {
   private String version;
   private ResourceType resourceType;
 
+  /**
+   * Constructor for ResourceTypeId.
+   *
+   * @param resourceTypeId type id
+   */
   public ResourceTypeId(String resourceTypeId) {
     this.raw = resourceTypeId;
 

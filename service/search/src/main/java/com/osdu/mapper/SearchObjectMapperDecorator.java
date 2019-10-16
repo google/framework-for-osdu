@@ -95,8 +95,8 @@ public abstract class SearchObjectMapperDecorator implements SearchObjectMapper 
    * have different structure ) and at the same time they do not have common fields that could at
    * least partially justify the reason for creating a mapper for them.
    *
-   * @param sortOptions
-   * @return
+   * @param sortOptions sort option
+   * @return Sort object
    */
   private Sort osduToDelfiSort(SortOption[] sortOptions) {
     String[] fields = new String[sortOptions.length];
@@ -117,8 +117,8 @@ public abstract class SearchObjectMapperDecorator implements SearchObjectMapper 
    * Map GeoCentroid. Not mapped via mapstruct for same reasons as geoLocation, but in this case
    * mapping of this field is optional and based on the mapping of the geoLocation object
    *
-   * @param geoCentroidList
-   * @return
+   * @param geoCentroidList points for geo centroid
+   * @return Delfi GeoLocation
    */
   private SpatialFilter mapGeoCentroidObject(List<Double>[] geoCentroidList) {
     SpatialFilter spatialFilter = new SpatialFilter();
@@ -128,8 +128,8 @@ public abstract class SearchObjectMapperDecorator implements SearchObjectMapper 
     //we don't have data in the GeoLocation OSDU field.
     //1 - One Point is present - this can only be a Point type
     //2 - This is a unique "BoundingBox" type that is not present in RFC for GeoJson
-    //3+- This is something else. But given that we know other types that can be used by Delfi Portal
-    //    this is the only possible option.
+    //3+- This is something else. But given that we know other types that can be used by
+    // Delfi Portal this is the only possible option.
     switch (geoCentroidList.length) {
       case 1:
         spatialFilter.setByDistance(
@@ -149,7 +149,7 @@ public abstract class SearchObjectMapperDecorator implements SearchObjectMapper 
    * small but have completely different format.
    *
    * @param geoLocation - OSDU GeoLocation object to extract GeoData from
-   * @return
+   * @return extracted geo data
    */
   private SpatialFilter mapGeoLocationObject(com.osdu.model.osdu.GeoLocation geoLocation) {
     if (geoLocation.getCoordinates() == null) {
@@ -179,6 +179,8 @@ public abstract class SearchObjectMapperDecorator implements SearchObjectMapper 
             new ByDistance(geoLocation.getCoordinates(),
                 DEFAULT_DISTANCE));
         break;
+      default:
+        log.info("Not defined geo type for " + GeoType.lookup(geoLocation.getType()));
     }
     if (geoLocation.getType().equals(BY_BOUNDING_BOX_GEOLOCATION_TYPE)) {
       spatialFilter

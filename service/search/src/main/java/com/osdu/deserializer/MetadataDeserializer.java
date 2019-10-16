@@ -1,7 +1,6 @@
 package com.osdu.deserializer;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -17,15 +16,15 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Since the actual metadata can come in different formats depending on the number of values in it
  * it was decided that a more efficient approach would be to modify the object at deserialization.
- * Basically we are converting a map of <String,String or List<String>> which would have to be
- * replaced with <String,Object> to <String,List<String>
+ * Basically we are converting a map of &ltString,String&gt or List&ltString&gt which would have to
+ * be replaced with &ltString,Object&gt to &ltString,List&ltString&gt&gt
  */
 @Slf4j
 public class MetadataDeserializer extends JsonDeserializer<Map<String, List<String>>> {
 
   @Override
   public Map<String, List<String>> deserialize(JsonParser jsonParser,
-      DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
+      DeserializationContext deserializationContext) throws IOException {
     log.debug("Deserializing metadata : jsonParser : {}, context : {}", jsonParser,
         deserializationContext);
     JsonNode node = jsonParser.getCodec().readTree(jsonParser);

@@ -6,17 +6,20 @@ import com.osdu.exception.OsduForbiddenException;
 import com.osdu.exception.OsduNotFoundException;
 import com.osdu.exception.OsduServerErrorException;
 import com.osdu.exception.OsduUnauthorizedException;
-import java.util.HashMap;
-import java.util.Map;
 import feign.Response;
 import feign.codec.ErrorDecoder;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.stereotype.Component;
 
 @Component
 public class OsduFeignErrorDecoder implements ErrorDecoder {
 
-  static Map<Integer, OsduException> exceptionToStatusMap = new HashMap<>();
+  private static Map<Integer, OsduException> exceptionToStatusMap = new HashMap<>();
 
+  /**
+   * Constructor for OsduFeignErrorDecoder.
+   */
   public OsduFeignErrorDecoder() {
     exceptionToStatusMap.put(400, new OsduBadRequestException("Bad request"));
     exceptionToStatusMap.put(401, new OsduUnauthorizedException("Unauthorized"));

@@ -11,6 +11,12 @@ public class IngestJobStatusDto {
   IngestJobStatus status;
   List<BaseRecord> records;
 
+  /**
+   * Method for create IngestJobStatusDto.
+   *
+   * @param job to construct IngestJobStatusDto
+   * @return IngestJobStatusDto
+   */
   public static IngestJobStatusDto fromIngestJob(IngestJob job) {
     IngestJobStatusDto dto = new IngestJobStatusDto();
     dto.setId(job.getId());

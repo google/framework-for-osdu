@@ -7,6 +7,7 @@ import org.springframework.messaging.MessageHeaders;
 
 public interface EnrichService {
 
-  EnrichedFile enrichRecord(SubmittedFile submittedFile, RequestMeta requestMeta, MessageHeaders headers);
+  EnrichedFile enrichRecord(SubmittedFile submittedFile, RequestMeta requestMeta,
+      MessageHeaders headers);
 
 }
