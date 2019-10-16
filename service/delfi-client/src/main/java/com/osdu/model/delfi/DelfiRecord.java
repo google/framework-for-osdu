@@ -2,10 +2,10 @@ package com.osdu.model.delfi;
 
 import com.osdu.model.Record;
 import lombok.Data;
-import lombok.ToString;
+import lombok.EqualsAndHashCode;
 
 @Data
-@ToString
+@EqualsAndHashCode(callSuper = true)
 public class DelfiRecord extends Record {
 
 }
