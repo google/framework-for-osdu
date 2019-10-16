@@ -25,12 +25,12 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class DelfiResultDataConverterTest {
 
-  static final String SRN_1 = "srn_1";
-  static final String ONE = "one";
-  static final String TWO = "two";
-  static final String TEST = "test";
-  static final String SRN_2 = "srn_2";
-  static final String SRN_3 = "srn_3";
+  private static final String SRN_1 = "srn_1";
+  private static final String ONE = "one";
+  private static final String TWO = "two";
+  private static final String TEST = "test";
+  private static final String SRN_2 = "srn_2";
+  private static final String SRN_3 = "srn_3";
 
   @Mock(answer = Answers.RETURNS_MOCKS)
   private ResultDataPostProcessor resultDataPostProcessor;

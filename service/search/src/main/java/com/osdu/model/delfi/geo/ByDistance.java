@@ -8,8 +8,8 @@ import lombok.NonNull;
 @Data
 public class ByDistance implements GeoLocation {
 
-  static final int Y_INDEX = 1;
-  static final int X_INDEX = 0;
+  private static final int Y_INDEX = 1;
+  private static final int X_INDEX = 0;
 
   @NonNull
   Point point;

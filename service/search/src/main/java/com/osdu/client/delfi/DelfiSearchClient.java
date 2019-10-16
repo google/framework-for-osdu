@@ -6,7 +6,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-@FeignClient(url = "${search.delfi.client.serverUrl}", name = "search.delfi")
+@FeignClient(url = "${osdu.delfi.portal.url}", name = "search.delfi")
 public interface DelfiSearchClient {
 
 

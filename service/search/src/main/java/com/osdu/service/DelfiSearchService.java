@@ -11,11 +11,11 @@ import com.osdu.model.SearchResult;
 import com.osdu.model.delfi.DelfiSearchObject;
 import com.osdu.model.delfi.DelfiSearchResult;
 import com.osdu.model.osdu.OsduSearchObject;
-import javax.inject.Inject;
+import com.osdu.model.property.DelfiPortalProperties;
 import javax.inject.Named;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.NotImplementedException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
 
@@ -24,31 +24,22 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class DelfiSearchService implements SearchService {
 
-  static final String KIND_HEADER_KEY = "kind";
-  static final String PARTITION_HEADER_KEY = "partition";
-  static final String AUTHORIZATION_HEADER = "authorization";
+  private static final String KIND_HEADER_KEY = "kind";
+  private static final String PARTITION_HEADER_KEY = "partition";
+  private static final String AUTHORIZATION_HEADER = "authorization";
+
+  final DelfiPortalProperties portalProperties;
+
+  @Named
+  final SearchObjectMapper searchObjectMapper;
+  @Named
+  final SearchResultMapper searchResultMapper;
 
   final DelfiSearchClient delfiSearchClient;
-
-  @Inject
-  @Named
-  SearchObjectMapper searchObjectMapper;
-
-  @Inject
-  @Named
-  SearchResultMapper searchResultMapper;
-
-  @Inject
-  AuthenticationService authenticationService;
-
-  @Value("${search.mapper.delfi.appkey}")
-  String applicationKey;
-
-  public DelfiSearchService(DelfiSearchClient delfiSearchClient) {
-    this.delfiSearchClient = delfiSearchClient;
-  }
+  final AuthenticationService authenticationService;
 
   /**
    * NOT IMPLEMENTED YET Searches Delfi partition using index.
@@ -84,7 +75,7 @@ public class DelfiSearchService implements SearchService {
 
     Boolean valid = checkIfInputParametersValid((OsduSearchObject) searchObject);
     if (Boolean.FALSE.equals(valid)) {
-      log.info("Input parameters validation fail - " + (OsduSearchObject) searchObject);
+      log.info("Input parameters validation fail - " + searchObject);
       return new SearchResult();
     }
 
@@ -92,7 +83,7 @@ public class DelfiSearchService implements SearchService {
         .osduToDelfi((OsduSearchObject) searchObject, kind, partition);
     DelfiSearchResult searchResult = delfiSearchClient.searchIndex(
         authorizationToken,
-        applicationKey,
+        portalProperties.getAppKey(),
         partition,
         delfiSearchObject);
     SearchResult osduSearchResult = searchResultMapper

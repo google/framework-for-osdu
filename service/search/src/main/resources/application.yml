@@ -1,17 +1,18 @@
 git:
   folder:
     path: resources/git
-search:
+osdu:
   delfi:
     portal:
+      appkey: PtVguojl2DUr0qimhDclNMwZAeAJwK1T
       url: https://api.evq.csp.slb.com/
+search:
+  delfi:
     client:
       appKeyHeader: AppKey
       authorizationHeader: Authorization
       partitionHeader: slb-data-partition-id
       serverUrl: https://api.evq.csp.slb.com/
   mapper:
-    delfi:
-      appkey: ${search.mapper.delfi.applicationKey:PtVguojl2DUr0qimhDclNMwZAeAJwK1T}
     searchEndpoint: de/search/v2/query
 

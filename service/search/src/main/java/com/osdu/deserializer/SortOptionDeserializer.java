@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public class SortOptionDeserializer extends JsonDeserializer<SortOption> {
 
-  static final String ORDER_JSON_KEY = "order";
+  private static final String ORDER_JSON_KEY = "order";
 
   @Override
   public SortOption deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {

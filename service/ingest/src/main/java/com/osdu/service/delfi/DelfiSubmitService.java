@@ -9,8 +9,6 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.osdu.client.DelfiIngestionClient;
 import com.osdu.exception.IngestException;
 import com.osdu.model.delfi.RequestMeta;
@@ -43,7 +41,6 @@ import org.springframework.stereotype.Service;
 public class DelfiSubmitService implements SubmitService {
 
   final DelfiPortalProperties portalProperties;
-  final ObjectMapper objectMapper;
   final DelfiIngestionClient delfiIngestionClient;
 
   @Override

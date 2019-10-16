@@ -22,10 +22,10 @@ import org.springframework.util.StringUtils;
 public abstract class SearchObjectMapperDecorator implements SearchObjectMapper {
 
   // Business logic - what default distance? Zero causes error on Delfi
-  static final double DEFAULT_DISTANCE = 1000.0;
-  static final String LUCENE_AND_TERM = " AND ";
-  static final String LUCENE_OR_TERM = " OR ";
-  static final String BY_BOUNDING_BOX_GEOLOCATION_TYPE = "ByBoundingBox";
+  private static final double DEFAULT_DISTANCE = 1000.0;
+  private static final String LUCENE_AND_TERM = " AND ";
+  private static final String LUCENE_OR_TERM = " OR ";
+  private static final String BY_BOUNDING_BOX_GEOLOCATION_TYPE = "ByBoundingBox";
 
   @Inject
   @Named("com.osdu.mapper.SearchObjectMapperImpl_")

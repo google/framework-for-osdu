@@ -8,7 +8,10 @@ import java.io.IOException;
 
 public final class JsonUtils {
 
-  static ObjectMapper mapper = new ObjectMapper();
+  private JsonUtils() {
+  }
+
+  private static ObjectMapper mapper = new ObjectMapper();
 
   /**
    *  Returns JsonNode from input object.

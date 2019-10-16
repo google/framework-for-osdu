@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 public class SpatialFilter {
 
-  static final String GEO_LOCATION_FIELD_ID = "data.dlLatLongWGS84";
+  private static final String GEO_LOCATION_FIELD_ID = "data.dlLatLongWGS84";
 
   String field = GEO_LOCATION_FIELD_ID;
   //Delfi spec assumes that there can be 1 of 3 different types of objects and in order to maintain

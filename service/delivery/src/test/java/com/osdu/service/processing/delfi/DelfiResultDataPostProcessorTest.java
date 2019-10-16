@@ -20,12 +20,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 public class DelfiResultDataPostProcessorTest {
 
-  static final String ONE = "one";
-  static final String TWO = "two";
-  static final String THREE = "three";
-  static final String FOUR = "four";
-  static final String TEST_VALUE = "test";
-  ResultDataPostProcessor resultDataPostProcessor;
+  private static final String ONE = "one";
+  private static final String TWO = "two";
+  private static final String THREE = "three";
+  private static final String FOUR = "four";
+  private static final String TEST_VALUE = "test";
+
+  private ResultDataPostProcessor resultDataPostProcessor;
 
   @Before
   public void init() {

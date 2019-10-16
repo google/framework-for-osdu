@@ -44,18 +44,18 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 @AutoConfigureMockMvc
 public class DeliveryFlowIntegrationTest {
 
-  static final String TARGET_REGION = "targetRegion";
-  static final String SIGNED_URL = "http://signed-url";
-  static final String FILE_LOCATION = "fileLocation";
-  static final String AUTHENTICATION = "authentication";
-  static final String PARTITION = "partition";
-  static final String NO_MAPPING_EXAMPLE = "no-mapping-example";
-  static final String NO_LOCATION_EXAMPLE = "no-location-example";
-  static final String LOCATION_EXAMPLE = "location-example";
-  static final String SRN_1 = "srn1";
-  static final String SRN_2 = "srn2";
-  static final String RECORD_ID_1 = "recordId1";
-  static final String RECORD_ID_2 = "recordId2";
+  private static final String TARGET_REGION = "targetRegion";
+  private static final String SIGNED_URL = "http://signed-url";
+  private static final String FILE_LOCATION = "fileLocation";
+  private static final String AUTHENTICATION = "authentication";
+  private static final String PARTITION = "partition";
+  private static final String NO_MAPPING_EXAMPLE = "no-mapping-example";
+  private static final String NO_LOCATION_EXAMPLE = "no-location-example";
+  private static final String LOCATION_EXAMPLE = "location-example";
+  private static final String SRN_1 = "srn1";
+  private static final String SRN_2 = "srn2";
+  private static final String RECORD_ID_1 = "recordId1";
+  private static final String RECORD_ID_2 = "recordId2";
 
   @MockBean
   private SrnMappingService srnMappingService;
