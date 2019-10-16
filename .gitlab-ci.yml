@@ -40,8 +40,8 @@ deploy_search:
     changes:
       - pom.xml
       - service/pom.xml
-      - common/*
-      - service/search/*
+      - common/**/*
+      - service/search/**/*
       - Dockerfile
       - cloudbuild.yaml
 
@@ -56,8 +56,8 @@ deploy_delivery:
     changes:
       - pom.xml
       - service/pom.xml
-      - common/*
-      - service/search/*
+      - common/**/*
+      - service/search/**/*
       - Dockerfile
       - cloudbuild.yaml
 
@@ -72,7 +72,7 @@ deploy_ingest:
     changes:
       - pom.xml
       - service/pom.xml
-      - common/*
-      - service/ingest/*
+      - common/**/*
+      - service/ingest/**/*
       - Dockerfile
       - cloudbuild.yaml
