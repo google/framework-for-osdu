@@ -10,28 +10,36 @@ import feign.Response;
 import feign.codec.ErrorDecoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class OsduFeignErrorDecoder implements ErrorDecoder {
 
-  private static Map<Integer, OsduException> exceptionToStatusMap = new HashMap<>();
+  private static Map<Integer, Callable<OsduException>> exceptionToStatusMap = new HashMap<>();
 
   /**
    * Constructor for OsduFeignErrorDecoder.
    */
   public OsduFeignErrorDecoder() {
-    exceptionToStatusMap.put(400, new OsduBadRequestException("Bad request"));
-    exceptionToStatusMap.put(401, new OsduUnauthorizedException("Unauthorized"));
-    exceptionToStatusMap.put(403, new OsduForbiddenException("Forbidden"));
-    exceptionToStatusMap.put(404, new OsduNotFoundException("Not found"));
-    exceptionToStatusMap.put(500, new OsduServerErrorException("Internal server error"));
+    exceptionToStatusMap.put(400, () -> new OsduBadRequestException("Bad request"));
+    exceptionToStatusMap.put(401, () -> new OsduUnauthorizedException("Unauthorized"));
+    exceptionToStatusMap.put(403, () -> new OsduForbiddenException("Forbidden"));
+    exceptionToStatusMap.put(404, () -> new OsduNotFoundException("Not found"));
+    exceptionToStatusMap.put(500, () -> new OsduServerErrorException("Internal server error"));
   }
 
   @Override
   public Exception decode(String methodKey, Response response) {
 
-    return exceptionToStatusMap
-        .getOrDefault(response.status(), new OsduException("Unknown exception"));
+    try {
+      return exceptionToStatusMap
+          .getOrDefault(response.status(), () -> new OsduException("Unknown exception")).call();
+    } catch (Exception e) {
+      log.error("Error during exception decode");
+      throw new OsduException("Unknown exception");
+    }
   }
 }
