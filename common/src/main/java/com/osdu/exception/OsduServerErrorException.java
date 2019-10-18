@@ -9,4 +9,9 @@ public class OsduServerErrorException extends OsduException {
   public OsduServerErrorException(String message) {
     super(message);
   }
+
+  public OsduServerErrorException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
 }

@@ -9,4 +9,9 @@ public class OsduForbiddenException extends OsduException {
   public OsduForbiddenException(String message) {
     super(message);
   }
+
+  public OsduForbiddenException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
 }

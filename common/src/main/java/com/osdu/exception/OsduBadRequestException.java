@@ -9,4 +9,9 @@ public class OsduBadRequestException extends OsduException {
   public OsduBadRequestException(String message) {
     super(message);
   }
+
+  public OsduBadRequestException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
 }

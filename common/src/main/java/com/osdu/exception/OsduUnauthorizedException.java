@@ -9,4 +9,9 @@ public class OsduUnauthorizedException extends OsduException {
   public OsduUnauthorizedException(String message) {
     super(message);
   }
+
+  public OsduUnauthorizedException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
 }

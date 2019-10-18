@@ -9,4 +9,9 @@ public class OsduNotFoundException extends OsduException {
   public OsduNotFoundException(String message) {
     super(message);
   }
+
+  public OsduNotFoundException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
 }

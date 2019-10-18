@@ -9,4 +9,5 @@ public class OsduException extends RuntimeException {
   public OsduException(String message, Throwable cause) {
     super(message, cause);
   }
+
 }
