@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class JobStatusResponse {
 
-  JobStatus status;
+  JobInfo jobInfo;
 
 }

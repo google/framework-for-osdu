@@ -1,5 +1,6 @@
 package com.osdu.model.delfi;
 
+import com.osdu.model.ResourceTypeId;
 import com.osdu.model.SchemaData;
 import java.util.Map;
 import lombok.Builder;
@@ -14,5 +15,6 @@ public class RequestMeta {
   String legalTags;
   SchemaData schemaData;
   Map<String, String> userGroupEmailByName;
+  ResourceTypeId resourceTypeId;
 
 }

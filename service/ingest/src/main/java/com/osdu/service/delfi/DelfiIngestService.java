@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class DelfiIngestService implements IngestService {
 
-  static final String DEFAULT_MANIFEST_SCHEMA_NAME = "LoadManifestSchema.json";
+  private static final String DEFAULT_MANIFEST_SCHEMA_NAME = "LoadManifestSchema.json";
 
   final DelfiPortalProperties portalProperties;
 

@@ -10,6 +10,7 @@ import com.osdu.client.DelfiEntitlementsClient;
 import com.osdu.client.DelfiIngestionClient;
 import com.osdu.exception.IngestException;
 import com.osdu.model.Record;
+import com.osdu.model.ResourceTypeId;
 import com.osdu.model.SchemaData;
 import com.osdu.model.SrnToRecord;
 import com.osdu.model.delfi.RequestMeta;
@@ -100,6 +101,7 @@ public class DelfiInnerInjectionProcess implements InnerInjectionProcess {
               .legalTags(legalTags)
               .schemaData(schemaData)
               .userGroupEmailByName(groupEmailByName)
+              .resourceTypeId(new ResourceTypeId(wpc.getResourceTypeId()))
               .build();
 
           List<SubmittedFile> submittedFiles = wpc.getFiles().stream()

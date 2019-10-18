@@ -9,9 +9,9 @@ public final class OsduHeader {
   private OsduHeader() {
   }
 
-  public static final String PARTITION = "partition";
+  public static final String PARTITION = "partition-id";
   public static final String AUTHORIZATION = "authorization";
-  public static final String LEGAL_TAGS = "legaltags";
+  public static final String LEGAL_TAGS = "legal-tags";
   public static final String RESOURCE_HOME_REGION_ID = "ResourceHomeRegionID";
   public static final String RESOURCE_HOST_REGION_IDS = "ResourceHostRegionIDs";
 
