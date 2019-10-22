@@ -72,8 +72,7 @@ public class MetadataEntry {
    * @param elementsOfTheNode list of it's elements in a convenient form
    * @return true - if the element is a text entry, false if it isn't
    */
-  protected boolean isArrayNode(JsonNode jsonNode,
-      ArrayList<JsonNode> elementsOfTheNode) {
+  protected boolean isArrayNode(JsonNode jsonNode, ArrayList<JsonNode> elementsOfTheNode) {
     return !elementsOfTheNode.isEmpty() && elementsOfTheNode.stream()
         .allMatch(node -> node instanceof TextNode)
         && jsonNode instanceof ArrayNode;

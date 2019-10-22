@@ -39,7 +39,7 @@ public class DelfiDataProcessingJob implements DataProcessingJob {
           .getFile((record.getData()).get(LOCATION_KEY).toString(), authorizationToken, partition);
       result.setProcessingResultStatus(ProcessingResultStatus.FILE);
       result.setData(file);
-      result.setFileLocation(String.valueOf(file.getDetails().get(FILE_LOCATION_KEY)));
+      result.setFileLocation(String.valueOf(file.getAdditionalProperties().get(FILE_LOCATION_KEY)));
     } else {
       result.setData(record);
       result.setProcessingResultStatus(ProcessingResultStatus.DATA);

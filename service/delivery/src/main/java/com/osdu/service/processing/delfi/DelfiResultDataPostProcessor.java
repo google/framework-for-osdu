@@ -51,7 +51,7 @@ public class DelfiResultDataPostProcessor implements ResultDataPostProcessor {
 
     @Override
     public BaseRecord execute(BaseRecord data) {
-      ((FileRecord) data).getDetails().entrySet()
+      ((FileRecord) data).getAdditionalProperties().entrySet()
           .removeIf(entry -> fieldsToStrip.contains(entry.getKey()));
       return data;
     }
@@ -70,7 +70,8 @@ public class DelfiResultDataPostProcessor implements ResultDataPostProcessor {
       if (record.getData() != null) {
         record.getData().entrySet().removeIf(entry -> fieldsToStrip.contains(entry.getKey()));
       }
-      record.getDetails().entrySet().removeIf(entry -> fieldsToStrip.contains(entry.getKey()));
+      record.getAdditionalProperties().entrySet()
+          .removeIf(entry -> fieldsToStrip.contains(entry.getKey()));
       return data;
     }
   }
