@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import com.osdu.model.FileRecord;
 import com.osdu.model.Record;
-import com.osdu.model.SchemaData;
 import com.osdu.model.SrnToRecord;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResultStatus;
@@ -34,7 +33,6 @@ public class DelfiDataProcessingJobTest {
   private static final String AUTHORIZATION_TOKEN = "authToken";
   private static final String PARTITION = "partition";
   private static final String SRN = "srn";
-  private static final String ODES_ID = "odesId";
   private static final String SIGNED_URL = "signedUrl";
   private static final String RECORD_ID_1 = "recordId1";
 
@@ -52,15 +50,14 @@ public class DelfiDataProcessingJobTest {
     SrnToRecord srnToRecord = SrnToRecord.builder().recordId(RECORD_ID_1).srn(SRN).build();
     when(srnMappingService.getSrnToRecord(eq(SRN))).thenReturn(srnToRecord);
 
-    Record record = new Record() {
-    };
+    Record record = new Record();
     Map<String, Object> data = new HashMap<>();
     data.put("one", "test");
 
     Map<String, Object> details = new HashMap<>();
     details.put("two", "test");
 
-    record.setDetails(details);
+    record.setAdditionalProperties(details);
     record.setData(data);
 
     when(portalService.getRecord(eq(RECORD_ID_1), eq(AUTHORIZATION_TOKEN), eq(PARTITION)))
@@ -82,13 +79,12 @@ public class DelfiDataProcessingJobTest {
     SrnToRecord srnToRecord = SrnToRecord.builder().recordId(RECORD_ID_1).srn(SRN).build();
     when(srnMappingService.getSrnToRecord(eq(SRN))).thenReturn(srnToRecord);
 
-    Record record = new Record() {
-    };
+    Record record = new Record();
     Map<String, Object> data = new HashMap<>();
     data.put(LOCATION_KEY, "test location");
     Map<String, Object> details = new HashMap<>();
     details.put("two", "test");
-    record.setDetails(details);
+    record.setAdditionalProperties(details);
     record.setData(data);
     when(portalService.getRecord(eq(RECORD_ID_1), eq(AUTHORIZATION_TOKEN), eq(PARTITION)))
         .thenReturn(record);
@@ -96,9 +92,8 @@ public class DelfiDataProcessingJobTest {
     Map<String, Object> fileRecordDetails = new HashMap<>();
     fileRecordDetails.put(FILE_LOCATION_KEY, SIGNED_URL);
     fileRecordDetails.put("test", "test");
-    FileRecord fileRecord = new FileRecord() {
-    };
-    fileRecord.setDetails(fileRecordDetails);
+    FileRecord fileRecord = new FileRecord();
+    fileRecord.setAdditionalProperties(fileRecordDetails);
     when(portalService.getFile(eq("test location"), eq(AUTHORIZATION_TOKEN), eq(PARTITION)))
         .thenReturn(fileRecord);
 

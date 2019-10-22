@@ -1,17 +1,12 @@
 package com.osdu.model;
 
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
-public abstract class FileRecord implements BaseRecord {
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+public class FileRecord extends BaseJsonObject implements BaseRecord {
 
-  Map<String, Object> details = new LinkedHashMap<>();
-
-  @JsonAnySetter
-  void setDetail(String key, Object value) {
-    details.put(key, value);
-  }
 }

@@ -6,22 +6,19 @@ import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
 import com.osdu.model.osdu.delivery.dto.ResponseItem;
 import com.osdu.service.processing.ResultDataConverter;
 import com.osdu.service.processing.ResultDataPostProcessor;
-
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.inject.Inject;
-
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class DelfiResultDataConverter implements ResultDataConverter {
 
-  @Inject
-  ResultDataPostProcessor resultDataPostProcessor;
+  final ResultDataPostProcessor resultDataPostProcessor;
 
   @Override
   public DeliveryResponse convertProcessingResults(List<ProcessingResult> results) {
@@ -45,11 +42,8 @@ public class DelfiResultDataConverter implements ResultDataConverter {
 
     responseItems.forEach(result -> resultDataPostProcessor.processData(result.getData()));
 
-    DeliveryResponse response = new DeliveryResponse();
-    response.setResult(responseItems);
-    response.setUnprocessedSrns(unprocessedSrns);
-
-    return response;
+    return DeliveryResponse.builder()
+        .result(responseItems)
+        .unprocessedSrns(unprocessedSrns).build();
   }
-
 }

@@ -36,7 +36,7 @@ public class DelfiResultDataConverterTest {
   private ResultDataPostProcessor resultDataPostProcessor;
 
   @InjectMocks
-  private ResultDataConverter resultDataConverter = new DelfiResultDataConverter();
+  private DelfiResultDataConverter resultDataConverter;
 
   @Test
   public void shouldConvertDataRecordResult() {
@@ -45,8 +45,7 @@ public class DelfiResultDataConverterTest {
     Map<String, Object> data = new HashMap<>();
     data.put(ONE, TEST);
     data.put(TWO, TEST);
-    Record record = new Record() {
-    };
+    Record record = new Record();
     record.setData(data);
 
     ProcessingResult dataResult = createProcessingResult(ProcessingResultStatus.DATA, null, record,
@@ -71,15 +70,13 @@ public class DelfiResultDataConverterTest {
     Map<String, Object> data = new HashMap<>();
     data.put(ONE, TEST);
     data.put(TWO, TEST);
-    Record record = new Record() {
-    };
+    Record record = new Record();
     record.setData(data);
     ProcessingResult dataResult = createProcessingResult(ProcessingResultStatus.DATA, null, record,
         SRN_1);
 
-    FileRecord fileRecord = new FileRecord() {
-    };
-    fileRecord.setDetails(data);
+    FileRecord fileRecord = new FileRecord();
+    fileRecord.setAdditionalProperties(data);
     ProcessingResult fileResult = createProcessingResult(ProcessingResultStatus.FILE,
         "http://url.com", fileRecord, SRN_2);
 
@@ -97,7 +94,8 @@ public class DelfiResultDataConverterTest {
     assertThat(response.getResult().get(0).getFileLocation()).isNull();
     assertThat(response.getResult().get(0).getSrn()).isEqualTo(SRN_1);
 
-    assertThat(((FileRecord) response.getResult().get(1).getData()).getDetails()).isEqualTo(data);
+    assertThat(((FileRecord) response.getResult().get(1).getData()).getAdditionalProperties())
+        .isEqualTo(data);
     assertThat(response.getResult().get(1).getFileLocation()).isEqualTo("http://url.com");
     assertThat(response.getResult().get(1).getSrn()).isEqualTo(SRN_2);
 

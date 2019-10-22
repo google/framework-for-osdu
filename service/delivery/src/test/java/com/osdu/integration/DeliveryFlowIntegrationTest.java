@@ -104,7 +104,7 @@ public class DeliveryFlowIntegrationTest {
     Map<String, Object> fileRecordDetails = new HashMap<>();
     fileRecordDetails.put("data", "data");
     fileRecordDetails.put(FILE_LOCATION_KEY, SIGNED_URL);
-    fileRecord.setDetails(fileRecordDetails);
+    fileRecord.setAdditionalProperties(fileRecordDetails);
     when(portalService.getFile(eq(FILE_LOCATION), eq(AUTHENTICATION), eq(PARTITION)))
         .thenReturn(fileRecord);
 
@@ -137,7 +137,8 @@ public class DeliveryFlowIntegrationTest {
 
     assertThat(items.get(1).getSrn()).isEqualTo(LOCATION_EXAMPLE);
     assertThat(items.get(1).getFileLocation()).isEqualTo(SIGNED_URL);
-    Map<String, Object> locationData = ((DelfiFileRecord) items.get(1).getData()).getDetails();
+    Map<String, Object> locationData = ((DelfiFileRecord) items.get(1).getData())
+        .getAdditionalProperties();
     assertThat(locationData.get("data")).isEqualTo("data");
   }
 

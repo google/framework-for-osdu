@@ -38,16 +38,15 @@ public class DelfiResultDataPostProcessorTest {
 
   @Test
   public void testFileRecord() {
-    // given
-    FileRecord fileRecord = new FileRecord() {
-    };
 
+    // given
     Map<String, Object> testDetails = new HashMap<>();
     testDetails.put(ONE, TEST_VALUE);
     testDetails.put(TWO, TEST_VALUE);
     testDetails.put(THREE, TEST_VALUE);
     testDetails.put(FOUR, TEST_VALUE);
-    fileRecord.setDetails(testDetails);
+    FileRecord fileRecord = new FileRecord();
+    fileRecord.setAdditionalProperties(testDetails);
 
     // when
     resultDataPostProcessor.processData(fileRecord);
@@ -56,16 +55,14 @@ public class DelfiResultDataPostProcessorTest {
     Map<String, Object> expectedTestDetails = new HashMap<>();
     expectedTestDetails.put(TWO, TEST_VALUE);
     expectedTestDetails.put(FOUR, TEST_VALUE);
-    assertThat(fileRecord.getDetails()).containsExactlyInAnyOrderEntriesOf(expectedTestDetails);
+    assertThat(fileRecord.getAdditionalProperties())
+        .containsExactlyInAnyOrderEntriesOf(expectedTestDetails);
   }
 
   @Test
   public void testRecord() {
 
     // given
-    Record record = new Record() {
-    };
-
     Map<String, Object> testData = new HashMap<>();
     testData.put(ONE, TEST_VALUE);
     testData.put(TWO, TEST_VALUE);
@@ -76,8 +73,9 @@ public class DelfiResultDataPostProcessorTest {
     testDetails.put(ONE, TEST_VALUE);
     testDetails.put(TWO, TEST_VALUE);
 
+    Record record = new Record();
     record.setData(testData);
-    record.setDetails(testDetails);
+    record.setAdditionalProperties(testDetails);
 
     // when
     resultDataPostProcessor.processData(record);
@@ -85,7 +83,8 @@ public class DelfiResultDataPostProcessorTest {
     // then
     Map<String, Object> expectedTestDetails = new HashMap<>();
     expectedTestDetails.put(TWO, TEST_VALUE);
-    assertThat(record.getDetails()).containsExactlyInAnyOrderEntriesOf(expectedTestDetails);
+    assertThat(record.getAdditionalProperties())
+        .containsExactlyInAnyOrderEntriesOf(expectedTestDetails);
 
     Map<String, Object> expectedTestData = new HashMap<>();
     expectedTestData.put(TWO, TEST_VALUE);

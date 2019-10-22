@@ -6,7 +6,7 @@ public interface AuthenticationService {
 
   /** Method returns groups that user belongs to.
    * Can be used for check if authentication properties are valid.
-   * It throws unauthorized exception if authentication properties not valid.
+   * It throws Unauthorized exception if authentication properties not valid.
    *
    * @param authorizationToken Bearer token
    * @param partition partition

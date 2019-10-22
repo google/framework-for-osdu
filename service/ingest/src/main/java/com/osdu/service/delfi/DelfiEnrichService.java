@@ -78,8 +78,7 @@ public class DelfiEnrichService implements EnrichService {
 
   private WorkProductComponent deepCopy(WorkProductComponent wpc) {
     try {
-      return objectMapper.readValue(toJson(wpc),
-          WorkProductComponent.class);
+      return objectMapper.readValue(toJson(wpc), WorkProductComponent.class);
     } catch (IOException e) {
       throw new IngestException("Error processing WorkProductComponent json", e);
     }
