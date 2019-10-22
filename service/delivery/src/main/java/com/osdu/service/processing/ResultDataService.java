@@ -2,7 +2,7 @@ package com.osdu.service.processing;
 
 import com.osdu.model.BaseRecord;
 
-public interface ResultDataPostProcessor {
+public interface ResultDataService {
 
   BaseRecord processData(BaseRecord data);
 }

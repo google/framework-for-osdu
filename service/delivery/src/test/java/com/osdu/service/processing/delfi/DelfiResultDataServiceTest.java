@@ -2,23 +2,24 @@ package com.osdu.service.processing.delfi;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
 
 import com.osdu.model.BaseRecord;
 import com.osdu.model.FileRecord;
 import com.osdu.model.Record;
-import com.osdu.service.processing.ResultDataPostProcessor;
-import java.util.ArrayList;
+import com.osdu.model.osdu.delivery.property.OsduDeliveryProperties;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-
-@RunWith(SpringJUnit4ClassRunner.class)
-public class DelfiResultDataPostProcessorTest {
+@RunWith(MockitoJUnitRunner.class)
+public class DelfiResultDataServiceTest {
 
   private static final String ONE = "one";
   private static final String TWO = "two";
@@ -26,14 +27,15 @@ public class DelfiResultDataPostProcessorTest {
   private static final String FOUR = "four";
   private static final String TEST_VALUE = "test";
 
-  private ResultDataPostProcessor resultDataPostProcessor;
+  @Mock
+  private OsduDeliveryProperties properties;
+
+  @InjectMocks
+  private DelfiResultDataService resultDataService;
 
   @Before
   public void init() {
-    List<String> filelsToStrip = new ArrayList<>();
-    filelsToStrip.add(ONE);
-    filelsToStrip.add(THREE);
-    resultDataPostProcessor = new DelfiResultDataPostProcessor(filelsToStrip);
+    when(properties.getFieldsToStrip()).thenReturn(Arrays.asList(ONE, THREE));
   }
 
   @Test
@@ -49,7 +51,7 @@ public class DelfiResultDataPostProcessorTest {
     fileRecord.setAdditionalProperties(testDetails);
 
     // when
-    resultDataPostProcessor.processData(fileRecord);
+    resultDataService.processData(fileRecord);
 
     // then
     Map<String, Object> expectedTestDetails = new HashMap<>();
@@ -78,7 +80,7 @@ public class DelfiResultDataPostProcessorTest {
     record.setAdditionalProperties(testDetails);
 
     // when
-    resultDataPostProcessor.processData(record);
+    resultDataService.processData(record);
 
     // then
     Map<String, Object> expectedTestDetails = new HashMap<>();
@@ -96,7 +98,7 @@ public class DelfiResultDataPostProcessorTest {
   public void testUnknown() {
     BaseRecord br = new BaseRecord() {
     };
-    Object test = resultDataPostProcessor.processData(br);
+    Object test = resultDataService.processData(br);
     assertEquals(br, test);
   }
 

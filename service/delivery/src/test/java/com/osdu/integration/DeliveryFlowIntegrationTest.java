@@ -69,8 +69,8 @@ public class DeliveryFlowIntegrationTest {
 
   @Test
   public void test() throws Exception {
-    // given
 
+    // given
     when(authenticationService.checkAuthentication(eq(AUTHENTICATION), eq(PARTITION)))
         .thenReturn(null);
 
@@ -108,13 +108,13 @@ public class DeliveryFlowIntegrationTest {
     when(portalService.getFile(eq(FILE_LOCATION), eq(AUTHENTICATION), eq(PARTITION)))
         .thenReturn(fileRecord);
 
-    // when
     List<String> srns = Arrays.asList(NO_LOCATION_EXAMPLE, NO_MAPPING_EXAMPLE, LOCATION_EXAMPLE);
     InputPayload payload = new InputPayload(srns, TARGET_REGION);
     HttpHeaders headers = new HttpHeaders();
     headers.add(AUTHORIZATION_HEADER_KEY, AUTHENTICATION);
     headers.add(PARTITION_HEADER_KEY, PARTITION);
 
+    // when
     ResponseEntity responseEntity = (ResponseEntity) mockMvc
         .perform(MockMvcRequestBuilders.post("/")
             .headers(headers)

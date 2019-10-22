@@ -1,4 +1,4 @@
-package com.osdu.schema.mapper;
+package com.osdu;
 
 import static org.junit.Assert.assertNull;
 
