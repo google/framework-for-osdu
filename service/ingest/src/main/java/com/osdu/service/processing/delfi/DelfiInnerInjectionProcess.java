@@ -203,7 +203,7 @@ public class DelfiInnerInjectionProcess implements InnerInjectionProcess {
 
   private URL createUrlFromManifestFile(ManifestFile file) {
     try {
-      return new URL(file.getData().getGroupTypeProperties().getOriginalFilePath());
+      return new URL(file.getData().getGroupTypeProperties().getStagingFilePath());
     } catch (MalformedURLException e) {
       throw new IngestException(
           String.format("Could not create URL from staging link : %s",
