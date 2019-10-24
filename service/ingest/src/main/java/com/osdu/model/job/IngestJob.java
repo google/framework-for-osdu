@@ -1,7 +1,6 @@
 package com.osdu.model.job;
 
 import com.google.cloud.firestore.annotation.ServerTimestamp;
-import com.osdu.model.BaseRecord;
 import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -17,7 +16,7 @@ public class IngestJob {
 
   String id;
   IngestJobStatus status;
-  List<BaseRecord> records;
+  List<String> srns;
   @ServerTimestamp
   Date created;
 

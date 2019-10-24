@@ -9,7 +9,7 @@ import lombok.Data;
 public class JobsPullingResult {
 
   List<String> runningJobs;
-  List<JobInfo> failedJobs;
-  List<JobInfo> completedJobs;
+  List<JobStatusResponse> failedJobs;
+  List<JobStatusResponse> completedJobs;
 
 }

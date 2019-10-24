@@ -17,4 +17,5 @@ public class GcsConfig {
     // according to https://cloud.google.com/docs/authentication/production
     return StorageOptions.getDefaultInstance().getService();
   }
+
 }

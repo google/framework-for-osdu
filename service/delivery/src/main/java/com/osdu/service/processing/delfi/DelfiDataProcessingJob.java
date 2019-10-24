@@ -3,6 +3,7 @@ package com.osdu.service.processing.delfi;
 import com.osdu.model.FileRecord;
 import com.osdu.model.Record;
 import com.osdu.model.SrnToRecord;
+import com.osdu.model.delfi.DelfiFile;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResultStatus;
 import com.osdu.service.PortalService;
@@ -35,11 +36,11 @@ public class DelfiDataProcessingJob implements DataProcessingJob {
     String recordId = srnToRecord.getRecordId();
     final Record record = portalService.getRecord(recordId, authorizationToken, partition);
     if (record.getData().containsKey(LOCATION_KEY)) {
-      final FileRecord file = portalService
+      DelfiFile file = portalService
           .getFile((record.getData()).get(LOCATION_KEY).toString(), authorizationToken, partition);
       result.setProcessingResultStatus(ProcessingResultStatus.FILE);
-      result.setData(file);
-      result.setFileLocation(String.valueOf(file.getAdditionalProperties().get(FILE_LOCATION_KEY)));
+      result.setData(new FileRecord());
+      result.setFileLocation(file.getSignedUrl());
     } else {
       result.setData(record);
       result.setProcessingResultStatus(ProcessingResultStatus.DATA);

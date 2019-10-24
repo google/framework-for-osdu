@@ -5,11 +5,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.osdu.exception.OsduException;
 import java.io.IOException;
+import lombok.experimental.UtilityClass;
 
-public final class JsonUtils {
-
-  private JsonUtils() {
-  }
+@UtilityClass
+public class JsonUtils {
 
   private static ObjectMapper mapper = new ObjectMapper();
 
@@ -23,7 +22,7 @@ public final class JsonUtils {
       return mapper.readTree(toJson(value));
     } catch (IOException e) {
       throw new OsduException(
-          String.format("Could not convert object to JSON. Object : %s", value), e);
+          String.format("Could not convert object to JSON node. Object : %s", value), e);
     }
   }
 
@@ -37,6 +36,20 @@ public final class JsonUtils {
       return mapper.writeValueAsString(value);
     } catch (JsonProcessingException e) {
       throw new OsduException("Could not convert object to JSON. Object: " + value);
+    }
+  }
+
+  /**
+   * Convert json string to object.
+   * @param value json string
+   * @param clazz object class
+   * @return converted object
+   */
+  public <T> T toObject(String value, Class<T> clazz) {
+    try {
+      return mapper.readValue(value, clazz);
+    } catch (IOException e) {
+      throw new OsduException("Could not convert json string to object. String: " + value, e);
     }
   }
 

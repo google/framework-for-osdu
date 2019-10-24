@@ -1,5 +1,6 @@
 package com.osdu.service;
 
+import com.osdu.model.job.IngestJob;
 import com.osdu.model.job.IngestJobStatus;
 import com.osdu.model.job.IngestJobStatusDto;
 import org.springframework.messaging.MessageHeaders;
@@ -11,5 +12,7 @@ public interface JobStatusService {
   String initInjectJob();
 
   void updateJobStatus(String jobId, IngestJobStatus status);
+
+  void save(IngestJob ingestJob);
 
 }

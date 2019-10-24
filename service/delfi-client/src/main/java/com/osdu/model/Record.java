@@ -11,8 +11,8 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 public class Record extends BaseJsonObject implements BaseRecord {
 
-  String id;
-
   Map<String, Object> data = new HashMap<>();
+
+  String id;
 
 }

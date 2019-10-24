@@ -4,7 +4,6 @@ import static com.osdu.model.job.IngestJobStatus.FAILED;
 import static com.osdu.request.OsduHeader.extractHeaderByName;
 import static com.osdu.service.JsonUtils.getJsonNode;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.storage.Blob;
 import com.osdu.client.DelfiEntitlementsClient;
 import com.osdu.client.DelfiIngestionClient;
@@ -13,6 +12,7 @@ import com.osdu.model.Record;
 import com.osdu.model.ResourceTypeId;
 import com.osdu.model.SchemaData;
 import com.osdu.model.SrnToRecord;
+import com.osdu.model.delfi.IngestedFile;
 import com.osdu.model.delfi.RequestMeta;
 import com.osdu.model.delfi.enrich.EnrichedFile;
 import com.osdu.model.delfi.entitlement.Group;
@@ -21,6 +21,7 @@ import com.osdu.model.delfi.signed.SignedUrlResult;
 import com.osdu.model.delfi.status.JobsPullingResult;
 import com.osdu.model.delfi.submit.SubmitJobResult;
 import com.osdu.model.delfi.submit.SubmittedFile;
+import com.osdu.model.job.IngestJob;
 import com.osdu.model.job.IngestJobStatus;
 import com.osdu.model.manifest.LoadManifest;
 import com.osdu.model.manifest.ManifestFile;
@@ -40,6 +41,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -62,8 +64,6 @@ public class DelfiInnerInjectionProcess implements InnerInjectionProcess {
 
   final DelfiPortalProperties portalProperties;
 
-  final ObjectMapper objectMapper;
-
   final DelfiIngestionClient delfiIngestionClient;
   final DelfiEntitlementsClient delfiEntitlementsClient;
 
@@ -83,6 +83,9 @@ public class DelfiInnerInjectionProcess implements InnerInjectionProcess {
     String authorizationToken = extractHeaderByName(headers, OsduHeader.AUTHORIZATION);
     String partition = normalizePartition(extractHeaderByName(headers, OsduHeader.PARTITION));
     String legalTags = extractHeaderByName(headers, OsduHeader.LEGAL_TAGS);
+
+    IngestJobStatus ingestJobStatus[] = {IngestJobStatus.COMPLETE};
+    List<String> srns = new ArrayList<>();
 
     Map<String, String> groupEmailByName = delfiEntitlementsClient
         .getUserGroups(authorizationToken, portalProperties.getAppKey(), partition)
@@ -109,22 +112,29 @@ public class DelfiInnerInjectionProcess implements InnerInjectionProcess {
               .map(file -> submitFile(file, requestMeta))
               .collect(Collectors.toList());
 
-          List<String> jobIds = submittedFiles.stream()
-              .map(SubmittedFile::getJobId)
-              .collect(Collectors.toList());
+          Map<String, SubmittedFile> jobIdToFile = submittedFiles.stream()
+              .collect(Collectors.toMap(SubmittedFile::getJobId, Function.identity()));
+
+          List<String> jobIds = new ArrayList<>(jobIdToFile.keySet());
 
           //poll job for readiness
-          JobsPullingResult jobsPullingResult = submitService.awaitSubmitJobs(jobIds, requestMeta);
           log.info("Waited for all submitted jobs to be finished. JobId: {}", innerJobId);
+          JobsPullingResult jobsPullingResult = submitService.awaitSubmitJobs(jobIds, requestMeta);
 
           // fail records if at least one submit job fail
+          log.debug("Pulling ingestion job result: {}", jobsPullingResult);
           if (!jobsPullingResult.getFailedJobs().isEmpty()) {
+            ingestJobStatus[0] = FAILED;
             failSubmittedFiles(submittedFiles, requestMeta);
             return;
           }
 
+          // get record ID from ingestion job metadata
+          List<IngestedFile> ingestedFiles = submitService.getIngestionResult(jobsPullingResult,
+              jobIdToFile, requestMeta);
+
           //run enrichment
-          List<EnrichedFile> enrichedFiles = submittedFiles.stream()
+          List<EnrichedFile> enrichedFiles = ingestedFiles.stream()
               .map(file -> enrichService.enrichRecord(file, requestMeta, headers))
               .collect(Collectors.toList());
           log.info("Finished the enrichment. JobId: {}", innerJobId);
@@ -137,20 +147,27 @@ public class DelfiInnerInjectionProcess implements InnerInjectionProcess {
               .peek(result -> log.warn("Post submit record validation fail - " + result.toString()))
               .findFirst()
               .ifPresent(result -> {
+                ingestJobStatus[0] = FAILED;
                 List<Record> enrichedRecords = enrichedFiles.stream()
                     .map(EnrichedFile::getRecord)
                     .collect(Collectors.toList());
                 failRecords(enrichedRecords, requestMeta);
               });
 
-          enrichedFiles.forEach(file -> srnMappingService.saveSrnToRecord(
-              SrnToRecord.builder()
-                  .recordId(file.getRecord().getId())
-                  .srn(file.getSubmittedFile().getSrn())
-                  .build()));
+          enrichedFiles.forEach(file -> {
+            srnMappingService.saveSrnToRecord(SrnToRecord.builder()
+                .recordId(file.getRecord().getId())
+                .srn(file.getIngestedFile().getSubmittedFile().getSrn())
+                .build());
+            srns.add(file.getIngestedFile().getSubmittedFile().getSrn());
+          });
         });
 
-    jobStatusService.updateJobStatus(innerJobId, IngestJobStatus.COMPLETE);
+    jobStatusService.save(IngestJob.builder()
+        .id(innerJobId)
+        .status(ingestJobStatus[0])
+        .srns(srns)
+        .build());
     log.info("Finished the internal async injection process. JobId: {}", innerJobId);
   }
 
@@ -186,7 +203,7 @@ public class DelfiInnerInjectionProcess implements InnerInjectionProcess {
 
   private URL createUrlFromManifestFile(ManifestFile file) {
     try {
-      return new URL(file.getData().getGroupTypeProperties().getStagingFilePath());
+      return new URL(file.getData().getGroupTypeProperties().getOriginalFilePath());
     } catch (MalformedURLException e) {
       throw new IngestException(
           String.format("Could not create URL from staging link : %s",
