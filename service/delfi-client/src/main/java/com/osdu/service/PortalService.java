@@ -1,7 +1,7 @@
 package com.osdu.service;
 
-import com.osdu.model.FileRecord;
 import com.osdu.model.Record;
+import com.osdu.model.delfi.DelfiFile;
 
 public interface PortalService {
 
@@ -9,5 +9,6 @@ public interface PortalService {
 
   Record putRecord(Record record, String authorizationToken, String partition);
 
-  FileRecord getFile(String location, String authorizationToken, String partition);
+  DelfiFile getFile(String location, String authorizationToken, String partition);
+
 }

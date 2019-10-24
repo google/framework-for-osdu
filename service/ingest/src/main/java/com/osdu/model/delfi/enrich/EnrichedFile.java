@@ -1,7 +1,7 @@
 package com.osdu.model.delfi.enrich;
 
 import com.osdu.model.Record;
-import com.osdu.model.delfi.submit.SubmittedFile;
+import com.osdu.model.delfi.IngestedFile;
 import lombok.Builder;
 import lombok.Data;
 
@@ -9,7 +9,7 @@ import lombok.Data;
 @Builder
 public class EnrichedFile {
 
-  SubmittedFile submittedFile;
+  IngestedFile ingestedFile;
   Record record;
 
 }

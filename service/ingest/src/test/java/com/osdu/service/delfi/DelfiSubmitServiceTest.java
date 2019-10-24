@@ -9,12 +9,12 @@ import static org.mockito.Mockito.when;
 import com.osdu.client.DelfiIngestionClient;
 import com.osdu.model.ResourceTypeId;
 import com.osdu.model.SchemaData;
+import com.osdu.model.delfi.Acl;
 import com.osdu.model.delfi.RequestMeta;
 import com.osdu.model.delfi.status.JobInfo;
 import com.osdu.model.delfi.status.JobStatusResponse;
 import com.osdu.model.delfi.status.JobsPullingResult;
 import com.osdu.model.delfi.status.MasterJobStatus;
-import com.osdu.model.delfi.submit.Acl;
 import com.osdu.model.delfi.submit.AclObject;
 import com.osdu.model.delfi.submit.FileInput;
 import com.osdu.model.delfi.submit.SubmitFileObject;
@@ -90,10 +90,10 @@ public class DelfiSubmitServiceTest {
     // then
     assertThat(jobsPullingResult.getRunningJobs()).isEqualTo(jobIds);
     assertThat(jobsPullingResult.getCompletedJobs())
-        .extracting(JobInfo::getJobId)
+        .extracting(response -> response.getJobInfo().getJobId())
         .containsExactlyInAnyOrder(JOB_ID_1, JOB_ID_2);
     assertThat(jobsPullingResult.getFailedJobs())
-        .extracting(JobInfo::getJobId)
+        .extracting(response -> response.getJobInfo().getJobId())
         .containsExactly(JOB_ID_3);
   }
 

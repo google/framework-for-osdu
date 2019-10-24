@@ -5,6 +5,7 @@ import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreOptions;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
+import com.google.cloud.firestore.SetOptions;
 import com.google.cloud.firestore.WriteResult;
 import com.osdu.exception.IngestJobException;
 import com.osdu.exception.SrnMappingException;
@@ -20,8 +21,8 @@ import org.springframework.stereotype.Repository;
 @Slf4j
 public class GcpIngestJobRepository implements IngestJobRepository {
 
-  static final String COLLECTION_NAME = "ingestJob";
-  static final String ID_FIELD_NAME = "id";
+  private static final String COLLECTION_NAME = "ingestJob";
+  private static final String ID_FIELD_NAME = "id";
 
   final Firestore firestore;
 
@@ -63,7 +64,7 @@ public class GcpIngestJobRepository implements IngestJobRepository {
     try {
       final WriteResult writeResult = firestore.collection(COLLECTION_NAME)
           .document(ingestJob.getId())
-          .set(ingestJob).get();
+          .set(ingestJob, SetOptions.merge()).get();
       log.debug("Ingest job : {} saved on : {}", ingestJob, writeResult.getUpdateTime());
     } catch (InterruptedException | ExecutionException e) {
       throw new IngestJobException(

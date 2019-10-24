@@ -2,7 +2,6 @@ package com.osdu.integration;
 
 import static com.osdu.service.delfi.DelfiDeliveryService.AUTHORIZATION_HEADER_KEY;
 import static com.osdu.service.delfi.DelfiDeliveryService.PARTITION_HEADER_KEY;
-import static com.osdu.service.processing.delfi.DelfiDataProcessingJob.FILE_LOCATION_KEY;
 import static com.osdu.service.processing.delfi.DelfiDataProcessingJob.LOCATION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -14,7 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.osdu.model.SrnToRecord;
-import com.osdu.model.delfi.DelfiFileRecord;
+import com.osdu.model.delfi.DelfiFile;
 import com.osdu.model.delfi.DelfiRecord;
 import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
 import com.osdu.model.osdu.delivery.dto.ResponseItem;
@@ -68,7 +67,7 @@ public class DeliveryFlowIntegrationTest {
   private ObjectMapper mapper = new ObjectMapper();
 
   @Test
-  public void test() throws Exception {
+  public void shouldDeliverRecords() throws Exception {
 
     // given
     when(authenticationService.checkAuthentication(eq(AUTHENTICATION), eq(PARTITION)))
@@ -99,12 +98,8 @@ public class DeliveryFlowIntegrationTest {
     when(srnMappingService.getSrnToRecord(eq(LOCATION_EXAMPLE))).thenReturn(srnToRecord2);
     when(portalService.getRecord(eq(RECORD_ID_2), eq(AUTHENTICATION), eq(PARTITION)))
         .thenReturn(recordWithLocation);
-    DelfiFileRecord fileRecord = new DelfiFileRecord() {
-    };
-    Map<String, Object> fileRecordDetails = new HashMap<>();
-    fileRecordDetails.put("data", "data");
-    fileRecordDetails.put(FILE_LOCATION_KEY, SIGNED_URL);
-    fileRecord.setAdditionalProperties(fileRecordDetails);
+    DelfiFile fileRecord = new DelfiFile();
+    fileRecord.setSignedUrl(SIGNED_URL);
     when(portalService.getFile(eq(FILE_LOCATION), eq(AUTHENTICATION), eq(PARTITION)))
         .thenReturn(fileRecord);
 
@@ -137,9 +132,6 @@ public class DeliveryFlowIntegrationTest {
 
     assertThat(items.get(1).getSrn()).isEqualTo(LOCATION_EXAMPLE);
     assertThat(items.get(1).getFileLocation()).isEqualTo(SIGNED_URL);
-    Map<String, Object> locationData = ((DelfiFileRecord) items.get(1).getData())
-        .getAdditionalProperties();
-    assertThat(locationData.get("data")).isEqualTo("data");
   }
 
 }

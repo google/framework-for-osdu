@@ -9,9 +9,9 @@ import static com.osdu.service.JsonUtils.toJson;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.osdu.exception.IngestException;
 import com.osdu.model.Record;
+import com.osdu.model.delfi.IngestedFile;
 import com.osdu.model.delfi.RequestMeta;
 import com.osdu.model.delfi.enrich.EnrichedFile;
-import com.osdu.model.delfi.submit.SubmittedFile;
 import com.osdu.model.manifest.WorkProductComponent;
 import com.osdu.service.EnrichService;
 import com.osdu.service.PortalService;
@@ -33,24 +33,24 @@ public class DelfiEnrichService implements EnrichService {
   final PortalService portalService;
 
   @Override
-  public EnrichedFile enrichRecord(SubmittedFile file, RequestMeta requestMeta,
+  public EnrichedFile enrichRecord(IngestedFile file, RequestMeta requestMeta,
       MessageHeaders headers) {
 
-    WorkProductComponent wpc = file.getSignedFile().getFile().getWpc();
-    Record record = portalService.getRecord("recordId", requestMeta.getAuthorizationToken(),
-        requestMeta.getPartition());
-
+    WorkProductComponent wpc = file.getSubmittedFile().getSignedFile().getFile().getWpc();
     WorkProductComponent reducedWpc = stripRedundantFields(deepCopy(wpc));
-    record.getData().putAll(reducedWpc.getData());
 
+    Record record = portalService
+        .getRecord(file.getRecordId(), requestMeta.getAuthorizationToken(), requestMeta.getPartition());
+
+    record.getData().putAll(reducedWpc.getData());
     record.getData().putAll(defineAdditionalProperties(headers));
 
-    Record savedRecord = portalService.putRecord(record, requestMeta.getAuthorizationToken(),
+    Record enrichedRecord = portalService.putRecord(record, requestMeta.getAuthorizationToken(),
         requestMeta.getPartition());
 
     return EnrichedFile.builder()
-        .submittedFile(file)
-        .record(savedRecord)
+        .ingestedFile(file)
+        .record(enrichedRecord)
         .build();
   }
 

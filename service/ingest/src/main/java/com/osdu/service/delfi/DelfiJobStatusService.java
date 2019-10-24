@@ -47,4 +47,10 @@ public class DelfiJobStatusService implements JobStatusService {
     ingestJobRepository.updateFields(jobId, ImmutableMap.of("status", status.name()));
     log.info("Updated the injection job status. Status: {}", status);
   }
+
+  @Override
+  public void save(IngestJob ingestJob) {
+    log.info("Update the ingestion job. Job: {}", ingestJob);
+    ingestJobRepository.save(ingestJob);
+  }
 }

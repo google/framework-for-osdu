@@ -1,14 +1,13 @@
 package com.osdu.service.processing.delfi;
 
-import static com.osdu.service.processing.delfi.DelfiDataProcessingJob.FILE_LOCATION_KEY;
 import static com.osdu.service.processing.delfi.DelfiDataProcessingJob.LOCATION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import com.osdu.model.FileRecord;
 import com.osdu.model.Record;
 import com.osdu.model.SrnToRecord;
+import com.osdu.model.delfi.DelfiFile;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResultStatus;
 import com.osdu.service.PortalService;
@@ -89,13 +88,10 @@ public class DelfiDataProcessingJobTest {
     when(portalService.getRecord(eq(RECORD_ID_1), eq(AUTHORIZATION_TOKEN), eq(PARTITION)))
         .thenReturn(record);
 
-    Map<String, Object> fileRecordDetails = new HashMap<>();
-    fileRecordDetails.put(FILE_LOCATION_KEY, SIGNED_URL);
-    fileRecordDetails.put("test", "test");
-    FileRecord fileRecord = new FileRecord();
-    fileRecord.setAdditionalProperties(fileRecordDetails);
+    DelfiFile delfiFile = new DelfiFile();
+    delfiFile.setSignedUrl(SIGNED_URL);
     when(portalService.getFile(eq("test location"), eq(AUTHORIZATION_TOKEN), eq(PARTITION)))
-        .thenReturn(fileRecord);
+        .thenReturn(delfiFile);
 
     // when
     ProcessingResult result = dataProcessingJob.call();
@@ -104,7 +100,6 @@ public class DelfiDataProcessingJobTest {
     assertThat(result.getProcessingResultStatus()).isEqualTo(ProcessingResultStatus.FILE);
     assertThat(result.getFileLocation()).isEqualTo(SIGNED_URL);
     assertThat(result.getSrn()).isEqualTo(SRN);
-    assertThat(result.getData()).isEqualTo(fileRecord);
   }
 
   @Test
