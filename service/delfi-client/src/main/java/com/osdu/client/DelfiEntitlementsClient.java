@@ -9,7 +9,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-@FeignClient(url = "${osdu.delfi.portal.url}de/entitlements/v1",
+@FeignClient(url = "${osdu.delfi.portal.url}/de/entitlements/v1",
     name = "delfi.entitlements.client")
 public interface DelfiEntitlementsClient {
 

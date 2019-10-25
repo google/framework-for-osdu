@@ -121,17 +121,17 @@ public class DelfiInnerInjectionProcess implements InnerInjectionProcess {
           log.info("Waited for all submitted jobs to be finished. JobId: {}", innerJobId);
           JobsPullingResult jobsPullingResult = submitService.awaitSubmitJobs(jobIds, requestMeta);
 
+          // get record ID from ingestion job metadata
+          List<IngestedFile> ingestedFiles = submitService.getIngestionResult(jobsPullingResult,
+              jobIdToFile, requestMeta);
+
           // fail records if at least one submit job fail
           log.debug("Pulling ingestion job result: {}", jobsPullingResult);
           if (!jobsPullingResult.getFailedJobs().isEmpty()) {
             ingestJobStatus[0] = FAILED;
-            failSubmittedFiles(submittedFiles, requestMeta);
+            failSubmittedFiles(ingestedFiles, requestMeta);
             return;
           }
-
-          // get record ID from ingestion job metadata
-          List<IngestedFile> ingestedFiles = submitService.getIngestionResult(jobsPullingResult,
-              jobIdToFile, requestMeta);
 
           //run enrichment
           List<EnrichedFile> enrichedFiles = ingestedFiles.stream()
@@ -242,11 +242,11 @@ public class DelfiInnerInjectionProcess implements InnerInjectionProcess {
         .build();
   }
 
-  private List<Record> failSubmittedFiles(List<SubmittedFile> submittedFiles,
+  private List<Record> failSubmittedFiles(List<IngestedFile> ingestedFiles,
       RequestMeta requestMeta) {
     // TODO fix get record logic
-    List<Record> foundRecords = submittedFiles.stream()
-        .map(file -> portalService.getRecord(file.getSrn(),
+    List<Record> foundRecords = ingestedFiles.stream()
+        .map(file -> portalService.getRecord(file.getRecordId(),
             requestMeta.getAuthorizationToken(), requestMeta.getPartition()))
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
