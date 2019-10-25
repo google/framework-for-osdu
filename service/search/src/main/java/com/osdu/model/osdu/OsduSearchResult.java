@@ -13,6 +13,6 @@ public class OsduSearchResult extends SearchResult {
   @JsonAlias("total_hits")
   int totalHits;
   List<String> facets;
-  int count;
-  int start;
+  Integer count;
+  Integer start;
 }

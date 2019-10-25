@@ -21,6 +21,7 @@ public interface SearchResultMapper {
    * @return result of the search against Delfi Portal in OSDU compliant format.
    */
   @Mapping(source = "searchResult.totalCount", target = "totalHits")
+  @Mapping(target = "start", ignore = true)
   OsduSearchResult delfiToOsdu(DelfiSearchResult searchResult,
       OsduSearchObject osduSearchObject);
 
