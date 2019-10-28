@@ -16,7 +16,7 @@ import com.osdu.service.JobStatusService;
 import com.osdu.service.processing.InnerInjectionProcess;
 import com.osdu.service.validation.LoadManifestValidationService;
 import java.util.HashMap;
-import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -25,6 +25,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.messaging.MessageHeaders;
 
 @RunWith(MockitoJUnitRunner.class)
+@Ignore
 public class DelfiIngestServiceTest {
 
   private static final String JOB_ID = "jobId";
