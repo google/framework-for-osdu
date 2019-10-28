@@ -16,6 +16,7 @@ public class IngestJob {
 
   String id;
   IngestJobStatus status;
+  String summary;
   List<String> srns;
   @ServerTimestamp
   Date created;

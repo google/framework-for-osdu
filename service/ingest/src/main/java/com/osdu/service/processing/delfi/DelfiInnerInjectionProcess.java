@@ -1,5 +1,6 @@
 package com.osdu.service.processing.delfi;
 
+import static com.osdu.model.job.IngestJobStatus.COMPLETE;
 import static com.osdu.model.job.IngestJobStatus.FAILED;
 import static com.osdu.request.OsduHeader.extractHeaderByName;
 import static com.osdu.service.JsonUtils.getJsonNode;
@@ -23,6 +24,7 @@ import com.osdu.model.delfi.submit.SubmitJobResult;
 import com.osdu.model.delfi.submit.SubmittedFile;
 import com.osdu.model.job.IngestJob;
 import com.osdu.model.job.IngestJobStatus;
+import com.osdu.model.job.InnerIngestResult;
 import com.osdu.model.manifest.LoadManifest;
 import com.osdu.model.manifest.ManifestFile;
 import com.osdu.model.manifest.WorkProductComponent;
@@ -51,6 +53,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RegExUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -80,6 +83,31 @@ public class DelfiInnerInjectionProcess implements InnerInjectionProcess {
   public void process(String innerJobId, LoadManifest loadManifest, MessageHeaders headers) {
     log.info("Start the internal async injection process. JobId: {}, loadManifest: {}, headers: {}",
         innerJobId, loadManifest, headers);
+
+    InnerIngestResult ingestResult = InnerIngestResult.builder()
+        .jobStatus(FAILED)
+        .build();
+    String summary;
+
+    try {
+      ingestResult = execute(innerJobId, loadManifest, headers);
+      summary = COMPLETE.name();
+    } catch (Exception e) {
+      log.error("Inner ingestion job is failed. JobId: " + innerJobId, e);
+      summary = ExceptionUtils.getRootCauseMessage(e);
+    }
+
+    IngestJob ingestJob = IngestJob.builder()
+        .id(innerJobId)
+        .status(ingestResult.getJobStatus())
+        .summary(summary)
+        .srns(ingestResult.getSrns())
+        .build();
+    jobStatusService.save(ingestJob);
+    log.info("Finished the internal async injection process. Ingest job: {}", ingestJob);
+  }
+
+  private InnerIngestResult execute(String innerJobId, LoadManifest loadManifest, MessageHeaders headers) {
     String authorizationToken = extractHeaderByName(headers, OsduHeader.AUTHORIZATION);
     String partition = normalizePartition(extractHeaderByName(headers, OsduHeader.PARTITION));
     String legalTags = extractHeaderByName(headers, OsduHeader.LEGAL_TAGS);
@@ -163,12 +191,10 @@ public class DelfiInnerInjectionProcess implements InnerInjectionProcess {
           });
         });
 
-    jobStatusService.save(IngestJob.builder()
-        .id(innerJobId)
-        .status(ingestJobStatus[0])
+    return InnerIngestResult.builder()
+        .jobStatus(ingestJobStatus[0])
         .srns(srns)
-        .build());
-    log.info("Finished the internal async injection process. JobId: {}", innerJobId);
+        .build();
   }
 
   private String normalizePartition(String partition) {
