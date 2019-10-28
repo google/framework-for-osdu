@@ -1,8 +1,11 @@
 package com.osdu.service.delfi;
 
 import com.github.fge.jsonschema.core.report.ProcessingReport;
+import com.osdu.config.SenderConfiguration.PubSubIngestGateway;
 import com.osdu.exception.IngestException;
 import com.osdu.model.IngestResult;
+import com.osdu.model.job.IngestJob;
+import com.osdu.model.job.IngestJobStatus;
 import com.osdu.model.manifest.LoadManifest;
 import com.osdu.service.IngestService;
 import com.osdu.service.JobStatusService;
@@ -21,6 +24,7 @@ public class DelfiIngestService implements IngestService {
   final JobStatusService jobStatusService;
   final InnerInjectionProcess innerInjectionProcess;
   final LoadManifestValidationService loadManifestValidationService;
+  final PubSubIngestGateway ingestGateway;
 
   @Override
   public IngestResult ingestManifest(LoadManifest loadManifest,
@@ -39,7 +43,12 @@ public class DelfiIngestService implements IngestService {
 
     String jobId = jobStatusService.initInjectJob();
 
-    innerInjectionProcess.process(jobId, loadManifest, headers);
+    //innerInjectionProcess.process(jobId, loadManifest, headers);
+    ingestGateway.sendPersonToPubSub(IngestJob.builder()
+        .id(jobId)
+        .status(IngestJobStatus.RUNNING)
+        .summary("Test pub/sub")
+        .build());
 
     log.info("Request to ingest with parameters : {}, init the injection jobId: {}", loadManifest,
         jobId);
