@@ -36,7 +36,7 @@ import com.osdu.service.PortalService;
 import com.osdu.service.SrnMappingService;
 import com.osdu.service.StorageService;
 import com.osdu.service.SubmitService;
-import com.osdu.service.processing.InnerInjectionProcess;
+import com.osdu.service.processing.InnerIngestionProcess;
 import com.osdu.service.validation.JsonValidationService;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -55,13 +55,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.messaging.MessageHeaders;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class DelfiInnerInjectionProcess implements InnerInjectionProcess {
+public class DelfiInnerIngestionProcess implements InnerIngestionProcess {
 
   private static final Pattern PARTITION_PATTERN = Pattern.compile("[^a-zA-Z0-9]+");
 
@@ -79,11 +78,11 @@ public class DelfiInnerInjectionProcess implements InnerInjectionProcess {
   final JsonValidationService jsonValidationService;
 
   @Override
-  @Async
   public void process(String innerJobId, LoadManifest loadManifest, MessageHeaders headers) {
     log.info("Start the internal async injection process. JobId: {}, loadManifest: {}, headers: {}",
         innerJobId, loadManifest, headers);
 
+    jobStatusService.updateJobStatus(innerJobId, IngestJobStatus.RUNNING);
     InnerIngestResult ingestResult = InnerIngestResult.builder()
         .jobStatus(FAILED)
         .build();

@@ -4,12 +4,11 @@ import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.osdu.config.SenderConfiguration.PubSubIngestGateway;
 import com.osdu.exception.IngestException;
 import com.osdu.model.IngestResult;
-import com.osdu.model.job.IngestJob;
-import com.osdu.model.job.IngestJobStatus;
+import com.osdu.model.job.IngestMessage;
 import com.osdu.model.manifest.LoadManifest;
 import com.osdu.service.IngestService;
 import com.osdu.service.JobStatusService;
-import com.osdu.service.processing.InnerInjectionProcess;
+import com.osdu.service.processing.InnerIngestionProcess;
 import com.osdu.service.validation.LoadManifestValidationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +21,7 @@ import org.springframework.stereotype.Service;
 public class DelfiIngestService implements IngestService {
 
   final JobStatusService jobStatusService;
-  final InnerInjectionProcess innerInjectionProcess;
+  final InnerIngestionProcess innerIngestionProcess;
   final LoadManifestValidationService loadManifestValidationService;
   final PubSubIngestGateway ingestGateway;
 
@@ -43,11 +42,10 @@ public class DelfiIngestService implements IngestService {
 
     String jobId = jobStatusService.initInjectJob();
 
-    //innerInjectionProcess.process(jobId, loadManifest, headers);
-    ingestGateway.sendPersonToPubSub(IngestJob.builder()
-        .id(jobId)
-        .status(IngestJobStatus.RUNNING)
-        .summary("Test pub/sub")
+    ingestGateway.sendIngestToPubSub(IngestMessage.builder()
+        .ingestJobId(jobId)
+        .loadManifest(loadManifest)
+        .headers(headers)
         .build());
 
     log.info("Request to ingest with parameters : {}, init the injection jobId: {}", loadManifest,

@@ -9,6 +9,8 @@ public interface JobStatusService {
 
   IngestJobStatusDto getStatus(String jobId, MessageHeaders headers);
 
+  IngestJob get(String jobId);
+
   String initInjectJob();
 
   void updateJobStatus(String jobId, IngestJobStatus status);

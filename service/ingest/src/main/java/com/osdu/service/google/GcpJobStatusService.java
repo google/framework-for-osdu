@@ -1,4 +1,4 @@
-package com.osdu.service.delfi;
+package com.osdu.service.google;
 
 import com.google.common.collect.ImmutableMap;
 import com.osdu.model.job.IngestJob;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class DelfiJobStatusService implements JobStatusService {
+public class GcpJobStatusService implements JobStatusService {
 
   final IngestJobRepository ingestJobRepository;
 
@@ -29,12 +29,18 @@ public class DelfiJobStatusService implements JobStatusService {
   }
 
   @Override
+  public IngestJob get(String jobId) {
+    log.info("Request for getting a injection job. JobId: {}", jobId);
+    return ingestJobRepository.findById(jobId);
+  }
+
+  @Override
   public String initInjectJob() {
     log.info("Initiating a new injection job");
     String jobId = UUID.randomUUID().toString();
     ingestJobRepository.save(IngestJob.builder()
         .id(jobId)
-        .status(IngestJobStatus.RUNNING)
+        .status(IngestJobStatus.CREATED)
         .build());
 
     log.info("Created a new running injection job. JobId: {}", jobId);

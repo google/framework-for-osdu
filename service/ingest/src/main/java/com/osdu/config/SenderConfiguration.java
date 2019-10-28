@@ -1,6 +1,6 @@
 package com.osdu.config;
 
-import com.osdu.model.job.IngestJob;
+import com.osdu.model.job.IngestMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gcp.pubsub.core.PubSubTemplate;
 import org.springframework.cloud.gcp.pubsub.integration.outbound.PubSubMessageHandler;
@@ -47,7 +47,7 @@ public class SenderConfiguration {
    */
   @MessagingGateway(defaultRequestChannel = "pubSubOutputChannel")
   public interface PubSubIngestGateway {
-    void sendPersonToPubSub(IngestJob ingestJob);
+    void sendIngestToPubSub(IngestMessage ingestMessage);
   }
 
 }

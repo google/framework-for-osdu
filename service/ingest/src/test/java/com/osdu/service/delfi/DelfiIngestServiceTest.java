@@ -13,7 +13,7 @@ import com.osdu.exception.IngestException;
 import com.osdu.model.IngestResult;
 import com.osdu.model.manifest.LoadManifest;
 import com.osdu.service.JobStatusService;
-import com.osdu.service.processing.InnerInjectionProcess;
+import com.osdu.service.processing.InnerIngestionProcess;
 import com.osdu.service.validation.LoadManifestValidationService;
 import java.util.HashMap;
 import org.junit.Ignore;
@@ -33,7 +33,7 @@ public class DelfiIngestServiceTest {
   @Mock
   JobStatusService jobStatusService;
   @Mock
-  InnerInjectionProcess innerInjectionProcess;
+  InnerIngestionProcess innerIngestionProcess;
   @Mock
   private ProcessingReport processingReport;
   @Mock
@@ -58,7 +58,7 @@ public class DelfiIngestServiceTest {
     IngestResult ingestResult = delfiIngestService.ingestManifest(manifest, headers);
 
     // then
-    verify(innerInjectionProcess).process(eq(JOB_ID), eq(manifest), eq(headers));
+    verify(innerIngestionProcess).process(eq(JOB_ID), eq(manifest), eq(headers));
     assertThat(ingestResult.getJobId()).isEqualTo(JOB_ID);
   }
 
@@ -77,6 +77,6 @@ public class DelfiIngestServiceTest {
 
     // then
     verify(jobStatusService, never()).initInjectJob();
-    verify(innerInjectionProcess, never()).process(any(), any(), any());
+    verify(innerIngestionProcess, never()).process(any(), any(), any());
   }
 }

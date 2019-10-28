@@ -1,7 +1,11 @@
 package com.osdu.config;
 
 import com.osdu.model.job.IngestJob;
-import java.util.ArrayList;
+import com.osdu.model.job.IngestJobStatus;
+import com.osdu.model.job.IngestMessage;
+import com.osdu.service.JobStatusService;
+import com.osdu.service.processing.InnerIngestionProcess;
+import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cloud.gcp.pubsub.core.PubSubTemplate;
@@ -14,6 +18,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 
 @Configuration
@@ -22,7 +27,10 @@ public class ReceiverConfiguration {
 
   private static final String SUBSCRIPTION_NAME = "osdu.service.ingest.sub";
 
-  private final ArrayList<IngestJob> processedIngestJobList = new ArrayList<>();
+  @Inject
+  InnerIngestionProcess ingestionProcess;
+  @Inject
+  JobStatusService jobStatusService;
 
   @Bean
   public DirectChannel pubSubInputChannel() {
@@ -36,34 +44,25 @@ public class ReceiverConfiguration {
     PubSubInboundChannelAdapter adapter = new PubSubInboundChannelAdapter(pubSubTemplate, SUBSCRIPTION_NAME);
     adapter.setOutputChannel(inputChannel);
     adapter.setAckMode(AckMode.MANUAL);
-    adapter.setPayloadType(IngestJob.class);
+    adapter.setPayloadType(IngestMessage.class);
     return adapter;
   }
 
   @ServiceActivator(inputChannel = "pubSubInputChannel")
-  public void messageReceiver(IngestJob ingestJob,
+  public void messageReceiver(IngestMessage ingestMessage,
       @Header(GcpPubSubHeaders.ORIGINAL_MESSAGE) BasicAcknowledgeablePubsubMessage message) {
-    log.info("Message arrived! Payload: " + ingestJob);
-    this.processedIngestJobList.add(ingestJob);
-    log.info("Sleeping.. " + ingestJob.getId());
-    try {
-      for (int i = 1; i <= 100; i++) {
-        int t = 10 * i;
-        log.info("Iteration: " + t);
-        Thread.sleep(t);
-        log.info("Woke Up! " + t);
-      }
-    } catch (InterruptedException e) {
-      log.error("Fail", e);
+    log.info("Message arrived! Payload: " + ingestMessage);
+    String ingestJobId = ingestMessage.getIngestJobId();
+    IngestJob ingestJob = jobStatusService.get(ingestJobId);
+    if (ingestJob.getStatus() != IngestJobStatus.CREATED) {
+      log.info("Ingestion job (jobId: {}) is already processing. Ignore this message", ingestJobId);
+    } else {
+      ingestionProcess.process(ingestJobId, ingestMessage.getLoadManifest(),
+          new MessageHeaders((ingestMessage.getHeaders())));
+      log.info("Finish! " + ingestJobId);
     }
-    log.info("Finish! " + ingestJob.getId());
-    message.ack();
-  }
 
-  @Bean
-  @Qualifier("ProcessedPersonsList")
-  public ArrayList<IngestJob> processedIngestJobList() {
-    return this.processedIngestJobList;
+    message.ack();
   }
 
 }
