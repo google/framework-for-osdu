@@ -145,13 +145,15 @@ public class DelfiInnerIngestionProcess implements InnerIngestionProcess {
           //poll job for readiness
           log.info("Waited for all submitted jobs to be finished. JobId: {}", innerJobId);
           JobsPullingResult jobsPullingResult = submitService.awaitSubmitJobs(jobIds, requestMeta);
+          log.info("Jobs pulling result: {}", jobsPullingResult);
 
           // get record ID from ingestion job metadata
           List<IngestedFile> ingestedFiles = submitService.getIngestionResult(jobsPullingResult,
               jobIdToFile, requestMeta);
+          log.info("Ingested files: {}", ingestedFiles);
 
           // fail records if at least one submit job fail
-          log.debug("Pulling ingestion job result: {}", jobsPullingResult);
+          log.info("Pulling ingestion job result: {}", jobsPullingResult);
           if (!jobsPullingResult.getFailedJobs().isEmpty()) {
             ingestJobStatus[0] = FAILED;
             failSubmittedFiles(ingestedFiles, requestMeta);
