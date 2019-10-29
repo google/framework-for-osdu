@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.osdu.model.IngestHeaders;
 import com.osdu.model.Record;
 import com.osdu.model.delfi.IngestedFile;
 import com.osdu.model.delfi.RequestMeta;
@@ -25,7 +26,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.messaging.MessageHeaders;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DelfiEnrichServiceTest {
@@ -75,13 +75,13 @@ public class DelfiEnrichServiceTest {
     RequestMeta meta = RequestMeta.builder().authorizationToken(AUTHORIZATION_TOKEN)
         .partition(PARTITION).build();
 
-    Map<String, Object> headersMap = new HashMap<>();
-    headersMap.put(RESOURCE_HOME_REGION_ID, HOME_REGION_ID);
-    headersMap.put(RESOURCE_HOST_REGION_IDS, HOST_REGION_ID);
-    MessageHeaders headers = new MessageHeaders(headersMap);
+    IngestHeaders ingestHeaders = IngestHeaders.builder()
+        .homeRegionID(HOME_REGION_ID)
+        .hostRegionIDs(HOST_REGION_ID)
+        .build();
 
     // when
-    EnrichedFile enrichedFile = delfiEnrichService.enrichRecord(ingestedFile, meta, headers);
+    EnrichedFile enrichedFile = delfiEnrichService.enrichRecord(ingestedFile, meta, ingestHeaders);
 
     // then
     Map<String, Object> enrichedData = enrichedFile.getRecord().getData();

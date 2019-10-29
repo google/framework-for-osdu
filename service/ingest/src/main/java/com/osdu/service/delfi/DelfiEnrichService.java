@@ -3,11 +3,11 @@ package com.osdu.service.delfi;
 import static com.osdu.model.delfi.status.MasterJobStatus.COMPLETED;
 import static com.osdu.request.OsduHeader.RESOURCE_HOME_REGION_ID;
 import static com.osdu.request.OsduHeader.RESOURCE_HOST_REGION_IDS;
-import static com.osdu.request.OsduHeader.extractHeaderByName;
 import static com.osdu.service.JsonUtils.toJson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.osdu.exception.IngestException;
+import com.osdu.model.IngestHeaders;
 import com.osdu.model.Record;
 import com.osdu.model.delfi.IngestedFile;
 import com.osdu.model.delfi.RequestMeta;
@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -34,7 +33,7 @@ public class DelfiEnrichService implements EnrichService {
 
   @Override
   public EnrichedFile enrichRecord(IngestedFile file, RequestMeta requestMeta,
-      MessageHeaders headers) {
+      IngestHeaders headers) {
 
     WorkProductComponent wpc = file.getSubmittedFile().getSignedFile().getFile().getWpc();
     WorkProductComponent reducedWpc = stripRedundantFields(deepCopy(wpc));
@@ -54,11 +53,10 @@ public class DelfiEnrichService implements EnrichService {
         .build();
   }
 
-  private Map<String, Object> defineAdditionalProperties(MessageHeaders headers) {
+  private Map<String, Object> defineAdditionalProperties(IngestHeaders headers) {
     Map<String, Object> properties = new HashMap<>();
-    properties.put(RESOURCE_HOME_REGION_ID, extractHeaderByName(headers, RESOURCE_HOME_REGION_ID));
-    properties
-        .put(RESOURCE_HOST_REGION_IDS, extractHeaderByName(headers, RESOURCE_HOST_REGION_IDS));
+    properties.put(RESOURCE_HOME_REGION_ID, headers.getHomeRegionID());
+    properties.put(RESOURCE_HOST_REGION_IDS, headers.getHostRegionIDs());
     Clock clock = Clock.systemUTC();
     // TODO fix logic with versions
     properties.put("ResourceObjectCreationDateTime", clock.millis());

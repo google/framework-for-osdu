@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.osdu.exception.IngestException;
+import com.osdu.model.IngestHeaders;
 import com.osdu.model.IngestResult;
 import com.osdu.model.manifest.LoadManifest;
 import com.osdu.service.JobStatusService;
@@ -58,7 +59,8 @@ public class DelfiIngestServiceTest {
     IngestResult ingestResult = delfiIngestService.ingestManifest(manifest, headers);
 
     // then
-    verify(innerIngestionProcess).process(eq(JOB_ID), eq(manifest), eq(headers));
+    IngestHeaders ingestHeaders = IngestHeaders.builder().build();
+    verify(innerIngestionProcess).process(eq(JOB_ID), eq(manifest), eq(ingestHeaders));
     assertThat(ingestResult.getJobId()).isEqualTo(JOB_ID);
   }
 

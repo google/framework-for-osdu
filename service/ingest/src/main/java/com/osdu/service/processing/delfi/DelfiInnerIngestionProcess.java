@@ -2,13 +2,13 @@ package com.osdu.service.processing.delfi;
 
 import static com.osdu.model.job.IngestJobStatus.COMPLETE;
 import static com.osdu.model.job.IngestJobStatus.FAILED;
-import static com.osdu.request.OsduHeader.extractHeaderByName;
 import static com.osdu.service.JsonUtils.getJsonNode;
 
 import com.google.cloud.storage.Blob;
 import com.osdu.client.DelfiEntitlementsClient;
 import com.osdu.client.DelfiIngestionClient;
 import com.osdu.exception.IngestException;
+import com.osdu.model.IngestHeaders;
 import com.osdu.model.Record;
 import com.osdu.model.ResourceTypeId;
 import com.osdu.model.SchemaData;
@@ -29,7 +29,6 @@ import com.osdu.model.manifest.LoadManifest;
 import com.osdu.model.manifest.ManifestFile;
 import com.osdu.model.manifest.WorkProductComponent;
 import com.osdu.model.property.DelfiPortalProperties;
-import com.osdu.request.OsduHeader;
 import com.osdu.service.EnrichService;
 import com.osdu.service.JobStatusService;
 import com.osdu.service.PortalService;
@@ -54,7 +53,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -78,7 +76,7 @@ public class DelfiInnerIngestionProcess implements InnerIngestionProcess {
   final JsonValidationService jsonValidationService;
 
   @Override
-  public void process(String innerJobId, LoadManifest loadManifest, MessageHeaders headers) {
+  public void process(String innerJobId, LoadManifest loadManifest, IngestHeaders headers) {
     log.info("Start the internal async injection process. JobId: {}, loadManifest: {}, headers: {}",
         innerJobId, loadManifest, headers);
 
@@ -106,10 +104,10 @@ public class DelfiInnerIngestionProcess implements InnerIngestionProcess {
     log.info("Finished the internal async injection process. Ingest job: {}", ingestJob);
   }
 
-  private InnerIngestResult execute(String innerJobId, LoadManifest loadManifest, MessageHeaders headers) {
-    String authorizationToken = extractHeaderByName(headers, OsduHeader.AUTHORIZATION);
-    String partition = normalizePartition(extractHeaderByName(headers, OsduHeader.PARTITION));
-    String legalTags = extractHeaderByName(headers, OsduHeader.LEGAL_TAGS);
+  private InnerIngestResult execute(String innerJobId, LoadManifest loadManifest, IngestHeaders headers) {
+    String authorizationToken = headers.getAuthorizationToken();
+    String partition = normalizePartition(headers.getPartition());
+    String legalTags = headers.getLegalTags();
 
     IngestJobStatus ingestJobStatus[] = {IngestJobStatus.COMPLETE};
     List<String> srns = new ArrayList<>();

@@ -1,7 +1,7 @@
 package com.osdu.request;
 
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.MessageHeaders;
 
 @Slf4j
 public final class OsduHeader {
@@ -22,7 +22,7 @@ public final class OsduHeader {
    * @param headerKey header key
    * @return header value
    */
-  public static String extractHeaderByName(MessageHeaders headers, String headerKey) {
+  public static String extractHeaderByName(Map<String, Object> headers, String headerKey) {
     log.debug("Extracting header with name : {} from map : {}", headerKey, headers);
     if (headers.containsKey(headerKey)) {
       String result = (String) headers.get(headerKey);

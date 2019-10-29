@@ -1,8 +1,10 @@
 package com.osdu.service.delfi;
 
 import com.github.fge.jsonschema.core.report.ProcessingReport;
-import com.osdu.config.SenderConfiguration.PubSubIngestGateway;
 import com.osdu.exception.IngestException;
+import com.osdu.mapper.IngestHeadersMapper;
+import com.osdu.messaging.IngestPubSubGateway;
+import com.osdu.model.IngestHeaders;
 import com.osdu.model.IngestResult;
 import com.osdu.model.job.IngestMessage;
 import com.osdu.model.manifest.LoadManifest;
@@ -10,6 +12,7 @@ import com.osdu.service.IngestService;
 import com.osdu.service.JobStatusService;
 import com.osdu.service.processing.InnerIngestionProcess;
 import com.osdu.service.validation.LoadManifestValidationService;
+import javax.inject.Named;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.MessageHeaders;
@@ -23,7 +26,10 @@ public class DelfiIngestService implements IngestService {
   final JobStatusService jobStatusService;
   final InnerIngestionProcess innerIngestionProcess;
   final LoadManifestValidationService loadManifestValidationService;
-  final PubSubIngestGateway ingestGateway;
+  final IngestPubSubGateway ingestGateway;
+
+  @Named
+  final IngestHeadersMapper ingestHeadersMapper;
 
   @Override
   public IngestResult ingestManifest(LoadManifest loadManifest,
@@ -40,13 +46,17 @@ public class DelfiIngestService implements IngestService {
               validationResult));
     }
 
+    IngestHeaders ingestHeaders = ingestHeadersMapper.toIngestHeaders(headers);
+
     String jobId = jobStatusService.initInjectJob();
 
-    ingestGateway.sendIngestToPubSub(IngestMessage.builder()
+    IngestMessage ingestMessage = IngestMessage.builder()
         .ingestJobId(jobId)
         .loadManifest(loadManifest)
-        .headers(headers)
-        .build());
+        .headers(ingestHeaders)
+        .build();
+    log.info("Send ingest message for processing. Message: {}", ingestMessage);
+    ingestGateway.sendIngestToPubSub(ingestMessage);
 
     log.info("Request to ingest with parameters : {}, init the injection jobId: {}", loadManifest,
         jobId);

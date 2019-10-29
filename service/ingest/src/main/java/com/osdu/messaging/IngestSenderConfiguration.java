@@ -1,12 +1,10 @@
-package com.osdu.config;
+package com.osdu.messaging;
 
-import com.osdu.model.job.IngestMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gcp.pubsub.core.PubSubTemplate;
 import org.springframework.cloud.gcp.pubsub.integration.outbound.PubSubMessageHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.integration.annotation.MessagingGateway;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.messaging.MessageHandler;
@@ -14,7 +12,7 @@ import org.springframework.util.concurrent.ListenableFutureCallback;
 
 @Configuration
 @Slf4j
-public class SenderConfiguration {
+public class IngestSenderConfiguration {
 
   private static final String TOPIC_NAME = "osdu.service.ingest";
 
@@ -25,7 +23,7 @@ public class SenderConfiguration {
 
   @Bean
   @ServiceActivator(inputChannel = "pubSubOutputChannel")
-  public MessageHandler messageSender(PubSubTemplate pubSubTemplate) {
+  public MessageHandler ingestMessageSender(PubSubTemplate pubSubTemplate) {
     PubSubMessageHandler adapter = new PubSubMessageHandler(pubSubTemplate, TOPIC_NAME);
     adapter.setPublishCallback(new ListenableFutureCallback<String>() {
       @Override
@@ -40,14 +38,6 @@ public class SenderConfiguration {
     });
 
     return adapter;
-  }
-
-  /**
-   * an interface that allows sending a person to Pub/Sub.
-   */
-  @MessagingGateway(defaultRequestChannel = "pubSubOutputChannel")
-  public interface PubSubIngestGateway {
-    void sendIngestToPubSub(IngestMessage ingestMessage);
   }
 
 }

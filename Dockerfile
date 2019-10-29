@@ -23,4 +23,4 @@ ENV SERVICE_NAME $SERVICE_NAME
 # Copy the jar to the production image from the builder stage.
 COPY --from=builder /app/service/${SERVICE_NAME}/target/osdu-gcp-service-${SERVICE_NAME}-*.jar osdu-gcp-service-${SERVICE_NAME}.jar
 # Run the web service on container startup.
-CMD java -Dhttps.protocols=TLSv1.1,TLSv1.2 -Djava.security.egd=file:/dev/./urandom -Dserver.port=${PORT} -jar /app/osdu-gcp-service-${SERVICE_NAME}.jar
+CMD java -Djava.security.egd=file:/dev/./urandom -Dserver.port=${PORT} -jar /app/osdu-gcp-service-${SERVICE_NAME}.jar
