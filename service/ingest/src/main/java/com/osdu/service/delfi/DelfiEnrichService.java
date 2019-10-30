@@ -39,7 +39,8 @@ public class DelfiEnrichService implements EnrichService {
     WorkProductComponent reducedWpc = stripRedundantFields(deepCopy(wpc));
 
     Record record = portalService
-        .getRecord(file.getRecordId(), requestMeta.getAuthorizationToken(), requestMeta.getPartition());
+        .getRecord(file.getRecordId(), requestMeta.getAuthorizationToken(),
+            requestMeta.getPartition());
 
     record.getData().putAll(reducedWpc.getData());
     record.getData().putAll(defineAdditionalProperties(headers));

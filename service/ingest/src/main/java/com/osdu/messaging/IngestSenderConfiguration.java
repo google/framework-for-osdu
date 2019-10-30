@@ -21,6 +21,11 @@ public class IngestSenderConfiguration {
     return new DirectChannel();
   }
 
+  /**
+   * Sends a message to the queue that will trigger the worker to start the ingestion
+   * @param pubSubTemplate template to use
+   * @return handler for the message once it was sent
+   */
   @Bean
   @ServiceActivator(inputChannel = "pubSubOutputChannel")
   public MessageHandler ingestMessageSender(PubSubTemplate pubSubTemplate) {

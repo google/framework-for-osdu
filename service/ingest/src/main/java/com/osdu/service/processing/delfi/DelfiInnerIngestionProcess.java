@@ -54,6 +54,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @Component
 @RequiredArgsConstructor
@@ -104,12 +105,13 @@ public class DelfiInnerIngestionProcess implements InnerIngestionProcess {
     log.info("Finished the internal async injection process. Ingest job: {}", ingestJob);
   }
 
-  private InnerIngestResult execute(String innerJobId, LoadManifest loadManifest, IngestHeaders headers) {
+  private InnerIngestResult execute(String innerJobId, LoadManifest loadManifest,
+      IngestHeaders headers) {
     String authorizationToken = headers.getAuthorizationToken();
     String partition = normalizePartition(headers.getPartition());
     String legalTags = headers.getLegalTags();
 
-    IngestJobStatus ingestJobStatus[] = {IngestJobStatus.COMPLETE};
+    IngestJobStatus[] ingestJobStatus = {COMPLETE};
     List<String> srns = new ArrayList<>();
 
     Map<String, String> groupEmailByName = delfiEntitlementsClient
@@ -250,7 +252,12 @@ public class DelfiInnerIngestionProcess implements InnerIngestionProcess {
 
   private String getFileNameFromUrl(URL fileUrl) {
     try {
-      return Paths.get(new URI(fileUrl.toString()).getPath()).getFileName().toString();
+      final String fileName = Paths.get(new URI(fileUrl.toString()).getPath()).getFileName()
+          .toString();
+      if (StringUtils.isEmpty(fileName)) {
+        throw new IngestException(String.format("File name obtained is empty, URL : %s", fileUrl));
+      }
+      return fileName;
     } catch (URISyntaxException e) {
       throw new IngestException(String.format("Can not get file name from URL: %s", fileUrl), e);
     }

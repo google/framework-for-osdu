@@ -38,55 +38,56 @@ public class CustomMediaHttpUploader {
    */
   public HttpResponse resumableUpload(InputStreamContent mediaContent, GenericUrl uploadUrl)
       throws IOException {
+    try (InputStream contentInputStream = new BufferedInputStream(mediaContent.getInputStream())) {
+      UploadProgress progress = new UploadProgress(mediaContent.getLength(),
+          UploadState.NOT_STARTED,
+          uploadUrl);
 
-    InputStream contentInputStream = new BufferedInputStream(mediaContent.getInputStream());
-    UploadProgress progress = new UploadProgress(mediaContent.getLength(), UploadState.NOT_STARTED,
-        uploadUrl);
+      HttpResponse response;
+      while (true) {
+        ContentChunk contentChunk = buildContentChunk(mediaContent,
+            progress.getTotalBytesServerReceived());
+        HttpTransport transport = new NetHttpTransport();
+        HttpRequestFactory requestFactory = transport.createRequestFactory();
+        HttpRequest currentRequest = requestFactory.buildPutRequest(uploadUrl, null);
+        currentRequest.setContent(contentChunk.getContent());
+        currentRequest.getHeaders().setContentRange(contentChunk.getContentRange());
+        currentRequest.getHeaders().setContentLength(mediaContent.getLength());
 
-    HttpResponse response;
-    while (true) {
-      ContentChunk contentChunk = buildContentChunk(mediaContent,
-          progress.getTotalBytesServerReceived());
-      HttpTransport transport = new NetHttpTransport();
-      HttpRequestFactory requestFactory = transport.createRequestFactory();
-      HttpRequest currentRequest = requestFactory.buildPutRequest(uploadUrl, null);
-      currentRequest.setContent(contentChunk.getContent());
-      currentRequest.getHeaders().setContentRange(contentChunk.getContentRange());
-      currentRequest.getHeaders().setContentLength(mediaContent.getLength());
+        response = executeCurrentRequestWithoutGZip(currentRequest);
 
-      response = executeCurrentRequestWithoutGZip(currentRequest);
-
-      try {
-        if (response.isSuccessStatusCode()) {
-          progress.setTotalBytesServerReceived(mediaContent.getLength());
-          if (mediaContent.getCloseInputStream()) {
-            contentInputStream.close();
+        try {
+          if (response.isSuccessStatusCode()) {
+            progress.setTotalBytesServerReceived(mediaContent.getLength());
+            if (mediaContent.getCloseInputStream()) {
+              contentInputStream.close();
+            }
+            progress.updateProgressState(MEDIA_COMPLETE);
+            return response;
           }
-          progress.updateProgressState(MEDIA_COMPLETE);
-          return response;
+
+          if (response.getStatusCode() != 308) {
+            return response;
+          }
+
+          long newBytesServerReceived = getNextByteIndex(response.getHeaders().getRange());
+          long currentBytesServerReceived =
+              newBytesServerReceived - progress.getTotalBytesServerReceived();
+          Preconditions.checkState(currentBytesServerReceived >= 0
+              && currentBytesServerReceived <= contentChunk.getLength());
+          long notSendBytes = contentChunk.getLength() - currentBytesServerReceived;
+
+          if (notSendBytes > 0) {
+            contentInputStream.reset();
+            long actualSkipValue = contentInputStream.skip(currentBytesServerReceived);
+            Preconditions.checkState(currentBytesServerReceived == actualSkipValue);
+          }
+
+          progress.setTotalBytesServerReceived(newBytesServerReceived);
+          progress.updateProgressState(MEDIA_IN_PROGRESS);
+        } finally {
+          response.disconnect();
         }
-
-        if (response.getStatusCode() != 308) {
-          return response;
-        }
-
-        long newBytesServerReceived = getNextByteIndex(response.getHeaders().getRange());
-        long currentBytesServerReceived =
-            newBytesServerReceived - progress.getTotalBytesServerReceived();
-        Preconditions.checkState(currentBytesServerReceived >= 0
-            && currentBytesServerReceived <= contentChunk.getLength());
-        long notSendBytes = contentChunk.getLength() - currentBytesServerReceived;
-
-        if (notSendBytes > 0) {
-          contentInputStream.reset();
-          long actualSkipValue = contentInputStream.skip(currentBytesServerReceived);
-          Preconditions.checkState(currentBytesServerReceived == actualSkipValue);
-        }
-
-        progress.setTotalBytesServerReceived(newBytesServerReceived);
-        progress.updateProgressState(MEDIA_IN_PROGRESS);
-      } finally {
-        response.disconnect();
       }
     }
   }
@@ -108,7 +109,7 @@ public class CustomMediaHttpUploader {
     String bytes = "bytes";
     String contentRange = blockSize == 0 ? String.format("%s %s", bytes, mediaContentLengthStr)
         : String.format("%s %d-%d/%s", bytes, totalBytesServerReceived,
-                (totalBytesServerReceived + blockSize - 1), mediaContentLengthStr);
+            totalBytesServerReceived + blockSize - 1, mediaContentLengthStr);
 
     return new ContentChunk(contentChunk, contentRange, blockSize);
   }

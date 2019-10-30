@@ -20,6 +20,12 @@ public class LoadManifestValidationService {
   final JsonValidationService jsonValidationService;
   final ObjectMapper objectMapper;
 
+  /**
+   * Load Manifests no matter what information is in them have to all be validated against genearal
+   * manifest schema
+   * @param loadManifest manifest received with the request
+   * @return report with the result and a list of errors and warnings (if any)
+   */
   public ProcessingReport validateManifest(LoadManifest loadManifest) {
     final JsonNode manifestDefaultSchema = getDefaultManifestSchema();
 

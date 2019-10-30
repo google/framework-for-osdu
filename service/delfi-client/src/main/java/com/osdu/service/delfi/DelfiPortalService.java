@@ -58,13 +58,14 @@ public class DelfiPortalService implements PortalService {
     log.debug("Put record with params : {}, {}, {}", record, authorizationToken, partition);
     if (authorizationToken == null || partition == null) {
       throw new OsduException(String.format("Invalid parameters passed to client :"
-          + " record:  %s, authorizationToken : %s, partition: %s", record, authorizationToken,
+              + " record:  %s, authorizationToken : %s, partition: %s", record, authorizationToken,
           partition));
     }
     SaveRecordsResult saveResult = storageClient.putRecords(Collections.singletonList(record),
         authorizationToken, partition, portalProperties.getAppKey());
     log.debug("Save records result: {}", saveResult);
-    Record resultRecord = getRecord(saveResult.getRecordIds().get(0), authorizationToken, partition);
+    Record resultRecord = getRecord(saveResult.getRecordIds().get(0), authorizationToken,
+        partition);
     log.debug("Put record finished: " + resultRecord);
     return resultRecord;
   }

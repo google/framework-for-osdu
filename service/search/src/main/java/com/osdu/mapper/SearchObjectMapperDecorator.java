@@ -151,7 +151,7 @@ public abstract class SearchObjectMapperDecorator implements SearchObjectMapper 
    * @param geoLocation - OSDU GeoLocation object to extract GeoData from
    * @return extracted geo data
    */
-  private SpatialFilter mapGeoLocationObject(com.osdu.model.osdu.GeoLocation geoLocation) {
+  private SpatialFilter mapGeoLocationObject(GeoLocation geoLocation) {
     if (geoLocation.getCoordinates() == null) {
       log.warn(
           "No coordinates were given to geo location search request. GeoLocation - " + geoLocation);

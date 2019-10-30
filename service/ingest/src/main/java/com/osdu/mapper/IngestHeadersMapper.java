@@ -10,6 +10,11 @@ import org.springframework.messaging.MessageHeaders;
 @Mapper
 public interface IngestHeadersMapper {
 
+  /**
+   * Transforms message headers from the received request to Delfi format
+   * @param headers MessageHeaders object from the request
+   * @return headers that will be accepted by delfi portal
+   */
   default IngestHeaders toIngestHeaders(MessageHeaders headers) {
     if (headers == null) {
       return null;
