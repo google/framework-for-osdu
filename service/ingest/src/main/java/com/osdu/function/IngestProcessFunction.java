@@ -16,7 +16,8 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class IngestProcessFunction implements Function<Message<IngestProcessRequest>, Message<Boolean>> {
+public class IngestProcessFunction implements
+    Function<Message<IngestProcessRequest>, Message<Boolean>> {
 
   final InnerIngestionProcess ingestionProcess;
   final JobStatusService jobStatusService;

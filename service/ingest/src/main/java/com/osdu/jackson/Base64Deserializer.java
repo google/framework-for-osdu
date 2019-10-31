@@ -4,7 +4,6 @@ import static java.lang.String.format;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -21,7 +20,7 @@ public class Base64Deserializer extends JsonDeserializer<Object> implements Cont
 
   @Override
   public Object deserialize(JsonParser parser, DeserializationContext ctxt)
-      throws IOException, JsonProcessingException {
+      throws IOException {
     String value = parser.getValueAsString();
     Base64.Decoder decoder = Base64.getDecoder();
 
