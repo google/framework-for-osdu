@@ -37,6 +37,7 @@ public class GcpSchemaDataRepository implements SchemaDataRepository {
     try {
       querySnapshot = query.get();
     } catch (InterruptedException | ExecutionException e) {
+      Thread.currentThread().interrupt();
       throw new SrnMappingException(String.format("Failed to SchemaData for typeId: %s", typeId),
           e);
     }
@@ -70,6 +71,7 @@ public class GcpSchemaDataRepository implements SchemaDataRepository {
           .orElseThrow(() -> new SrnMappingException(
               "Unable to find any Schema Data for typeId: " + typeId));
     } catch (InterruptedException | ExecutionException e) {
+      Thread.currentThread().interrupt();
       throw new SrnMappingException("Failed to find Schema Data for typeId: " + typeId);
     }
 
@@ -86,6 +88,7 @@ public class GcpSchemaDataRepository implements SchemaDataRepository {
           .set(schemaData).get();
       log.debug("SchemaData : {} saved on : {}", schemaData, writeResult.getUpdateTime());
     } catch (InterruptedException | ExecutionException e) {
+      Thread.currentThread().interrupt();
       throw new SrnMappingException(
           String.format("Exception during saving of schemaData : %s", schemaData), e);
     }

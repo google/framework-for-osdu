@@ -41,6 +41,7 @@ public class GcpSrnToRecordRepository implements SrnToRecordRepository {
     try {
       querySnapshot = query.get();
     } catch (InterruptedException | ExecutionException e) {
+      Thread.currentThread().interrupt();
       throw new SrnMappingException("Failed to SrnToRecord for srn: " + normalizedSrn, e);
     }
 
@@ -70,6 +71,7 @@ public class GcpSrnToRecordRepository implements SrnToRecordRepository {
           .set(record).get();
       log.debug("SrnToRecord: {} saved on: {}", record, writeResult.getUpdateTime());
     } catch (InterruptedException | ExecutionException e) {
+      Thread.currentThread().interrupt();
       throw new SrnMappingException("Exception during saving of srnToRecord: " + record, e);
     }
   }

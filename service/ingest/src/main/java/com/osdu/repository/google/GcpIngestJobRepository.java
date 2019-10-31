@@ -41,6 +41,7 @@ public class GcpIngestJobRepository implements IngestJobRepository {
     try {
       querySnapshot = query.get();
     } catch (InterruptedException | ExecutionException e) {
+      Thread.currentThread().interrupt();
       throw new SrnMappingException(String.format("Failed to Ingest job for id %s", id), e);
     }
     final List<QueryDocumentSnapshot> documents = querySnapshot.getDocuments();
@@ -67,6 +68,7 @@ public class GcpIngestJobRepository implements IngestJobRepository {
           .set(ingestJob, SetOptions.merge()).get();
       log.debug("Ingest job : {} saved on : {}", ingestJob, writeResult.getUpdateTime());
     } catch (InterruptedException | ExecutionException e) {
+      Thread.currentThread().interrupt();
       throw new IngestJobException(
           String.format("Exception during saving of ingest job : %s", ingestJob), e);
     }
@@ -81,6 +83,7 @@ public class GcpIngestJobRepository implements IngestJobRepository {
           .update(fields).get();
       log.debug("Ingest job is updated. Id = {}, saved on: {}", id, writeResult.getUpdateTime());
     } catch (InterruptedException | ExecutionException e) {
+      Thread.currentThread().interrupt();
       throw new IngestJobException(
           String.format("Exception during updating of ingest job. Id: %s, fields: %s", id, fields),
           e);

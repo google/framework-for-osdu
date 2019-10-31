@@ -85,6 +85,7 @@ public class DelfiSubmitService implements SubmitService {
       try {
         Thread.sleep(1000);
       } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
         throw new IngestException("Pulling submitted jobs was unexpected interrupted. JobIds = "
             + jobIds, e);
       }
