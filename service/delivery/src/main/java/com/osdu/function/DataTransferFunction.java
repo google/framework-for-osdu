@@ -20,11 +20,11 @@ public class DataTransferFunction implements Function<Message<InputPayload>,
 
   @Override
   public Message<DeliveryResponse> apply(Message<InputPayload> messageSource) {
-
-    log.debug("Received request: {}", messageSource);
+    log.info("Received request: {}", messageSource);
     DeliveryResponse resource = deliveryService.getResources(messageSource.getPayload(),
         messageSource.getHeaders());
 
+    log.info("Delivery response: {}", resource);
     return new GenericMessage<>(resource);
   }
 }

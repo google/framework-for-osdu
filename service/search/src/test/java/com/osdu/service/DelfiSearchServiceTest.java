@@ -87,7 +87,7 @@ public class DelfiSearchServiceTest {
     delfiSearchResult.setTotalCount(2);
     delfiSearchResult.setResults(Arrays.asList(RESULT_1, RESULT_2));
 
-    when(authenticationService.checkAuthentication(eq(AUTHORIZATION), eq(PARTITION)))
+    when(authenticationService.getUserGroups(eq(AUTHORIZATION), eq(PARTITION)))
         .thenReturn(new UserGroups());
     when(portalProperties.getAppKey()).thenReturn(APP_KEY);
     when(delfiSearchClient.searchIndex(eq(AUTHORIZATION), eq(APP_KEY), same(PARTITION),
@@ -122,7 +122,7 @@ public class DelfiSearchServiceTest {
     osduSearchObject.setGeoCentroid(null);
     osduSearchObject.setGeoLocation(null);
 
-    when(authenticationService.checkAuthentication(eq(AUTHORIZATION), eq(PARTITION)))
+    when(authenticationService.getUserGroups(eq(AUTHORIZATION), eq(PARTITION)))
         .thenReturn(new UserGroups());
 
     // when

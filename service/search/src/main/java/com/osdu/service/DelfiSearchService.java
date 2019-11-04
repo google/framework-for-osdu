@@ -71,7 +71,7 @@ public class DelfiSearchService implements SearchService {
     String partition = extractHeaderByName(headers, PARTITION_HEADER_KEY);
     String authorizationToken = extractHeaderByName(headers, AUTHORIZATION_HEADER);
 
-    authenticationService.checkAuthentication(authorizationToken, partition);
+    authenticationService.getUserGroups(authorizationToken, partition);
 
     Boolean valid = checkIfInputParametersValid((OsduSearchObject) searchObject);
     if (Boolean.FALSE.equals(valid)) {

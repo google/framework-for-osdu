@@ -70,7 +70,7 @@ public class DeliveryFlowIntegrationTest {
   public void shouldDeliverRecords() throws Exception {
 
     // given
-    when(authenticationService.checkAuthentication(eq(AUTHENTICATION), eq(PARTITION)))
+    when(authenticationService.getUserGroups(eq(AUTHENTICATION), eq(PARTITION)))
         .thenReturn(null);
 
     // no mapping record
