@@ -59,8 +59,9 @@ deploy_delivery:
       - pom.xml
       - service/pom.xml
       - common/**/*
-      - service/search/**/*
+      - service/delivery/**/*
       - service/delfi-client/**/*
+      - service/srn-mapper/**/*
       - Dockerfile
       - cloudbuild.yaml
 
