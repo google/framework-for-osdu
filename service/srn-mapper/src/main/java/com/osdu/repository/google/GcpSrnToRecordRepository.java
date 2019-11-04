@@ -32,17 +32,16 @@ public class GcpSrnToRecordRepository implements SrnToRecordRepository {
 
   @Override
   public SrnToRecordDto findBySrn(String srn) {
-    String normalizedSrn = getNormalizedSrn(srn);
-    log.debug("Requesting srn: {}, normalized srn: {}", srn, normalizedSrn);
+    log.debug("Requesting record by srn: {}", srn);
 
     ApiFuture<QuerySnapshot> query = firestore.collection(COLLECTION_NAME)
-        .whereEqualTo(SRN_FIELD_NAME, normalizedSrn).get();
-    QuerySnapshot querySnapshot = null;
+        .whereEqualTo(SRN_FIELD_NAME, srn).get();
+    QuerySnapshot querySnapshot;
     try {
       querySnapshot = query.get();
     } catch (InterruptedException | ExecutionException e) {
       Thread.currentThread().interrupt();
-      throw new SrnMappingException("Failed to SrnToRecord for srn: " + normalizedSrn, e);
+      throw new SrnMappingException("Failed to SrnToRecord for srn: " + srn, e);
     }
 
     List<QueryDocumentSnapshot> documents = querySnapshot.getDocuments();
@@ -50,7 +49,7 @@ public class GcpSrnToRecordRepository implements SrnToRecordRepository {
     if (documents.size() > 1) {
       throw new SrnMappingException(String
           .format("Find by srn returned %s document(s), expected 1, query srn: %s",
-              documents.size(), normalizedSrn));
+              documents.size(), srn));
     }
 
     SrnToRecordDto record = documents.isEmpty() ? null
@@ -63,7 +62,7 @@ public class GcpSrnToRecordRepository implements SrnToRecordRepository {
   @Override
   public void save(SrnToRecordDto record) {
     String normalizedSrn = getNormalizedSrn(record.getSrn());
-    log.debug("Request to save srnToRecord: {}, normalized srn: {}", record, normalizedSrn);
+    log.debug("Request to save srnToRecord: {}, id as normalized srn: {}", record, normalizedSrn);
 
     try {
       WriteResult writeResult = firestore.collection(COLLECTION_NAME)
