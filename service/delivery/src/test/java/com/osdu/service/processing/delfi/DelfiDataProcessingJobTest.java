@@ -14,6 +14,7 @@ import com.osdu.service.PortalService;
 import com.osdu.service.SrnMappingService;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,7 +26,6 @@ public class DelfiDataProcessingJobTest {
 
   @Mock
   private SrnMappingService srnMappingService;
-
   @Mock
   private PortalService portalService;
 
@@ -39,12 +39,11 @@ public class DelfiDataProcessingJobTest {
 
   @Before
   public void init() {
-    dataProcessingJob = new DelfiDataProcessingJob(SRN, srnMappingService, portalService,
-        AUTHORIZATION_TOKEN, PARTITION);
+    dataProcessingJob = new DelfiDataProcessingJob(srnMappingService, portalService);
   }
 
   @Test
-  public void testNoLocation() {
+  public void testNoLocation() throws Exception {
     // given
     SrnToRecord srnToRecord = SrnToRecord.builder().recordId(RECORD_ID_1).srn(SRN).build();
     when(srnMappingService.getSrnToRecord(eq(SRN))).thenReturn(srnToRecord);
@@ -63,7 +62,9 @@ public class DelfiDataProcessingJobTest {
         .thenReturn(record);
 
     // when
-    ProcessingResult result = dataProcessingJob.call();
+    CompletableFuture<ProcessingResult> future = dataProcessingJob
+        .process(SRN, AUTHORIZATION_TOKEN, PARTITION);
+    ProcessingResult result = future.get();
 
     // then
     assertThat(result.getProcessingResultStatus()).isEqualTo(ProcessingResultStatus.DATA);
@@ -73,7 +74,7 @@ public class DelfiDataProcessingJobTest {
   }
 
   @Test
-  public void testWithFileLocation() {
+  public void testWithFileLocation() throws Exception {
     // given
     SrnToRecord srnToRecord = SrnToRecord.builder().recordId(RECORD_ID_1).srn(SRN).build();
     when(srnMappingService.getSrnToRecord(eq(SRN))).thenReturn(srnToRecord);
@@ -94,7 +95,9 @@ public class DelfiDataProcessingJobTest {
         .thenReturn(delfiFile);
 
     // when
-    ProcessingResult result = dataProcessingJob.call();
+    CompletableFuture<ProcessingResult> future = dataProcessingJob
+        .process(SRN, AUTHORIZATION_TOKEN, PARTITION);
+    ProcessingResult result = future.get();
 
     // then
     assertThat(result.getProcessingResultStatus()).isEqualTo(ProcessingResultStatus.FILE);
@@ -103,12 +106,14 @@ public class DelfiDataProcessingJobTest {
   }
 
   @Test
-  public void testNoMapping() {
+  public void testNoMapping() throws Exception {
     // given
     when(srnMappingService.getSrnToRecord(eq(SRN))).thenReturn(null);
 
     // when
-    ProcessingResult result = dataProcessingJob.call();
+    CompletableFuture<ProcessingResult> future = dataProcessingJob
+        .process(SRN, AUTHORIZATION_TOKEN, PARTITION);
+    ProcessingResult result = future.get();
 
     // then
     assertThat(result.getProcessingResultStatus()).isEqualTo(ProcessingResultStatus.NO_MAPPING);

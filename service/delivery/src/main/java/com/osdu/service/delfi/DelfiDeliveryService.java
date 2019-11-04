@@ -11,13 +11,12 @@ import com.osdu.service.AuthenticationService;
 import com.osdu.service.DeliveryService;
 import com.osdu.service.PortalService;
 import com.osdu.service.SrnMappingService;
+import com.osdu.service.processing.DataProcessingJob;
 import com.osdu.service.processing.ResultDataConverter;
-import com.osdu.service.processing.delfi.DelfiDataProcessingJob;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -39,12 +38,11 @@ public class DelfiDeliveryService implements DeliveryService {
   final ResultDataConverter resultDataConverter;
   final AuthenticationService authenticationService;
   final OsduDeliveryProperties properties;
+  final DataProcessingJob dataProcessingJob;
 
-  @SuppressWarnings("unchecked")
   @Override
   public DeliveryResponse getResources(InputPayload inputPayload, MessageHeaders headers) {
     log.debug("Getting resources for following SRNs and headers : {}, {}", inputPayload, headers);
-    ExecutorService executor = Executors.newFixedThreadPool(properties.getThreadPoolCapacity());
 
     String authorizationToken = extractHeaderByName(headers, AUTHORIZATION_HEADER_KEY);
     String partition = extractHeaderByName(headers, PARTITION_HEADER_KEY);
@@ -52,32 +50,26 @@ public class DelfiDeliveryService implements DeliveryService {
     authenticationService.checkAuthentication(authorizationToken, partition);
 
     Map<String, Future<ProcessingResult>> srnToFutureMap = inputPayload.getSrns().stream()
-        .collect(Collectors.toMap(Function.identity(), srn -> {
-          DelfiDataProcessingJob delfiDataProcessingJob = new DelfiDataProcessingJob(srn,
-              srnMappingService, portalService,
-              authorizationToken, partition);
-          return executor.submit(delfiDataProcessingJob);
-        }));
+        .collect(Collectors.toMap(Function.identity(),
+            srn -> dataProcessingJob.process(srn, authorizationToken, partition)));
 
-    List<ProcessingResult> results = srnToFutureMap.entrySet().stream().map(srnToFuture -> {
-      Future<ProcessingResult> job = srnToFuture.getValue();
-      try {
-        return job.get();
-      } catch (ExecutionException e) {
-        String message = "Error execution srn - " + srnToFuture.getKey();
-        log.error(message, e);
-        throw new OsduException(message, e);
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-        String message = "Error execution srn - " + srnToFuture.getKey();
-        log.error(message, e);
-        throw new OsduException(message);
-      }
-    }).collect(Collectors.toList());
-
-    executor.shutdown();
+    List<ProcessingResult> results = srnToFutureMap.entrySet().stream()
+        .map(this::getProcessingResult)
+        .collect(Collectors.toList());
 
     return resultDataConverter.convertProcessingResults(results);
+  }
+
+  private ProcessingResult getProcessingResult(
+      Entry<String, Future<ProcessingResult>> srnToFuture) {
+    try {
+      return srnToFuture.getValue().get();
+    } catch (ExecutionException e) {
+      throw new OsduException("Error execution srn - " + srnToFuture.getKey(), e);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new OsduException("Error execution srn - " + srnToFuture.getKey(), e);
+    }
   }
 
 }
