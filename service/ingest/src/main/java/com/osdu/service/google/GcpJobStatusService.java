@@ -1,10 +1,14 @@
 package com.osdu.service.google;
 
+import static com.osdu.request.OsduHeader.extractHeaderByName;
+
 import com.google.common.collect.ImmutableMap;
 import com.osdu.model.job.IngestJob;
 import com.osdu.model.job.IngestJobStatus;
 import com.osdu.model.job.IngestJobStatusDto;
 import com.osdu.repository.IngestJobRepository;
+import com.osdu.request.OsduHeader;
+import com.osdu.service.AuthenticationService;
 import com.osdu.service.JobStatusService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +21,19 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class GcpJobStatusService implements JobStatusService {
 
+  final AuthenticationService authenticationService;
   final IngestJobRepository ingestJobRepository;
 
   @Override
   public IngestJobStatusDto getStatus(String jobId, MessageHeaders headers) {
     log.info("Request for getting a injection job status. JobId: {}, headers: {}", jobId, headers);
+
+    String authorizationToken = extractHeaderByName(headers, OsduHeader.AUTHORIZATION);
+    String partition = extractHeaderByName(headers, OsduHeader.PARTITION);
+
+    authenticationService
+        .checkAuthentication(authorizationToken, partition);
+
     IngestJob job = ingestJobRepository.findById(jobId);
 
     log.info("Found the injection job: {}", job);
