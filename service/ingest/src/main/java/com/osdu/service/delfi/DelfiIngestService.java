@@ -8,9 +8,9 @@ import com.osdu.model.IngestHeaders;
 import com.osdu.model.IngestResult;
 import com.osdu.model.job.IngestMessage;
 import com.osdu.model.manifest.LoadManifest;
+import com.osdu.service.AuthenticationService;
 import com.osdu.service.IngestService;
 import com.osdu.service.JobStatusService;
-import com.osdu.service.processing.InnerIngestionProcess;
 import com.osdu.service.validation.LoadManifestValidationService;
 import javax.inject.Named;
 import lombok.RequiredArgsConstructor;
@@ -24,9 +24,9 @@ import org.springframework.stereotype.Service;
 public class DelfiIngestService implements IngestService {
 
   final JobStatusService jobStatusService;
-  final InnerIngestionProcess innerIngestionProcess;
   final LoadManifestValidationService loadManifestValidationService;
   final IngestPubSubGateway ingestGateway;
+  final AuthenticationService authenticationService;
 
   @Named
   final IngestHeadersMapper ingestHeadersMapper;
@@ -34,8 +34,14 @@ public class DelfiIngestService implements IngestService {
   @Override
   public IngestResult ingestManifest(LoadManifest loadManifest,
       MessageHeaders headers) {
-    log.info("Request to ingest file with following parameters: {}, and headers : {}", loadManifest,
-        headers);
+    log.debug("Request to ingest file with following parameters: {}, and headers : {}",
+        loadManifest, headers);
+
+    IngestHeaders ingestHeaders = ingestHeadersMapper.toIngestHeaders(headers);
+    log.debug("Parse ingest headers. Headers: {}", ingestHeaders);
+
+    authenticationService
+        .checkAuthentication(ingestHeaders.getAuthorizationToken(), ingestHeaders.getPartition());
 
     final ProcessingReport validationResult = loadManifestValidationService
         .validateManifest(loadManifest);
@@ -45,8 +51,6 @@ public class DelfiIngestService implements IngestService {
           .format("Failed to validate json from manifest %s, validation result is %s", loadManifest,
               validationResult));
     }
-
-    IngestHeaders ingestHeaders = ingestHeadersMapper.toIngestHeaders(headers);
 
     String jobId = jobStatusService.initInjectJob();
 
