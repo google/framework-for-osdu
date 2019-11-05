@@ -24,11 +24,11 @@ public class IngestProcessFunction implements
 
   @Override
   public Message<Boolean> apply(Message<IngestProcessRequest> request) {
-    log.info("Ingest processing request received with following parameters: {}", request);
+    log.debug("Ingest processing request received with following parameters: {}", request);
 
     IngestMessage ingestMessage = request.getPayload().getMessage().getIngestMessage();
     if (ingestMessage == null) {
-      log.error("Ingest message is null. Abort processing.");
+      log.warn("Ingest message is null. Abort processing.");
       return new GenericMessage<>(false);
     }
     String ingestJobId = ingestMessage.getIngestJobId();
@@ -43,7 +43,7 @@ public class IngestProcessFunction implements
       log.debug("Finish ingest processing. JobId: {}", ingestJobId);
     }
 
-    log.info("Ingest processing response ready. Request: {}, response: {}", request, null);
+    log.debug("Ingest processing response ready. Request: {}, response: {}", request, null);
     return new GenericMessage<>(true);
   }
 }
