@@ -24,14 +24,10 @@ public final class OsduHeader {
    */
   public static String extractHeaderByName(Map<String, Object> headers, String headerKey) {
     log.debug("Extracting header with name : {} from map : {}", headerKey, headers);
-    if (headers.containsKey(headerKey)) {
-      String result = (String) headers.get(headerKey);
-      log.debug("Found header in the request with following key:value pair : {}:{}", headerKey,
-          result);
-      return result;
-    }
-    log.debug("Not found header in the request with following key:{}", headerKey);
-    return null;
+    String value = (String) headers.get(headerKey);
+    log.debug("Does the request contain the '{}' header? {}. Value: {}",
+        headerKey, headers.containsKey(headerKey), value);
+    return value;
   }
 
 }

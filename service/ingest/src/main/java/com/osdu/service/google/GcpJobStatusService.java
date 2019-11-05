@@ -3,6 +3,7 @@ package com.osdu.service.google;
 import static com.osdu.request.OsduHeader.extractHeaderByName;
 
 import com.google.common.collect.ImmutableMap;
+import com.osdu.mapper.IngestJobMapper;
 import com.osdu.model.job.IngestJob;
 import com.osdu.model.job.IngestJobStatus;
 import com.osdu.model.job.IngestJobStatusDto;
@@ -11,6 +12,7 @@ import com.osdu.request.OsduHeader;
 import com.osdu.service.AuthenticationService;
 import com.osdu.service.JobStatusService;
 import java.util.UUID;
+import javax.inject.Named;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.MessageHeaders;
@@ -23,6 +25,8 @@ public class GcpJobStatusService implements JobStatusService {
 
   final AuthenticationService authenticationService;
   final IngestJobRepository ingestJobRepository;
+  @Named
+  final IngestJobMapper ingestJobMapper;
 
   @Override
   public IngestJobStatusDto getStatus(String jobId, MessageHeaders headers) {
@@ -37,7 +41,7 @@ public class GcpJobStatusService implements JobStatusService {
     IngestJob job = ingestJobRepository.findById(jobId);
 
     log.info("Found the injection job: {}", job);
-    return IngestJobStatusDto.fromIngestJob(job);
+    return ingestJobMapper.toStatusDto(job);
   }
 
   @Override
