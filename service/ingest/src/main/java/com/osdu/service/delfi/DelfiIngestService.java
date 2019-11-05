@@ -1,7 +1,5 @@
 package com.osdu.service.delfi;
 
-import com.github.fge.jsonschema.core.report.ProcessingReport;
-import com.osdu.exception.IngestException;
 import com.osdu.mapper.IngestHeadersMapper;
 import com.osdu.messaging.IngestPubSubGateway;
 import com.osdu.model.IngestHeaders;
@@ -43,14 +41,7 @@ public class DelfiIngestService implements IngestService {
     authenticationService
         .checkAuthentication(ingestHeaders.getAuthorizationToken(), ingestHeaders.getPartition());
 
-    final ProcessingReport validationResult = loadManifestValidationService
-        .validateManifest(loadManifest);
-
-    if (!validationResult.isSuccess()) {
-      throw new IngestException(String
-          .format("Failed to validate json from manifest %s, validation result is %s", loadManifest,
-              validationResult));
-    }
+    loadManifestValidationService.validateManifest(loadManifest);
 
     String jobId = jobStatusService.initInjectJob();
 

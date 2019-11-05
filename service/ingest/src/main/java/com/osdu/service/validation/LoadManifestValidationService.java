@@ -1,6 +1,7 @@
 package com.osdu.service.validation;
 
 import static com.osdu.service.JsonUtils.getJsonNode;
+import static java.lang.String.format;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,6 +29,7 @@ public class LoadManifestValidationService {
    *
    * @param loadManifest manifest received with the request
    * @return report with the result and a list of errors and warnings (if any)
+   * @throws IngestException if processing report isn't success.
    */
   public ProcessingReport validateManifest(LoadManifest loadManifest) {
     log.debug("Start validating load manifest: {}", loadManifest);
@@ -38,6 +40,13 @@ public class LoadManifestValidationService {
     ProcessingReport report = jsonValidationService.validate(manifestDefaultSchema,
         jsonNodeFromManifest);
     log.debug("Validation report: {}", report);
+
+    if (!report.isSuccess()) {
+      throw new IngestException(
+          format("Failed to validate json from manifest %s, validation result is %s", loadManifest,
+              report));
+    }
+
     return report;
   }
 
