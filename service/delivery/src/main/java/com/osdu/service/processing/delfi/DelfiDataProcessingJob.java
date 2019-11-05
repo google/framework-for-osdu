@@ -1,5 +1,7 @@
 package com.osdu.service.processing.delfi;
 
+import static com.osdu.config.AsyncConfiguration.DATA_PROCESSING_EXECUTOR;
+
 import com.osdu.model.FileRecord;
 import com.osdu.model.Record;
 import com.osdu.model.SrnToRecord;
@@ -33,7 +35,7 @@ public class DelfiDataProcessingJob implements DataProcessingJob {
    * @param partition partition
    * @return {@link CompletableFuture} of delivery data processing result.
    */
-  @Async("dataProcessingExecutor")
+  @Async(DATA_PROCESSING_EXECUTOR)
   public CompletableFuture<ProcessingResult> process(String srn, String authorizationToken,
       String partition) {
 

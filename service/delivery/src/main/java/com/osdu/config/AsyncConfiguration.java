@@ -12,7 +12,9 @@ import org.springframework.scheduling.annotation.AsyncConfigurer;
 @Configuration
 public class AsyncConfiguration implements AsyncConfigurer {
 
-  @Bean
+  public static final String DATA_PROCESSING_EXECUTOR = "dataProcessingExecutor";
+
+  @Bean(name = DATA_PROCESSING_EXECUTOR)
   public Executor dataProcessingExecutor(OsduDeliveryProperties deliveryProperties) {
     return Executors.newFixedThreadPool(deliveryProperties.getThreadPoolCapacity());
   }
