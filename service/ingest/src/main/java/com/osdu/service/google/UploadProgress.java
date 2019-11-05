@@ -9,6 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UploadProgress {
 
+  Long totalBytesServerReceived = 0L;
+  UploadState uploadState;
+  Long mediaContentLength;
+  GenericUrl url;
+
   /**
    * Constructor for UploadProgress.
    *
@@ -21,11 +26,6 @@ public class UploadProgress {
     this.uploadState = uploadState;
     this.url = url;
   }
-
-  Long totalBytesServerReceived = 0L;
-  UploadState uploadState;
-  Long mediaContentLength;
-  GenericUrl url;
 
   /**
    * Updates file upload state and log it.
@@ -42,8 +42,8 @@ public class UploadProgress {
         log.debug("Initiation of upload completed. Url - " + url.toString());
         break;
       case MEDIA_IN_PROGRESS:
-        log.debug("Upload in progress. Url - " + url.toString());
-        log.debug("Upload percentage: " + getProgress());
+        log.debug("Upload in progress. Url - " + url.toString() +
+            "\nUpload percentage: " + getProgress());
         break;
       case MEDIA_COMPLETE:
         log.debug("Upload Completed! Url - " + url.toString());

@@ -19,7 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DelfiResultDataServiceTest {
+public class DelfiResultDataProcessorTest {
 
   private static final String ONE = "one";
   private static final String TWO = "two";
@@ -31,7 +31,7 @@ public class DelfiResultDataServiceTest {
   private OsduDeliveryProperties properties;
 
   @InjectMocks
-  private DelfiResultDataService resultDataService;
+  private DelfiResultDataProcessor resultDataService;
 
   @Before
   public void init() {
@@ -51,7 +51,7 @@ public class DelfiResultDataServiceTest {
     fileRecord.setAdditionalProperties(testDetails);
 
     // when
-    resultDataService.processData(fileRecord);
+    resultDataService.removeRedundantFields(fileRecord);
 
     // then
     Map<String, Object> expectedTestDetails = new HashMap<>();
@@ -80,7 +80,7 @@ public class DelfiResultDataServiceTest {
     record.setAdditionalProperties(testDetails);
 
     // when
-    resultDataService.processData(record);
+    resultDataService.removeRedundantFields(record);
 
     // then
     Map<String, Object> expectedTestDetails = new HashMap<>();
@@ -98,7 +98,7 @@ public class DelfiResultDataServiceTest {
   public void testUnknown() {
     BaseRecord br = new BaseRecord() {
     };
-    Object test = resultDataService.processData(br);
+    Object test = resultDataService.removeRedundantFields(br);
     assertEquals(br, test);
   }
 

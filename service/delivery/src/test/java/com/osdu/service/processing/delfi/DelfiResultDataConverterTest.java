@@ -8,7 +8,7 @@ import com.osdu.model.Record;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResultStatus;
 import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
-import com.osdu.service.processing.ResultDataService;
+import com.osdu.service.processing.ResultDataProcessor;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,7 +32,7 @@ public class DelfiResultDataConverterTest {
   private static final String SRN_3 = "srn_3";
 
   @Mock(answer = Answers.RETURNS_MOCKS)
-  private ResultDataService resultDataService;
+  private ResultDataProcessor resultDataProcessor;
 
   @InjectMocks
   private DelfiResultDataConverter resultDataConverter;

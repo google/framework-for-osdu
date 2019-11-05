@@ -5,7 +5,7 @@ import com.osdu.model.osdu.delivery.delfi.ProcessingResultStatus;
 import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
 import com.osdu.model.osdu.delivery.dto.ResponseItem;
 import com.osdu.service.processing.ResultDataConverter;
-import com.osdu.service.processing.ResultDataService;
+import com.osdu.service.processing.ResultDataProcessor;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class DelfiResultDataConverter implements ResultDataConverter {
 
-  final ResultDataService resultDataService;
+  final ResultDataProcessor resultDataProcessor;
 
   @Override
   public DeliveryResponse convertProcessingResults(List<ProcessingResult> results) {
@@ -38,9 +38,8 @@ public class DelfiResultDataConverter implements ResultDataConverter {
             .fileLocation(result.getFileLocation())
             .data(result.getData())
             .srn(result.getSrn()).build())
+        .peek(result -> resultDataProcessor.removeRedundantFields(result.getData()))
         .collect(Collectors.toList());
-
-    responseItems.forEach(result -> resultDataService.processData(result.getData()));
 
     return DeliveryResponse.builder()
         .result(responseItems)
