@@ -16,7 +16,8 @@ import com.osdu.model.manifest.WorkProductComponent;
 import com.osdu.service.EnrichService;
 import com.osdu.service.PortalService;
 import java.io.IOException;
-import java.time.Clock;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +43,7 @@ public class DelfiEnrichService implements EnrichService {
         .getRecord(file.getRecordId(), requestMeta.getAuthorizationToken(),
             requestMeta.getPartition());
 
-    record.getData().putAll(reducedWpc.getData());
+    record.getData().put("Data", reducedWpc.getData());
     record.getData().putAll(defineAdditionalProperties(headers));
 
     Record enrichedRecord = portalService.putRecord(record, requestMeta.getAuthorizationToken(),
@@ -58,10 +59,10 @@ public class DelfiEnrichService implements EnrichService {
     Map<String, Object> properties = new HashMap<>();
     properties.put(RESOURCE_HOME_REGION_ID, headers.getHomeRegionID());
     properties.put(RESOURCE_HOST_REGION_IDS, headers.getHostRegionIDs());
-    Clock clock = Clock.systemUTC();
+    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
     // TODO fix logic with versions
-    properties.put("ResourceObjectCreationDateTime", clock.millis());
-    properties.put("ResourceVersionCreationDateTime", clock.millis());
+    properties.put("ResourceObjectCreationDateTime", now);
+    properties.put("ResourceVersionCreationDateTime", now);
 
     properties.put("ResourceCurationStatus", "CREATED");
     properties.put("ResourceLifecycleStatus", COMPLETED);

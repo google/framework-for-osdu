@@ -171,7 +171,7 @@ public class DelfiInnerIngestionProcess implements InnerIngestionProcess {
           // post validation
           enrichedFiles.stream()
               .map(file -> jsonValidationService
-                  .validate(schemaData.getSchema(), getJsonNode(file.getRecord())))
+                  .validate(schemaData.getSchema(), getJsonNode(file.getRecord().getData())))
               .filter(result -> !result.isSuccess())
               .peek(result -> log.warn("Post submit record validation fail - " + result.toString()))
               .findFirst()
