@@ -3,11 +3,9 @@ package com.osdu.service.processing.delfi;
 import static com.osdu.model.job.IngestJobStatus.COMPLETE;
 import static com.osdu.model.job.IngestJobStatus.FAILED;
 import static com.osdu.service.JsonUtils.getJsonNode;
+import static com.osdu.service.helper.IngestionHelper.normalizePartition;
 
-import com.google.cloud.storage.Blob;
 import com.osdu.client.DelfiEntitlementsClient;
-import com.osdu.client.DelfiIngestionClient;
-import com.osdu.exception.IngestException;
 import com.osdu.model.IngestHeaders;
 import com.osdu.model.Record;
 import com.osdu.model.ResourceTypeId;
@@ -18,7 +16,6 @@ import com.osdu.model.delfi.RequestMeta;
 import com.osdu.model.delfi.enrich.EnrichedFile;
 import com.osdu.model.delfi.entitlement.Group;
 import com.osdu.model.delfi.signed.SignedFile;
-import com.osdu.model.delfi.signed.SignedUrlResult;
 import com.osdu.model.delfi.status.JobsPullingResult;
 import com.osdu.model.delfi.submit.SubmitJobResult;
 import com.osdu.model.delfi.submit.SubmittedFile;
@@ -26,55 +23,39 @@ import com.osdu.model.job.IngestJob;
 import com.osdu.model.job.IngestJobStatus;
 import com.osdu.model.job.InnerIngestResult;
 import com.osdu.model.manifest.LoadManifest;
-import com.osdu.model.manifest.ManifestFile;
-import com.osdu.model.manifest.WorkProductComponent;
 import com.osdu.model.property.DelfiPortalProperties;
 import com.osdu.service.EnrichService;
 import com.osdu.service.JobStatusService;
-import com.osdu.service.PortalService;
 import com.osdu.service.SrnMappingService;
-import com.osdu.service.StorageService;
 import com.osdu.service.SubmitService;
+import com.osdu.service.delfi.DelfiIngestionService;
+import com.osdu.service.helper.IngestionHelper;
 import com.osdu.service.processing.InnerIngestionProcess;
 import com.osdu.service.validation.JsonValidationService;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class DelfiInnerIngestionProcess implements InnerIngestionProcess {
 
-  private static final Pattern PARTITION_PATTERN = Pattern.compile("[^a-zA-Z0-9]+");
-
   final DelfiPortalProperties portalProperties;
-
-  final DelfiIngestionClient delfiIngestionClient;
   final DelfiEntitlementsClient delfiEntitlementsClient;
-
   final SrnMappingService srnMappingService;
-  final StorageService storageService;
   final EnrichService enrichService;
   final SubmitService submitService;
   final JobStatusService jobStatusService;
-  final PortalService portalService;
   final JsonValidationService jsonValidationService;
+  final DelfiIngestionService delfiIngestionService;
+  final IngestionHelper ingestionHelper;
 
   @Override
   public void process(String innerJobId, LoadManifest loadManifest, IngestHeaders headers) {
@@ -121,7 +102,7 @@ public class DelfiInnerIngestionProcess implements InnerIngestionProcess {
     log.info("Fetched the user groups aka permissions. JobId: {}, user groups: {}", innerJobId,
         groupEmailByName);
 
-    getWorkProductComponents(loadManifest)
+    ingestionHelper.getWorkProductComponents(loadManifest)
         .forEach(wpc -> {
           SchemaData schemaData = srnMappingService.getSchemaData(wpc.getResourceTypeId());
 
@@ -135,9 +116,11 @@ public class DelfiInnerIngestionProcess implements InnerIngestionProcess {
               .build();
 
           List<SubmittedFile> submittedFiles = wpc.getFiles().stream()
-              .map(file -> uploadFile(file, authorizationToken, partition))
+              .map(file -> delfiIngestionService.uploadFile(file, authorizationToken, partition))
               .map(file -> submitFile(file, requestMeta))
               .collect(Collectors.toList());
+
+         // List<SubmittedFile> submittedFiles = new ArrayList<>();
 
           Map<String, SubmittedFile> jobIdToFile = submittedFiles.stream()
               .collect(Collectors.toMap(SubmittedFile::getJobId, Function.identity()));
@@ -158,7 +141,7 @@ public class DelfiInnerIngestionProcess implements InnerIngestionProcess {
           log.info("Pulling ingestion job result: {}", jobsPullingResult);
           if (!jobsPullingResult.getFailedJobs().isEmpty()) {
             ingestJobStatus[0] = FAILED;
-            failSubmittedFiles(ingestedFiles, requestMeta);
+            delfiIngestionService.failSubmittedFiles(ingestedFiles, requestMeta);
             return;
           }
 
@@ -180,87 +163,30 @@ public class DelfiInnerIngestionProcess implements InnerIngestionProcess {
                 List<Record> enrichedRecords = enrichedFiles.stream()
                     .map(EnrichedFile::getRecord)
                     .collect(Collectors.toList());
-                failRecords(enrichedRecords, requestMeta);
+                delfiIngestionService.failRecords(enrichedRecords, requestMeta);
               });
 
-          enrichedFiles.forEach(file -> {
+          // save srn to record mapping
+          List<String> fileSrns = enrichedFiles.stream().map(file -> {
             srnMappingService.saveSrnToRecord(SrnToRecord.builder()
                 .recordId(file.getRecord().getId())
                 .srn(file.getIngestedFile().getSubmittedFile().getSrn())
                 .build());
-            srns.add(file.getIngestedFile().getSubmittedFile().getSrn());
-          });
+            String fileSrn = file.getIngestedFile().getSubmittedFile().getSrn();
+            srns.add(fileSrn);
+            return fileSrn;
+          }).collect(Collectors.toList());
+
+          // create work product component record
+          String wpcSrn = delfiIngestionService.createRecordForWorkProductComponent(wpc, fileSrns,
+              requestMeta);
+          srns.add(wpcSrn);
         });
 
     return InnerIngestResult.builder()
         .jobStatus(ingestJobStatus[0])
         .srns(srns)
         .build();
-  }
-
-  private String normalizePartition(String partition) {
-    return RegExUtils.replaceAll(partition, PARTITION_PATTERN, "");
-  }
-
-  private List<WorkProductComponent> getWorkProductComponents(LoadManifest loadManifest) {
-    Map<String, ManifestFile> fileById = loadManifest.getFiles().stream()
-        .collect(Collectors.toMap(ManifestFile::getAssociativeId, Function.identity()));
-    return loadManifest.getWorkProductComponents().stream()
-        .map(wpc -> wpc.toBuilder()
-            .files(wpc.getFileAssociativeIds().stream()
-                .map(fileById::get)
-                .map(file -> file.toBuilder()
-                    .wpc(wpc)
-                    .build())
-                .collect(Collectors.toList()))
-            .build())
-        .collect(Collectors.toList());
-  }
-
-  private SignedFile uploadFile(ManifestFile file, String authorizationToken, String partition) {
-    URL url = createUrlFromManifestFile(file);
-    SignedUrlResult result = transferFile(url, authorizationToken, partition);
-
-    return SignedFile.builder()
-        .file(file)
-        .locationUrl(result.getLocationUrl())
-        .relativeFilePath(result.getRelativeFilePath())
-        .build();
-  }
-
-  private URL createUrlFromManifestFile(ManifestFile file) {
-    try {
-      return new URL(file.getData().getGroupTypeProperties().getStagingFilePath());
-    } catch (MalformedURLException e) {
-      throw new IngestException(
-          String.format("Could not create URL from staging link : %s",
-              file.getData().getGroupTypeProperties().getStagingFilePath()),
-          e);
-    }
-  }
-
-  private SignedUrlResult transferFile(URL fileUrl, String authToken, String partition) {
-    String fileName = getFileNameFromUrl(fileUrl);
-    Blob blob = storageService.uploadFileToStorage(fileUrl, fileName);
-
-    SignedUrlResult signedUrlResult = delfiIngestionClient
-        .getSignedUrlForLocation(fileName, authToken, portalProperties.getAppKey(), partition);
-
-    storageService.writeFileToSignedUrlLocation(blob, signedUrlResult.getLocationUrl());
-    return signedUrlResult;
-  }
-
-  private String getFileNameFromUrl(URL fileUrl) {
-    try {
-      final String fileName = Paths.get(new URI(fileUrl.toString()).getPath()).getFileName()
-          .toString();
-      if (StringUtils.isEmpty(fileName)) {
-        throw new IngestException(String.format("File name obtained is empty, URL : %s", fileUrl));
-      }
-      return fileName;
-    } catch (URISyntaxException e) {
-      throw new IngestException(String.format("Can not get file name from URL: %s", fileUrl), e);
-    }
   }
 
   private SubmittedFile submitFile(SignedFile file, RequestMeta requestMeta) {
@@ -273,27 +199,4 @@ public class DelfiInnerIngestionProcess implements InnerIngestionProcess {
         .jobId(result.getJobId())
         .build();
   }
-
-  private List<Record> failSubmittedFiles(List<IngestedFile> ingestedFiles,
-      RequestMeta requestMeta) {
-    // TODO fix get record logic
-    List<Record> foundRecords = ingestedFiles.stream()
-        .map(file -> portalService.getRecord(file.getRecordId(),
-            requestMeta.getAuthorizationToken(), requestMeta.getPartition()))
-        .filter(Objects::nonNull)
-        .collect(Collectors.toList());
-    return failRecords(foundRecords, requestMeta);
-  }
-
-  private List<Record> failRecords(List<Record> records, RequestMeta requestMeta) {
-    return records.stream()
-        .map(record -> {
-          record.getData().put("ResourceLifecycleStatus", FAILED);
-          // TODO fix get record logic
-          portalService.putRecord(record, requestMeta.getAuthorizationToken(),
-              requestMeta.getPartition());
-          return record;
-        }).collect(Collectors.toList());
-  }
-
 }

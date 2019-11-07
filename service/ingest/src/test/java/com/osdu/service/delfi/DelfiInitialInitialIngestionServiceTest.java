@@ -27,7 +27,7 @@ import org.springframework.messaging.MessageHeaders;
 
 @RunWith(MockitoJUnitRunner.class)
 @Ignore
-public class DelfiIngestServiceTest {
+public class DelfiInitialInitialIngestionServiceTest {
 
   private static final String JOB_ID = "jobId";
 
@@ -41,7 +41,7 @@ public class DelfiIngestServiceTest {
   LoadManifestValidationService loadManifestValidationService;
 
   @InjectMocks
-  private DelfiIngestService delfiIngestService;
+  private DelfiInitialIngestService delfiInitialIngestService;
 
   @Test
   public void shouldIngestManifest() {
@@ -56,7 +56,7 @@ public class DelfiIngestServiceTest {
     when(jobStatusService.initInjectJob()).thenReturn(JOB_ID);
 
     // when
-    IngestResult ingestResult = delfiIngestService.ingestManifest(manifest, headers);
+    IngestResult ingestResult = delfiInitialIngestService.ingestManifest(manifest, headers);
 
     // then
     IngestHeaders ingestHeaders = IngestHeaders.builder().build();
@@ -75,7 +75,7 @@ public class DelfiIngestServiceTest {
     when(processingReport.isSuccess()).thenReturn(false);
 
     // when
-    delfiIngestService.ingestManifest(manifest, headers);
+    delfiInitialIngestService.ingestManifest(manifest, headers);
 
     // then
     verify(jobStatusService, never()).initInjectJob();

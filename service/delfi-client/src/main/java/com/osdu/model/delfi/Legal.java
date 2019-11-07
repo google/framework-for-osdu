@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Legal {
 
+  public static final String LEGAL_ROOT = "legal";
+
   @JsonProperty("legaltags")
   List<String> legalTags;
 
