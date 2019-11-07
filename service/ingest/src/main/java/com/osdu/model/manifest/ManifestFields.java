@@ -5,6 +5,7 @@ public final class ManifestFields {
   private ManifestFields() {
   }
 
-  public static final String RESOURCE_TYPE_ID = "ResourceTypeID";
+  public static final String GROUP_TYPE_PROPERTIES = "GroupTypeProperties";
+  public static final String FILES = "Files";
 
 }

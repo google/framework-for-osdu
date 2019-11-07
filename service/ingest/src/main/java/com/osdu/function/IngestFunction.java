@@ -2,7 +2,7 @@ package com.osdu.function;
 
 import com.osdu.model.IngestResult;
 import com.osdu.model.manifest.LoadManifest;
-import com.osdu.service.IngestService;
+import com.osdu.service.InitialIngestService;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class IngestFunction implements Function<Message<LoadManifest>, Message<IngestResult>> {
 
-  final IngestService ingestService;
+  final InitialIngestService ingestService;
 
   @Override
   public Message<IngestResult> apply(Message<LoadManifest> objectMessage) {

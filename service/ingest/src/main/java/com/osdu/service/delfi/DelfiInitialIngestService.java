@@ -7,7 +7,7 @@ import com.osdu.model.IngestResult;
 import com.osdu.model.job.IngestMessage;
 import com.osdu.model.manifest.LoadManifest;
 import com.osdu.service.AuthenticationService;
-import com.osdu.service.IngestService;
+import com.osdu.service.InitialIngestService;
 import com.osdu.service.JobStatusService;
 import com.osdu.service.validation.LoadManifestValidationService;
 import javax.inject.Named;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class DelfiIngestService implements IngestService {
+public class DelfiInitialIngestService implements InitialIngestService {
 
   final JobStatusService jobStatusService;
   final LoadManifestValidationService loadManifestValidationService;
