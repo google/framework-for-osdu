@@ -28,6 +28,7 @@ import com.osdu.model.delfi.DelfiSearchObject;
 import com.osdu.model.delfi.DelfiSearchResult;
 import com.osdu.model.osdu.OsduSearchObject;
 import com.osdu.model.property.DelfiPortalProperties;
+import com.osdu.request.OsduHeader;
 import javax.inject.Named;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,8 +45,6 @@ import org.springframework.stereotype.Service;
 public class DelfiSearchService implements SearchService {
 
   static final String KIND_HEADER_KEY = "kind";
-  static final String PARTITION_HEADER_KEY = "partition";
-  static final String AUTHORIZATION_HEADER = "authorization";
 
   final DelfiPortalProperties portalProperties;
 
@@ -84,8 +83,8 @@ public class DelfiSearchService implements SearchService {
         searchObject, headers);
 
     String kind = extractHeaderByName(headers, KIND_HEADER_KEY);
-    String partition = extractHeaderByName(headers, PARTITION_HEADER_KEY);
-    String authorizationToken = extractHeaderByName(headers, AUTHORIZATION_HEADER);
+    String partition = extractHeaderByName(headers, OsduHeader.PARTITION);
+    String authorizationToken = extractHeaderByName(headers, OsduHeader.AUTHORIZATION);
 
     authenticationService.getUserGroups(authorizationToken, partition);
 

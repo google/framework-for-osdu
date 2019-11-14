@@ -23,6 +23,7 @@ import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
 import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
 import com.osdu.model.osdu.delivery.input.InputPayload;
 import com.osdu.model.osdu.delivery.property.OsduDeliveryProperties;
+import com.osdu.request.OsduHeader;
 import com.osdu.service.AuthenticationService;
 import com.osdu.service.DeliveryService;
 import com.osdu.service.PortalService;
@@ -46,9 +47,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class DelfiDeliveryService implements DeliveryService {
 
-  public static final String PARTITION_HEADER_KEY = "partition";
-  public static final String AUTHORIZATION_HEADER_KEY = "authorization";
-
   final SrnMappingService srnMappingService;
   final PortalService portalService;
   final ResultDataConverter resultDataConverter;
@@ -60,8 +58,8 @@ public class DelfiDeliveryService implements DeliveryService {
   public DeliveryResponse getResources(InputPayload inputPayload, MessageHeaders headers) {
     log.debug("Getting resources for following SRNs and headers : {}, {}", inputPayload, headers);
 
-    String authorizationToken = extractHeaderByName(headers, AUTHORIZATION_HEADER_KEY);
-    String partition = extractHeaderByName(headers, PARTITION_HEADER_KEY);
+    String authorizationToken = extractHeaderByName(headers, OsduHeader.AUTHORIZATION);
+    String partition = extractHeaderByName(headers, OsduHeader.PARTITION);
 
     authenticationService.checkAuthentication(authorizationToken, partition);
 

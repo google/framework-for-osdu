@@ -28,8 +28,8 @@ public final class OsduHeader {
   public static final String PARTITION = "partition-id";
   public static final String AUTHORIZATION = "authorization";
   public static final String LEGAL_TAGS = "legal-tags";
-  public static final String RESOURCE_HOME_REGION_ID = "ResourceHomeRegionID";
-  public static final String RESOURCE_HOST_REGION_IDS = "ResourceHostRegionIDs";
+  public static final String RESOURCE_HOME_REGION_ID = "resource-home-region-id";
+  public static final String RESOURCE_HOST_REGION_IDS = "resource-host-region-ids";
 
   /**
    * Extract header by name.
