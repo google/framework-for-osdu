@@ -25,4 +25,5 @@ public class SchemaData {
   String srn;
   String kind;
   JsonNode schema;
+
 }

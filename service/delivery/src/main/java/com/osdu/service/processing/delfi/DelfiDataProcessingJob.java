@@ -18,7 +18,6 @@ package com.osdu.service.processing.delfi;
 
 import static com.osdu.config.AsyncConfiguration.DATA_PROCESSING_EXECUTOR;
 
-import com.osdu.model.FileRecord;
 import com.osdu.model.Record;
 import com.osdu.model.SrnToRecord;
 import com.osdu.model.delfi.DelfiFile;
@@ -27,6 +26,7 @@ import com.osdu.model.osdu.delivery.delfi.ProcessingResultStatus;
 import com.osdu.service.PortalService;
 import com.osdu.service.SrnMappingService;
 import com.osdu.service.processing.DataProcessingJob;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
@@ -36,8 +36,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DelfiDataProcessingJob implements DataProcessingJob {
 
-  public static final String FILE_LOCATION_KEY = "signedUrl";
-  public static final String LOCATION_KEY = "location";
+  public static final String BUCKET_URL = "bucketURL";
 
   final SrnMappingService srnMappingService;
   final PortalService portalService;
@@ -65,14 +64,14 @@ public class DelfiDataProcessingJob implements DataProcessingJob {
     }
     String recordId = srnToRecord.getRecordId();
     final Record record = portalService.getRecord(recordId, authorizationToken, partition);
-    if (record.getData().containsKey(LOCATION_KEY)) {
+    if (record.getData().containsKey(BUCKET_URL)) {
       DelfiFile file = portalService
-          .getFile(record.getData().get(LOCATION_KEY).toString(), authorizationToken, partition);
+          .getFile(record.getData().get(BUCKET_URL).toString(), authorizationToken, partition);
       result.setProcessingResultStatus(ProcessingResultStatus.FILE);
-      result.setData(new FileRecord());
+      result.setData((Map<String, Object>) record.getData().get("osdu"));
       result.setFileLocation(file.getSignedUrl());
     } else {
-      result.setData(record);
+      result.setData((Map<String, Object>) record.getData().get("osdu"));
       result.setProcessingResultStatus(ProcessingResultStatus.DATA);
     }
     return CompletableFuture.completedFuture(result);

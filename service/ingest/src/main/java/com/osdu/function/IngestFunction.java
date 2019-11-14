@@ -17,7 +17,7 @@
 package com.osdu.function;
 
 import com.osdu.model.IngestResult;
-import com.osdu.model.manifest.LoadManifest;
+import com.osdu.model.type.manifest.LoadManifest;
 import com.osdu.service.InitialIngestService;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;

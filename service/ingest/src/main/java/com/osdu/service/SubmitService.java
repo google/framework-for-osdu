@@ -28,7 +28,7 @@ public interface SubmitService {
 
   JobsPullingResult awaitSubmitJobs(List<String> jobIds, RequestMeta requestMeta);
 
-  SubmitJobResult submitFile(String relativeFilePath, RequestMeta requestMeta);
+  SubmitJobResult submitFile(String relativeFilePath, String srn, RequestMeta requestMeta);
 
   List<IngestedFile> getIngestionResult(JobsPullingResult jobsPullingResult,
       Map<String, SubmittedFile> jobIdToFile, RequestMeta requestMeta);

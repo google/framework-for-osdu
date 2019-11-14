@@ -27,7 +27,12 @@ public enum ResourceType {
   WPC_WELLBORE_MARKER("work-product-component/WellboreMarker"),
 
   WP_WELLBORE_PATH("work-product/WellborePath"),
-  WPC_WELLBORE_PATH("work-product-component/WellborePath");
+  WPC_WELLBORE_PATH("work-product-component/WellborePath"),
+
+  FILE_LAS2("file/las2"),
+  FILE_CSV("file/csv"),
+  FILE_PDF("file/pdf"),
+  FILE_PATH("file/path");
 
   /**
    * Returns the enum constant with the specified name. The name must match
@@ -48,7 +53,7 @@ public enum ResourceType {
     throw new IllegalArgumentException("No constant with name " + type + " found");
   }
 
-  private String name;
+  private final String name;
 
   ResourceType(String name) {
     this.name = name;

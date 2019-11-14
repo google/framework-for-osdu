@@ -31,6 +31,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class DeliveryResponse {
 
+  @JsonProperty("UnprocessedSrns")
   List<String> unprocessedSrns;
 
   @JsonProperty("Result")

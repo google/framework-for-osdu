@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.osdu.model.manifest;
+package com.osdu.model.type.manifest;
 
 public final class ManifestFields {
 

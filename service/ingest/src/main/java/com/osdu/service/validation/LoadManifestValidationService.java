@@ -16,15 +16,17 @@
 
 package com.osdu.service.validation;
 
-import static com.osdu.service.JsonUtils.getJsonNode;
 import static java.lang.String.format;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonschema.core.report.ProcessingReport;
+import com.networknt.schema.ValidationMessage;
 import com.osdu.exception.IngestException;
-import com.osdu.model.manifest.LoadManifest;
+import com.osdu.exception.OsduServerErrorException;
+import com.osdu.model.type.manifest.LoadManifest;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,7 +36,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class LoadManifestValidationService {
 
-  private static final String DEFAULT_MANIFEST_SCHEMA_NAME = "LoadManifestSchema.json";
+  private static final String DEFAULT_MANIFEST_SCHEMA_NAME =
+      "WorkProductLoadManifestStagedFiles.json";
 
   final JsonValidationService jsonValidationService;
   final ObjectMapper objectMapper;
@@ -44,35 +47,40 @@ public class LoadManifestValidationService {
    * manifest schema.
    *
    * @param loadManifest manifest received with the request
-   * @return report with the result and a list of errors and warnings (if any)
    * @throws IngestException if processing report isn't success.
    */
-  public ProcessingReport validateManifest(LoadManifest loadManifest) {
-    log.debug("Start validating load manifest: {}", loadManifest);
-    final JsonNode manifestDefaultSchema = getDefaultManifestSchema();
+  public void validateManifest(LoadManifest loadManifest) {
+    try {
+      log.debug("Start validating load manifest: {}", loadManifest);
 
-    final JsonNode jsonNodeFromManifest = getJsonNode(loadManifest);
+      final JsonNode manifestDefaultSchema = getDefaultManifestSchema();
 
-    ProcessingReport report = jsonValidationService.validate(manifestDefaultSchema,
-        jsonNodeFromManifest);
-    log.debug("Validation report: {}", report);
+      JsonNode manifest = objectMapper.valueToTree(loadManifest);
 
-    if (!report.isSuccess()) {
-      throw new IngestException(
-          format("Failed to validate json from manifest %s, validation result is %s", loadManifest,
-              report));
+      Set<ValidationMessage> errors = jsonValidationService
+          .validate(manifestDefaultSchema, manifest);
+      log.debug("Validation result: {}", errors);
+
+      if (!errors.isEmpty()) {
+        throw new IngestException(format(
+            "Failed to validate json from manifest %s, validation result is %s",
+            loadManifest, errors));
+      }
+
+    } catch (IOException e) {
+      throw new IngestException(format("Fail parse load manifest - %s", loadManifest));
     }
-
-    return report;
   }
 
-  private JsonNode getDefaultManifestSchema() {
-    try {
-      log.debug("Fetching default load manifest json schema.");
-      return objectMapper.readTree(getClass().getClassLoader()
-          .getResource(DEFAULT_MANIFEST_SCHEMA_NAME));
-    } catch (IOException e) {
-      throw new IngestException("Failed to get default schema for load manifest", e);
+  private JsonNode getDefaultManifestSchema() throws IOException {
+    log.debug("Fetching default load manifest json schema.");
+    InputStream resource = getClass().getClassLoader()
+        .getResourceAsStream(DEFAULT_MANIFEST_SCHEMA_NAME);
+
+    if (resource == null) {
+      throw new OsduServerErrorException("Can not find resource for load manifest schema");
     }
+
+    return objectMapper.readTree(resource);
   }
 }

@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
-package com.osdu.model.manifest;
+package com.osdu.model.type.manifest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.osdu.model.BaseJsonObject;
+import com.osdu.model.type.wp.WorkProduct;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class FileDataObject extends BaseJsonObject {
+@ToString(callSuper = true)
+@NoArgsConstructor
+public class ManifestWp extends WorkProduct {
 
-  @JsonProperty("GroupTypeProperties")
-  GroupTypeProperties groupTypeProperties;
+  @JsonProperty("ComponentsAssociativeIDs")
+  List<String> componentsAssociativeIDs;
 
 }

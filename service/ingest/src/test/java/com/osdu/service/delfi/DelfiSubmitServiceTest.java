@@ -150,11 +150,10 @@ public class DelfiSubmitServiceTest {
         .thenReturn(SubmitFileResult.builder().jobId(JOB_ID).build());
 
     // when
-    SubmitJobResult submitJobResult = delfiSubmitService.submitFile(filePath, requestMeta);
+    SubmitJobResult submitJobResult = delfiSubmitService.submitFile(filePath, SRN, requestMeta);
 
     // then
     assertThat(submitJobResult.getJobId()).isEqualTo(JOB_ID);
-    assertThat(submitJobResult.getSrn()).contains(SRN);
   }
 
   private String getAcl() {

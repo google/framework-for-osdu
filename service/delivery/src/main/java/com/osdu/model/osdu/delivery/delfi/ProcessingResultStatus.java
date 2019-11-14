@@ -24,5 +24,5 @@ public enum ProcessingResultStatus {
    * 3 - File url;
    */
 
-  NO_MAPPING, DATA, FILE;
+  NO_MAPPING, DATA, FILE
 }

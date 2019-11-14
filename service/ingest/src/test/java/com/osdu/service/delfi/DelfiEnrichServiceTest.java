@@ -23,20 +23,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.osdu.model.IngestHeaders;
 import com.osdu.model.Record;
 import com.osdu.model.delfi.IngestedFile;
-import com.osdu.model.delfi.Legal;
 import com.osdu.model.delfi.RequestMeta;
 import com.osdu.model.delfi.enrich.EnrichedFile;
 import com.osdu.model.delfi.signed.SignedFile;
 import com.osdu.model.delfi.submit.SubmittedFile;
-import com.osdu.model.manifest.ManifestFile;
-import com.osdu.model.manifest.WorkProductComponent;
+import com.osdu.model.type.manifest.ManifestFile;
+import com.osdu.model.type.wp.WorkProductComponent;
 import com.osdu.service.PortalService;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Before;
@@ -76,9 +73,9 @@ public class DelfiEnrichServiceTest {
     // given
     HashMap<String, Object> data = new HashMap<>();
     data.put(TEST_KEY, TEST_VALUE);
-    WorkProductComponent wpc = WorkProductComponent.builder()
-        .data(data).build();
-    ManifestFile manifestFile = ManifestFile.builder().wpc(wpc).build();
+    WorkProductComponent wpc = null/*WorkProductComponent.builder()
+        .data(data).build()*/;
+    ManifestFile manifestFile = null/*ManifestFile.builder().wpc(wpc).build()*/;
     SignedFile signedFile = SignedFile.builder().file(manifestFile).build();
     SubmittedFile file = SubmittedFile.builder().signedFile(signedFile).build();
     IngestedFile ingestedFile = IngestedFile.builder().submittedFile(file).build();

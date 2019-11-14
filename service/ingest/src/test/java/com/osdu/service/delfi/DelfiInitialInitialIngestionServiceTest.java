@@ -28,7 +28,7 @@ import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.osdu.exception.IngestException;
 import com.osdu.model.IngestHeaders;
 import com.osdu.model.IngestResult;
-import com.osdu.model.manifest.LoadManifest;
+import com.osdu.model.type.manifest.LoadManifest;
 import com.osdu.service.JobStatusService;
 import com.osdu.service.processing.InnerIngestionProcess;
 import com.osdu.service.validation.LoadManifestValidationService;
@@ -66,8 +66,6 @@ public class DelfiInitialInitialIngestionServiceTest {
     LoadManifest manifest = LoadManifest.builder().build();
     MessageHeaders headers = new MessageHeaders(new HashMap<>());
 
-    when(loadManifestValidationService
-        .validateManifest(eq(manifest))).thenReturn(processingReport);
     when(processingReport.isSuccess()).thenReturn(true);
     when(jobStatusService.initInjectJob()).thenReturn(JOB_ID);
 
@@ -87,7 +85,6 @@ public class DelfiInitialInitialIngestionServiceTest {
     LoadManifest manifest = LoadManifest.builder().build();
     MessageHeaders headers = new MessageHeaders(new HashMap<>());
 
-    when(loadManifestValidationService.validateManifest(eq(manifest))).thenReturn(processingReport);
     when(processingReport.isSuccess()).thenReturn(false);
 
     // when

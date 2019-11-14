@@ -14,24 +14,30 @@
  * limitations under the License.
  */
 
-package com.osdu.model.manifest;
+package com.osdu.model.type.manifest;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.osdu.model.BaseJsonObject;
+import com.osdu.model.type.wp.WorkProductComponent;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class GroupTypeProperties extends BaseJsonObject {
+@EqualsAndHashCode(callSuper = true, exclude = {"files"})
+@ToString(callSuper = true, exclude = {"files"})
+@NoArgsConstructor
+@JsonIgnoreProperties({ "files" })
+public class ManifestWpc extends WorkProductComponent {
 
-  @JsonProperty("FileSource")
-  String fileSource;
+  @JsonProperty("AssociativeID")
+  String associativeId;
 
-  @JsonProperty("OriginalFilePath")
-  String originalFilePath;
+  @JsonProperty("FileAssociativeIDs")
+  List<String> fileAssociativeIds;
 
-  @JsonProperty("StagingFilePath")
-  String stagingFilePath;
+  List<ManifestFile> files;
 
 }

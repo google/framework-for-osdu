@@ -58,8 +58,8 @@ public class UploadProgress {
         log.debug("Initiation of upload completed. Url - " + url.toString());
         break;
       case MEDIA_IN_PROGRESS:
-        log.debug("Upload in progress. Url - " + url.toString() +
-            "\nUpload percentage: " + getProgress());
+        log.debug("Upload in progress. Url - " + url.toString()
+            + "\nUpload percentage: " + getProgress());
         break;
       case MEDIA_COMPLETE:
         log.debug("Upload Completed! Url - " + url.toString());

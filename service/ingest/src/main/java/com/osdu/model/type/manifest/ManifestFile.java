@@ -14,34 +14,26 @@
  * limitations under the License.
  */
 
-package com.osdu.model.manifest;
+package com.osdu.model.type.manifest;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.osdu.model.BaseJsonObject;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import com.osdu.model.type.file.OsduFile;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
-@Builder(toBuilder = true)
+@EqualsAndHashCode(callSuper = true, exclude = {"wpc"})
+@ToString(callSuper = true, exclude = {"wpc"})
 @NoArgsConstructor
-@AllArgsConstructor
-@JsonIgnoreProperties({ "wpc" })
-public class ManifestFile extends BaseJsonObject {
-
-  @JsonProperty("ResourceTypeID")
-  String resourceTypeId;
-
-  @JsonProperty(value = "Data")
-  FileDataObject data;
+public class ManifestFile extends OsduFile {
 
   @JsonProperty("AssociativeID")
   String associativeId;
 
-  WorkProductComponent wpc;
+  @JsonIgnore
+  ManifestWpc wpc;
 
 }

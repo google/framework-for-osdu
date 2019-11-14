@@ -17,34 +17,59 @@
 package com.osdu.service.validation;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fge.jsonschema.core.exceptions.ProcessingException;
-import com.github.fge.jsonschema.core.report.ProcessingReport;
-import com.github.fge.jsonschema.main.JsonSchema;
-import com.github.fge.jsonschema.main.JsonSchemaFactory;
+import com.networknt.schema.JsonMetaSchema;
+import com.networknt.schema.JsonSchema;
+import com.networknt.schema.JsonSchemaException;
+import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.ValidationMessage;
 import com.osdu.exception.IngestException;
+import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-
 @Service
+@Slf4j
 public class JsonValidationService {
 
   /**
    * Validates given json against given schema.
-   * @param schemaJson schema that will be used to validate json
-   * @param toValidate json node to validate against given schema
-   * @return report with the result and a list of errors and warnings (if any)
+   *
+   * @param schema     schema that will be used to validate json
+   * @param toValidate json string to validate against given schema
+   * @return {@link Set} of validation messages
    */
-  public ProcessingReport validate(JsonNode schemaJson, JsonNode toValidate) {
+  public Set<ValidationMessage> validate(String schema, JsonNode toValidate) {
     try {
-      JsonSchemaFactory factory = JsonSchemaFactory.byDefault();
-      JsonSchema schema = factory.getJsonSchema(schemaJson);
+      JsonSchema jsonSchema = JsonSchemaFactory.getInstance().getSchema(schema);
 
-      return schema.validate(toValidate);
-
-    } catch (ProcessingException e) {
+      return jsonSchema.validate(toValidate);
+    } catch (JsonSchemaException e) {
       throw new IngestException(
-          String.format("Error creating json validation schema from json object: %s",
-              schemaJson.asText()), e);
+          String.format("Error creating json validation schema from json object: %s", schema), e);
     }
   }
+
+  /**
+   * Validates given json against given schema.
+   *
+   * @param schema     schema that will be used to validate json
+   * @param toValidate json string to validate against given schema
+   * @return {@link Set} of validation messages
+   */
+  public Set<ValidationMessage> validate(JsonNode schema, JsonNode toValidate) {
+    try {
+      JsonSchemaFactory factory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance())
+          .addMetaSchema(JsonMetaSchema
+              .builder("http://json-schema.org/draft-07/schema#", JsonMetaSchema.getDraftV4())
+              .build())
+          .build();
+      JsonSchema jsonSchema = factory.getSchema(schema);
+
+      return jsonSchema.validate(toValidate);
+    } catch (JsonSchemaException e) {
+      throw new IngestException(
+          String.format("Error creating json validation schema from json object: %s", schema), e);
+    }
+  }
+
 }
