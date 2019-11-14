@@ -16,8 +16,6 @@
 
 package com.osdu.integration;
 
-import static com.osdu.service.delfi.DelfiDeliveryService.AUTHORIZATION_HEADER_KEY;
-import static com.osdu.service.delfi.DelfiDeliveryService.PARTITION_HEADER_KEY;
 import static com.osdu.service.processing.delfi.DelfiDataProcessingJob.BUCKET_URL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -34,6 +32,7 @@ import com.osdu.model.delfi.DelfiRecord;
 import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
 import com.osdu.model.osdu.delivery.dto.ResponseItem;
 import com.osdu.model.osdu.delivery.input.InputPayload;
+import com.osdu.request.OsduHeader;
 import com.osdu.service.AuthenticationService;
 import com.osdu.service.PortalService;
 import com.osdu.service.SrnMappingService;
@@ -124,8 +123,8 @@ public class DeliveryFlowIntegrationTest {
     List<String> srns = Arrays.asList(NO_LOCATION_EXAMPLE, NO_MAPPING_EXAMPLE, LOCATION_EXAMPLE);
     InputPayload payload = new InputPayload(srns, TARGET_REGION);
     HttpHeaders headers = new HttpHeaders();
-    headers.add(AUTHORIZATION_HEADER_KEY, AUTHENTICATION);
-    headers.add(PARTITION_HEADER_KEY, PARTITION);
+    headers.add(OsduHeader.AUTHORIZATION, AUTHENTICATION);
+    headers.add(OsduHeader.PARTITION, PARTITION);
 
     // when
     ResponseEntity responseEntity = (ResponseEntity) mockMvc

@@ -16,9 +16,7 @@
 
 package com.osdu.service;
 
-import static com.osdu.service.DelfiSearchService.AUTHORIZATION_HEADER;
 import static com.osdu.service.DelfiSearchService.KIND_HEADER_KEY;
-import static com.osdu.service.DelfiSearchService.PARTITION_HEADER_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
@@ -37,6 +35,7 @@ import com.osdu.model.delfi.geo.SpatialFilter;
 import com.osdu.model.osdu.OsduSearchObject;
 import com.osdu.model.osdu.OsduSearchResult;
 import com.osdu.model.property.DelfiPortalProperties;
+import com.osdu.request.OsduHeader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -78,8 +77,8 @@ public class DelfiSearchServiceTest {
     //given
     Map<String, Object> headersMap = new HashMap<>();
     headersMap.put(KIND_HEADER_KEY, KIND);
-    headersMap.put(PARTITION_HEADER_KEY, PARTITION);
-    headersMap.put(AUTHORIZATION_HEADER, AUTHORIZATION);
+    headersMap.put(OsduHeader.PARTITION, PARTITION);
+    headersMap.put(OsduHeader.AUTHORIZATION, AUTHORIZATION);
     MessageHeaders headers = new MessageHeaders(headersMap);
 
     OsduSearchObject osduSearchObject = new OsduSearchObject();
@@ -126,8 +125,8 @@ public class DelfiSearchServiceTest {
     //given
     Map<String, Object> headersMap = new HashMap<>();
     headersMap.put(KIND_HEADER_KEY, KIND);
-    headersMap.put(PARTITION_HEADER_KEY, PARTITION);
-    headersMap.put(AUTHORIZATION_HEADER, AUTHORIZATION);
+    headersMap.put(OsduHeader.PARTITION, PARTITION);
+    headersMap.put(OsduHeader.AUTHORIZATION, AUTHORIZATION);
     MessageHeaders headers = new MessageHeaders(headersMap);
 
     OsduSearchObject osduSearchObject = new OsduSearchObject();
