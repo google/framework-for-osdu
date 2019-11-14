@@ -16,7 +16,7 @@
 
 package com.osdu.model.delfi.signed;
 
-import com.osdu.model.manifest.ManifestFile;
+import com.osdu.model.type.manifest.ManifestFile;
 import java.net.URL;
 import lombok.Builder;
 import lombok.Data;

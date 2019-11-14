@@ -14,19 +14,36 @@
  * limitations under the License.
  */
 
-package com.osdu.model.manifest;
+package com.osdu.model.type.file;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.osdu.model.BaseJsonObject;
-import java.util.Map;
+import com.osdu.model.type.base.GroupTypeProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class WorkProduct extends BaseJsonObject {
+@ToString(callSuper = true)
+@NoArgsConstructor
+public class FileGroupTypeProperties extends GroupTypeProperties {
 
-  @JsonProperty(value = "Data")
-  Map<String, Object> data;
+  @JsonProperty("SchemaFormatTypeID")
+  private String schemaFormatTypeID;
 
+  @JsonProperty("PreLoadFilePath")
+  private String preLoadFilePath;
+
+  @JsonProperty("FileSource")
+  private String fileSource;
+
+  @JsonProperty("FileSize")
+  private int fileSize;
+
+  @JsonProperty("EncodingFormatTypeID")
+  private String encodingFormatTypeID;
+
+  @JsonProperty("Checksum")
+  private String checksum;
 }

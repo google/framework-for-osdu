@@ -16,19 +16,25 @@
 
 package com.osdu.service.helper;
 
+import static com.osdu.service.JsonUtils.toObject;
+import static java.lang.String.format;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.osdu.exception.IngestException;
 import com.osdu.model.ResourceTypeId;
 import com.osdu.model.delfi.Acl;
-import com.osdu.model.manifest.LoadManifest;
-import com.osdu.model.manifest.ManifestFile;
-import com.osdu.model.manifest.WorkProductComponent;
+import com.osdu.model.type.manifest.LoadManifest;
+import com.osdu.model.type.manifest.ManifestFile;
+import com.osdu.model.type.manifest.ManifestWpc;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -44,25 +50,33 @@ public class IngestionHelper {
 
   public static String generateSrn(ResourceTypeId resourceTypeId) {
     String uuid = UUID.randomUUID().toString().replace("-", "");
-    return StringUtils.removeEnd(resourceTypeId.getRaw(), ":") + uuid + ":";
+    return String.format("srn:%s:%s:1", resourceTypeId.getType(), uuid);
   }
 
   public static String normalizePartition(String partition) {
     return RegExUtils.replaceAll(partition, PARTITION_PATTERN, "");
   }
 
-  public List<WorkProductComponent> getWorkProductComponents(LoadManifest loadManifest) {
+  public static List<String> getResourceHostRegionIDs(String resourceHostRegionIDs) {
+    return Optional.ofNullable(resourceHostRegionIDs)
+        .map(regionIDs -> toObject(resourceHostRegionIDs, new TypeReference<List<String>>() {}))
+        .orElse(Collections.emptyList());
+  }
+
+  public List<ManifestWpc> getWorkProductComponents(LoadManifest loadManifest) {
     Map<String, ManifestFile> fileById = loadManifest.getFiles().stream()
         .collect(Collectors.toMap(ManifestFile::getAssociativeId, Function.identity()));
     return loadManifest.getWorkProductComponents().stream()
-        .map(wpc -> wpc.toBuilder()
-            .files(wpc.getFileAssociativeIds().stream()
-                .map(fileById::get)
-                .map(file -> file.toBuilder()
-                    .wpc(wpc)
-                    .build())
-                .collect(Collectors.toList()))
-            .build())
+        .map(wpc -> {
+          wpc.setFiles(wpc.getFileAssociativeIds().stream()
+              .map(fileById::get)
+              .map(file -> {
+                file.setWpc(wpc);
+                return file;
+              })
+              .collect(Collectors.toList()));
+          return wpc;
+        })
         .collect(Collectors.toList());
   }
 
@@ -74,12 +88,12 @@ public class IngestionHelper {
   }
 
   public URL createUrlFromManifestFile(ManifestFile file) {
+    String preLoadFilePath = file.getData().getGroupTypeProperties().getPreLoadFilePath();
     try {
-      return new URL(file.getData().getGroupTypeProperties().getStagingFilePath());
+      return new URL(preLoadFilePath);
     } catch (MalformedURLException e) {
       throw new IngestException(
-          String.format("Could not create URL from staging link : %s",
-              file.getData().getGroupTypeProperties().getStagingFilePath()),
+          format("Could not create URL from staging link : %s", preLoadFilePath),
           e);
     }
   }
@@ -89,11 +103,12 @@ public class IngestionHelper {
       final String fileName = Paths.get(new URI(fileUrl.toString()).getPath()).getFileName()
           .toString();
       if (StringUtils.isEmpty(fileName)) {
-        throw new IngestException(String.format("File name obtained is empty, URL : %s", fileUrl));
+        throw new IngestException(format("File name obtained is empty, URL : %s", fileUrl));
       }
       return fileName;
     } catch (URISyntaxException e) {
-      throw new IngestException(String.format("Can not get file name from URL: %s", fileUrl), e);
+      throw new IngestException(format("Can not get file name from URL: %s", fileUrl), e);
     }
   }
+
 }

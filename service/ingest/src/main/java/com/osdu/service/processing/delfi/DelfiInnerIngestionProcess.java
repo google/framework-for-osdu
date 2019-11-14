@@ -19,6 +19,7 @@ package com.osdu.service.processing.delfi;
 import static com.osdu.model.job.IngestJobStatus.COMPLETE;
 import static com.osdu.model.job.IngestJobStatus.FAILED;
 import static com.osdu.service.JsonUtils.getJsonNode;
+import static com.osdu.service.helper.IngestionHelper.generateSrn;
 import static com.osdu.service.helper.IngestionHelper.normalizePartition;
 
 import com.osdu.client.DelfiEntitlementsClient;
@@ -38,8 +39,8 @@ import com.osdu.model.delfi.submit.SubmittedFile;
 import com.osdu.model.job.IngestJob;
 import com.osdu.model.job.IngestJobStatus;
 import com.osdu.model.job.InnerIngestResult;
-import com.osdu.model.manifest.LoadManifest;
 import com.osdu.model.property.DelfiPortalProperties;
+import com.osdu.model.type.manifest.LoadManifest;
 import com.osdu.service.EnrichService;
 import com.osdu.service.JobStatusService;
 import com.osdu.service.SrnMappingService;
@@ -120,7 +121,7 @@ public class DelfiInnerIngestionProcess implements InnerIngestionProcess {
 
     ingestionHelper.getWorkProductComponents(loadManifest)
         .forEach(wpc -> {
-          SchemaData schemaData = srnMappingService.getSchemaData(wpc.getResourceTypeId());
+          SchemaData schemaData = srnMappingService.getSchemaData(wpc.getResourceTypeID());
 
           RequestMeta requestMeta = RequestMeta.builder()
               .authorizationToken(authorizationToken)
@@ -128,15 +129,13 @@ public class DelfiInnerIngestionProcess implements InnerIngestionProcess {
               .legalTags(legalTags)
               .schemaData(schemaData)
               .userGroupEmailByName(groupEmailByName)
-              .resourceTypeId(new ResourceTypeId(wpc.getResourceTypeId()))
+              .resourceTypeId(new ResourceTypeId(wpc.getResourceTypeID()))
               .build();
 
           List<SubmittedFile> submittedFiles = wpc.getFiles().stream()
               .map(file -> delfiIngestionService.uploadFile(file, authorizationToken, partition))
               .map(file -> submitFile(file, requestMeta))
               .collect(Collectors.toList());
-
-         // List<SubmittedFile> submittedFiles = new ArrayList<>();
 
           Map<String, SubmittedFile> jobIdToFile = submittedFiles.stream()
               .collect(Collectors.toMap(SubmittedFile::getJobId, Function.identity()));
@@ -169,9 +168,9 @@ public class DelfiInnerIngestionProcess implements InnerIngestionProcess {
 
           // post validation
           enrichedFiles.stream()
-              .map(file -> jsonValidationService
-                  .validate(schemaData.getSchema(), getJsonNode(file.getRecord().getData())))
-              .filter(result -> !result.isSuccess())
+              .map(file -> jsonValidationService.validate(schemaData.getSchema(),
+                  getJsonNode(file.getRecord().getData().get("osdu"))))
+              .filter(result -> !result.isEmpty())
               .peek(result -> log.warn("Post submit record validation fail - " + result.toString()))
               .findFirst()
               .ifPresent(result -> {
@@ -195,7 +194,7 @@ public class DelfiInnerIngestionProcess implements InnerIngestionProcess {
 
           // create work product component record
           String wpcSrn = delfiIngestionService.createRecordForWorkProductComponent(wpc, fileSrns,
-              requestMeta);
+              requestMeta, headers);
           srns.add(wpcSrn);
         });
 
@@ -206,12 +205,13 @@ public class DelfiInnerIngestionProcess implements InnerIngestionProcess {
   }
 
   private SubmittedFile submitFile(SignedFile file, RequestMeta requestMeta) {
+    String srn = generateSrn(new ResourceTypeId(file.getFile().getResourceTypeID()));
     SubmitJobResult result = submitService
-        .submitFile(file.getRelativeFilePath(), requestMeta);
+        .submitFile(file.getRelativeFilePath(), srn, requestMeta);
 
     return SubmittedFile.builder()
         .signedFile(file)
-        .srn(result.getSrn())
+        .srn(srn)
         .jobId(result.getJobId())
         .build();
   }

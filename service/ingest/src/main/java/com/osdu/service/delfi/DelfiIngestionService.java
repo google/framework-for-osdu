@@ -19,11 +19,14 @@ package com.osdu.service.delfi;
 import static com.osdu.model.job.IngestJobStatus.FAILED;
 import static com.osdu.service.helper.IngestionHelper.generateSrn;
 import static com.osdu.service.helper.IngestionHelper.getAcl;
+import static com.osdu.service.helper.IngestionHelper.getResourceHostRegionIDs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.storage.Blob;
+import com.google.common.collect.ImmutableMap;
 import com.osdu.client.DelfiIngestionClient;
 import com.osdu.exception.OsduServerErrorException;
+import com.osdu.model.IngestHeaders;
 import com.osdu.model.Record;
 import com.osdu.model.ResourceTypeId;
 import com.osdu.model.SchemaData;
@@ -34,10 +37,9 @@ import com.osdu.model.delfi.Legal;
 import com.osdu.model.delfi.RequestMeta;
 import com.osdu.model.delfi.signed.SignedFile;
 import com.osdu.model.delfi.signed.SignedUrlResult;
-import com.osdu.model.manifest.ManifestFields;
-import com.osdu.model.manifest.ManifestFile;
-import com.osdu.model.manifest.WorkProductComponent;
 import com.osdu.model.property.DelfiPortalProperties;
+import com.osdu.model.type.manifest.ManifestFile;
+import com.osdu.model.type.wp.WorkProductComponent;
 import com.osdu.service.IngestionService;
 import com.osdu.service.PortalService;
 import com.osdu.service.SrnMappingService;
@@ -46,8 +48,9 @@ import com.osdu.service.google.GcpSrnMappingService;
 import com.osdu.service.helper.IngestionHelper;
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -70,29 +73,34 @@ public class DelfiIngestionService implements IngestionService {
   final IngestionHelper ingestionHelper;
 
   @Override
-  public String createRecordForWorkProductComponent(WorkProductComponent workProductComponent, List<String> srns, RequestMeta requestMeta) {
-    String resourceTypeId = workProductComponent.getResourceTypeId();
-    SchemaData schemaData = gcpSrnMappingService.getSchemaData(resourceTypeId);
+  public String createRecordForWorkProductComponent(WorkProductComponent wpc,
+      List<String> srns, RequestMeta requestMeta, IngestHeaders headers) {
+    final String resourceTypeId = wpc.getResourceTypeID();
+    ResourceTypeId wpcTypeId = new ResourceTypeId(wpc.getResourceTypeID());
+    final SchemaData schemaData = gcpSrnMappingService.getSchemaData(resourceTypeId);
+    String wpcSrn = generateSrn(new ResourceTypeId(resourceTypeId));
+    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
-    // FIXME
-    workProductComponent.getData().computeIfPresent(ManifestFields.GROUP_TYPE_PROPERTIES, (key, value) -> {
-      ((Map<String, Object>) value).computeIfPresent(ManifestFields.FILES, (key1, value2) -> {
-        ((List<String>) value2).addAll(srns);
-        return value2;
-      });
-      return value;
-    });
+
+    wpc.setResourceID(wpcSrn);
+    wpc.setResourceTypeID(wpcTypeId.hasVersion() ? resourceTypeId : resourceTypeId + "1");
+    wpc.setResourceHomeRegionID(headers.getHomeRegionID());
+    wpc.setResourceHostRegionIDs(getResourceHostRegionIDs(headers.getHostRegionIDs()));
+    wpc.setResourceObjectCreationDatetime(now);
+    wpc.setResourceVersionCreationDatetime(now);
+    wpc.setResourceCurationStatus("srn:reference-data/ResourceCurationStatus:CREATED:");
+    wpc.setResourceLifecycleStatus("srn:reference-data/ResourceLifecycleStatus:RECIEVED:");
+    wpc.getData().getGroupTypeProperties().setFiles(srns);
 
     DelfiRecord delfiRecord = DelfiRecord.builder()
         .kind(schemaData.getKind())
         .acl(getAcl(requestMeta.getUserGroupEmailByName()))
         .legal(getLegal(requestMeta.getLegalTags()))
-        .data(workProductComponent.getData())
+        .data(ImmutableMap.of("osdu", wpc))
         .build();
 
     Record record = delfiPortalService.putRecord(delfiRecord, requestMeta.getAuthorizationToken(),
         requestMeta.getPartition());
-    String wpcSrn = generateSrn(new ResourceTypeId(resourceTypeId));
 
     srnMappingService.saveSrnToRecord(SrnToRecord.builder()
         .recordId(record.getId())

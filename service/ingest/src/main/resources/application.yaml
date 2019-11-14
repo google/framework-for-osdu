@@ -8,9 +8,8 @@ osdu:
 gcp:
   storage:
     tempLocationBucket: osdu-gcp-temp-location
-feign:
-  client:
-    config:
-      default:
-        connectTimeout: 60000
-        readTimeout: 60000
+spring:
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false

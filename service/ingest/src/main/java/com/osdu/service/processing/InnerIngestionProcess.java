@@ -17,7 +17,7 @@
 package com.osdu.service.processing;
 
 import com.osdu.model.IngestHeaders;
-import com.osdu.model.manifest.LoadManifest;
+import com.osdu.model.type.manifest.LoadManifest;
 
 public interface InnerIngestionProcess {
 

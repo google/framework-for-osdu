@@ -16,9 +16,12 @@
 
 package com.osdu.service;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.osdu.exception.OsduException;
 import java.io.IOException;
 import lombok.experimental.UtilityClass;
@@ -26,14 +29,16 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class JsonUtils {
 
-  private static ObjectMapper mapper = new ObjectMapper();
+  private static final ObjectMapper mapper = new ObjectMapper()
+      .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+      .setSerializationInclusion(Include.NON_NULL);
 
   /**
    *  Returns JsonNode from input object.
    * @param value any type
    * @return JsonNode from input object
    */
-  public static <T> JsonNode getJsonNode(T value) {
+  public <T> JsonNode getJsonNode(T value) {
     try {
       return mapper.readTree(toJson(value));
     } catch (IOException e) {
@@ -47,11 +52,11 @@ public class JsonUtils {
    * @param value any type
    * @return String of json object
    */
-  public static <T> String toJson(T value) {
+  public <T> String toJson(T value) {
     try {
       return mapper.writeValueAsString(value);
     } catch (JsonProcessingException e) {
-      throw new OsduException("Could not convert object to JSON. Object: " + value);
+      throw new OsduException("Could not convert object to JSON. Object: " + value, e);
     }
   }
 
@@ -64,6 +69,20 @@ public class JsonUtils {
   public <T> T toObject(String value, Class<T> clazz) {
     try {
       return mapper.readValue(value, clazz);
+    } catch (IOException e) {
+      throw new OsduException("Could not convert json string to object. String: " + value, e);
+    }
+  }
+
+  /**
+   * Convert json string to object using type reference.
+   * @param value json string
+   * @param typeReference type reference
+   * @return converted object
+   */
+  public <T> T toObject(String value, TypeReference<T> typeReference) {
+    try {
+      return mapper.readValue(value, typeReference);
     } catch (IOException e) {
       throw new OsduException("Could not convert json string to object. String: " + value, e);
     }

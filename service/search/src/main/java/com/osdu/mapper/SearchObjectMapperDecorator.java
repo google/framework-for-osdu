@@ -16,6 +16,8 @@
 
 package com.osdu.mapper;
 
+import static java.lang.String.format;
+
 import com.osdu.model.delfi.DelfiSearchObject;
 import com.osdu.model.delfi.Sort;
 import com.osdu.model.delfi.geo.ByBoundingBox;
@@ -28,6 +30,7 @@ import com.osdu.model.osdu.GeoLocation;
 import com.osdu.model.osdu.OsduSearchObject;
 import com.osdu.model.osdu.SortOption;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -96,14 +99,18 @@ public abstract class SearchObjectMapperDecorator implements SearchObjectMapper 
 
       final String result = osduSearchObject.getMetadata().entrySet().stream()
           .map(queryEntry -> queryEntry.getValue().stream()
-              .map(queryKeyValuePair -> queryEntry.getKey() + " : " + "\"" + queryKeyValuePair
-                  + "\"")
+              .map(queryKeyValuePair ->
+                  format("%s : \"%s\"", getModifiedKey(queryEntry), queryKeyValuePair))
               .collect(Collectors.joining(LUCENE_OR_TERM))).map(queryTerm -> "(" + queryTerm + ")")
           .collect(Collectors.joining(LUCENE_AND_TERM));
       log.debug("Result of mapping: {}", result);
       return result;
     }
     return null;
+  }
+
+  private String getModifiedKey(Entry<String, List<String>> queryEntry) {
+    return queryEntry.getKey().replaceAll("(^data[.])", "data.osdu.");
   }
 
   /**

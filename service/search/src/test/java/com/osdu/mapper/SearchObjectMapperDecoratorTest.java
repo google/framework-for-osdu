@@ -29,6 +29,7 @@ import com.osdu.model.osdu.OsduSearchObject;
 import com.osdu.model.osdu.SortOption;
 import com.osdu.model.osdu.SortOption.OrderType;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -170,7 +171,7 @@ public class SearchObjectMapperDecoratorTest {
     // given
     OsduSearchObject osduSearchObject = new OsduSearchObject();
     Map<String, List<String>> query = new HashMap<>();
-    query.put("data", Arrays.asList("value"));
+    query.put("data", Collections.singletonList("value"));
     query.put("data1", Arrays.asList("value11", "value12"));
     osduSearchObject.setMetadata(query);
     osduSearchObject.setFulltext("full-text-query");

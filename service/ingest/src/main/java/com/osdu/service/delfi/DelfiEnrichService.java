@@ -16,10 +16,8 @@
 
 package com.osdu.service.delfi;
 
-import static com.osdu.model.delfi.status.MasterJobStatus.COMPLETED;
-import static com.osdu.request.OsduHeader.RESOURCE_HOME_REGION_ID;
-import static com.osdu.request.OsduHeader.RESOURCE_HOST_REGION_IDS;
 import static com.osdu.service.JsonUtils.toJson;
+import static com.osdu.service.helper.IngestionHelper.getResourceHostRegionIDs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.osdu.exception.IngestException;
@@ -28,14 +26,13 @@ import com.osdu.model.Record;
 import com.osdu.model.delfi.IngestedFile;
 import com.osdu.model.delfi.RequestMeta;
 import com.osdu.model.delfi.enrich.EnrichedFile;
-import com.osdu.model.manifest.WorkProductComponent;
+import com.osdu.model.type.file.OsduFile;
+import com.osdu.model.type.wp.WorkProductComponent;
 import com.osdu.service.EnrichService;
 import com.osdu.service.PortalService;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -53,14 +50,14 @@ public class DelfiEnrichService implements EnrichService {
       IngestHeaders headers) {
 
     WorkProductComponent wpc = file.getSubmittedFile().getSignedFile().getFile().getWpc();
-    WorkProductComponent reducedWpc = stripRedundantFields(deepCopy(wpc));
+    WorkProductComponent reducedWpc = deepCopy(wpc, WorkProductComponent.class);
 
     Record record = portalService
         .getRecord(file.getRecordId(), requestMeta.getAuthorizationToken(),
             requestMeta.getPartition());
 
-    record.getData().put("Data", reducedWpc.getData());
-    record.getData().putAll(defineAdditionalProperties(headers));
+    record.getData().put("wpc", reducedWpc);
+    record.getData().put("osdu", generateOsduFileRecord(file, headers));
 
     Record enrichedRecord = portalService.putRecord(record, requestMeta.getAuthorizationToken(),
         requestMeta.getPartition());
@@ -71,30 +68,23 @@ public class DelfiEnrichService implements EnrichService {
         .build();
   }
 
-  private Map<String, Object> defineAdditionalProperties(IngestHeaders headers) {
-    Map<String, Object> properties = new HashMap<>();
-    properties.put(RESOURCE_HOME_REGION_ID, headers.getHomeRegionID());
-    properties.put(RESOURCE_HOST_REGION_IDS, headers.getHostRegionIDs());
+  private OsduFile generateOsduFileRecord(IngestedFile file, IngestHeaders headers) {
     LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
-    // TODO fix logic with versions
-    properties.put("ResourceObjectCreationDateTime", now);
-    properties.put("ResourceVersionCreationDateTime", now);
+    OsduFile osduFile = deepCopy(file.getSubmittedFile().getSignedFile().getFile(), OsduFile.class);
+    osduFile.setResourceID(file.getSubmittedFile().getSrn());
+    osduFile.setResourceHomeRegionID(headers.getHomeRegionID());
+    osduFile.setResourceHostRegionIDs(getResourceHostRegionIDs(headers.getHostRegionIDs()));
+    osduFile.setResourceObjectCreationDatetime(now);
+    osduFile.setResourceVersionCreationDatetime(now);
+    osduFile.setResourceCurationStatus("srn:reference-data/ResourceCurationStatus:CREATED:");
+    osduFile.setResourceLifecycleStatus("srn:reference-data/ResourceLifecycleStatus:RECIEVED:");
 
-    properties.put("ResourceCurationStatus", "CREATED");
-    properties.put("ResourceLifecycleStatus", COMPLETED);
-    properties.put("ResourceSecurityClassification", "RESTRICTED");
-
-    return properties;
+    return osduFile;
   }
 
-  private WorkProductComponent stripRedundantFields(WorkProductComponent wpc) {
-    // TODO Remove redundant values from work product component
-    return wpc;
-  }
-
-  private WorkProductComponent deepCopy(WorkProductComponent wpc) {
+  private <T> T deepCopy(T wpc, Class<T> clazz) {
     try {
-      return objectMapper.readValue(toJson(wpc), WorkProductComponent.class);
+      return objectMapper.readValue(toJson(wpc), clazz);
     } catch (IOException e) {
       throw new IngestException("Error processing WorkProductComponent json", e);
     }

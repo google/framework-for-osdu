@@ -17,7 +17,7 @@
 package com.osdu.service;
 
 import com.osdu.model.IngestResult;
-import com.osdu.model.manifest.LoadManifest;
+import com.osdu.model.type.manifest.LoadManifest;
 import org.springframework.messaging.MessageHeaders;
 
 public interface InitialIngestService {

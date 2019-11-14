@@ -21,7 +21,7 @@ import com.osdu.messaging.IngestPubSubGateway;
 import com.osdu.model.IngestHeaders;
 import com.osdu.model.IngestResult;
 import com.osdu.model.job.IngestMessage;
-import com.osdu.model.manifest.LoadManifest;
+import com.osdu.model.type.manifest.LoadManifest;
 import com.osdu.service.AuthenticationService;
 import com.osdu.service.InitialIngestService;
 import com.osdu.service.JobStatusService;

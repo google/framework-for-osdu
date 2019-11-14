@@ -24,6 +24,5 @@ import lombok.Data;
 public class SubmitJobResult {
 
   String jobId;
-  String srn;
 
 }

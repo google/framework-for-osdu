@@ -37,6 +37,7 @@ public class OsduFeignErrorDecoder implements ErrorDecoder {
   @Override
   public Exception decode(String methodKey, Response response) {
     FeignException feignException = errorStatus(methodKey, response);
+    log.error("Feign Client exception.", feignException);
 
     switch (response.status()) {
       case 400:

@@ -16,7 +16,7 @@
 
 package com.osdu.model.osdu.delivery.delfi;
 
-import com.osdu.model.BaseRecord;
+import java.util.Map;
 import lombok.Data;
 
 @Data
@@ -24,7 +24,7 @@ public class ProcessingResult {
 
   ProcessingResultStatus processingResultStatus;
   String fileLocation;
-  BaseRecord data;
+  Map<String, Object> data;
   String srn;
 
 }

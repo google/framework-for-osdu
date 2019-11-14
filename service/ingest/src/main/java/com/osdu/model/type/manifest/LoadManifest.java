@@ -14,11 +14,28 @@
  * limitations under the License.
  */
 
-package com.osdu.service.processing;
+package com.osdu.model.type.manifest;
 
-import com.osdu.model.BaseRecord;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public interface ResultDataProcessor {
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class LoadManifest {
 
-  BaseRecord removeRedundantFields(BaseRecord data);
+  @JsonProperty(value = "WorkProduct")
+  ManifestWp workProduct;
+
+  @JsonProperty(value = "WorkProductComponents")
+  List<ManifestWpc> workProductComponents;
+
+  @JsonProperty(value = "Files")
+  List<ManifestFile> files;
+
 }

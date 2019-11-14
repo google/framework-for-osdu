@@ -16,20 +16,21 @@
 
 package com.osdu.service;
 
+import com.osdu.model.IngestHeaders;
 import com.osdu.model.Record;
 import com.osdu.model.delfi.IngestedFile;
 import com.osdu.model.delfi.RequestMeta;
 import com.osdu.model.delfi.signed.SignedFile;
 import com.osdu.model.delfi.signed.SignedUrlResult;
-import com.osdu.model.manifest.ManifestFile;
-import com.osdu.model.manifest.WorkProductComponent;
+import com.osdu.model.type.manifest.ManifestFile;
+import com.osdu.model.type.wp.WorkProductComponent;
 import java.net.URL;
 import java.util.List;
 
 public interface IngestionService {
 
-  String createRecordForWorkProductComponent(WorkProductComponent workProductComponent,
-      List<String> srns, RequestMeta requestMeta);
+  String createRecordForWorkProductComponent(WorkProductComponent wpc, List<String> srns,
+      RequestMeta requestMeta, IngestHeaders headers);
 
   SignedFile uploadFile(ManifestFile file, String authorizationToken, String partition);
 
