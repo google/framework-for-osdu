@@ -19,6 +19,7 @@ package com.osdu.service.google;
 import static com.osdu.request.OsduHeader.extractHeaderByName;
 
 import com.google.common.collect.ImmutableMap;
+import com.osdu.exception.IngestJobNotFoundException;
 import com.osdu.mapper.IngestJobMapper;
 import com.osdu.model.job.IngestJob;
 import com.osdu.model.job.IngestJobStatus;
@@ -54,16 +55,19 @@ public class GcpJobStatusService implements JobStatusService {
     authenticationService
         .checkAuthentication(authorizationToken, partition);
 
-    IngestJob job = ingestJobRepository.findById(jobId);
+    IngestJobStatusDto jobStatusDto = ingestJobRepository.findById(jobId)
+        .map(ingestJobMapper::toStatusDto)
+        .orElseThrow(() -> new IngestJobNotFoundException("Not ingest job found by id = " + jobId));
 
-    log.info("Found the injection job: {}", job);
-    return ingestJobMapper.toStatusDto(job);
+    log.info("Found the injection job status: {}", jobStatusDto);
+    return jobStatusDto;
   }
 
   @Override
   public IngestJob get(String jobId) {
     log.info("Request for getting a injection job. JobId: {}", jobId);
-    return ingestJobRepository.findById(jobId);
+    return ingestJobRepository.findById(jobId)
+        .orElseThrow(() -> new IngestJobNotFoundException("Not ingest job found by id = " + jobId));
   }
 
   @Override

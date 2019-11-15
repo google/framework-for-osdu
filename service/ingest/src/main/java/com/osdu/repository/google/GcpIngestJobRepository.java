@@ -29,6 +29,7 @@ import com.osdu.model.job.IngestJob;
 import com.osdu.repository.IngestJobRepository;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -47,7 +48,7 @@ public class GcpIngestJobRepository implements IngestJobRepository {
   }
 
   @Override
-  public IngestJob findById(String id) {
+  public Optional<IngestJob> findById(String id) {
     log.debug("Requesting ingest job id : {}", id);
 
     final ApiFuture<QuerySnapshot> query = firestore.collection(COLLECTION_NAME)
@@ -68,11 +69,10 @@ public class GcpIngestJobRepository implements IngestJobRepository {
               documents.size(), id));
     }
 
-    IngestJob job =
-        documents.isEmpty() ? null : documents.get(0).toObject(IngestJob.class);
-    log.debug("Ingest job request resulted with : {}", job);
-
-    return job;
+    log.debug("Ingest job request resulted with : {}", documents);
+    return documents.stream()
+        .findFirst()
+        .map(snap -> snap.toObject(IngestJob.class));
   }
 
   @Override

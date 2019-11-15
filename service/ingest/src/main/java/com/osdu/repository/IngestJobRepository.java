@@ -18,10 +18,11 @@ package com.osdu.repository;
 
 import com.osdu.model.job.IngestJob;
 import java.util.Map;
+import java.util.Optional;
 
 public interface IngestJobRepository {
 
-  IngestJob findById(String id);
+  Optional<IngestJob> findById(String id);
 
   void save(IngestJob ingestJob);
 

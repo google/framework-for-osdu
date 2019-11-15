@@ -24,7 +24,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.osdu.exception.IngestException;
 import com.osdu.model.IngestHeaders;
 import com.osdu.model.IngestResult;
@@ -52,8 +51,6 @@ public class DelfiInitialInitialIngestionServiceTest {
   @Mock
   InnerIngestionProcess innerIngestionProcess;
   @Mock
-  private ProcessingReport processingReport;
-  @Mock
   LoadManifestValidationService loadManifestValidationService;
 
   @InjectMocks
@@ -66,7 +63,6 @@ public class DelfiInitialInitialIngestionServiceTest {
     LoadManifest manifest = LoadManifest.builder().build();
     MessageHeaders headers = new MessageHeaders(new HashMap<>());
 
-    when(processingReport.isSuccess()).thenReturn(true);
     when(jobStatusService.initInjectJob()).thenReturn(JOB_ID);
 
     // when
@@ -84,8 +80,6 @@ public class DelfiInitialInitialIngestionServiceTest {
     // given
     LoadManifest manifest = LoadManifest.builder().build();
     MessageHeaders headers = new MessageHeaders(new HashMap<>());
-
-    when(processingReport.isSuccess()).thenReturn(false);
 
     // when
     delfiInitialIngestService.ingestManifest(manifest, headers);
