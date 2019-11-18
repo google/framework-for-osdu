@@ -20,6 +20,7 @@ import static com.osdu.request.OsduHeader.extractHeaderByName;
 import static java.util.Objects.isNull;
 
 import com.osdu.client.delfi.DelfiSearchClient;
+import com.osdu.exception.SearchException;
 import com.osdu.mapper.SearchObjectMapper;
 import com.osdu.mapper.SearchResultMapper;
 import com.osdu.model.SearchObject;
@@ -88,11 +89,7 @@ public class DelfiSearchService implements SearchService {
 
     authenticationService.getUserGroups(authorizationToken, partition);
 
-    Boolean valid = checkIfInputParametersValid((OsduSearchObject) searchObject);
-    if (Boolean.FALSE.equals(valid)) {
-      log.info("Input parameters validation fail - " + searchObject);
-      return new SearchResult();
-    }
+    checkIfInputParametersValid((OsduSearchObject) searchObject);
 
     DelfiSearchObject delfiSearchObject = searchObjectMapper
         .osduToDelfi((OsduSearchObject) searchObject, kind, partition);
@@ -107,10 +104,12 @@ public class DelfiSearchService implements SearchService {
     return osduSearchResult;
   }
 
-  private Boolean checkIfInputParametersValid(OsduSearchObject searchObject) {
-    return !(isNull(searchObject.getFulltext())
+  private void checkIfInputParametersValid(OsduSearchObject searchObject) {
+    if (isNull(searchObject.getFulltext())
         && isNull(searchObject.getMetadata())
         && isNull(searchObject.getGeoCentroid())
-        && isNull(searchObject.getGeoLocation()));
+        && isNull(searchObject.getGeoLocation())) {
+      throw new SearchException("Input parameters validation fail - " + searchObject);
+    }
   }
 }
