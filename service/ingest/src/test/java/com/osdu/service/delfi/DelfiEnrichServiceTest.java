@@ -23,7 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.osdu.model.IngestHeaders;
 import com.osdu.model.Record;
 import com.osdu.model.delfi.IngestedFile;
@@ -34,7 +33,9 @@ import com.osdu.model.delfi.submit.SubmittedFile;
 import com.osdu.model.type.manifest.ManifestFile;
 import com.osdu.model.type.wp.WorkProductComponent;
 import com.osdu.service.PortalService;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -52,9 +53,7 @@ public class DelfiEnrichServiceTest {
   private static final String TEST_VALUE = "test-value";
   private static final String RECORD_ID = "recordId";
   private static final String HOME_REGION_ID = "home_region_id";
-  private static final String HOST_REGION_ID = "host_region_id";
-
-  private ObjectMapper objectMapper = new ObjectMapper();
+  private static final List<String> HOST_REGION_IDS = Collections.singletonList("host_region_id");
 
   @Mock
   private PortalService portalService;
@@ -63,7 +62,7 @@ public class DelfiEnrichServiceTest {
 
   @Before
   public void initialize() {
-    delfiEnrichService = new DelfiEnrichService(objectMapper, portalService);
+    delfiEnrichService = new DelfiEnrichService(portalService);
   }
 
   @Test
@@ -92,8 +91,8 @@ public class DelfiEnrichServiceTest {
         .partition(PARTITION).build();
 
     IngestHeaders ingestHeaders = IngestHeaders.builder()
-        .homeRegionID(HOME_REGION_ID)
-        .hostRegionIDs(HOST_REGION_ID)
+        .resourceHomeRegionID(HOME_REGION_ID)
+        .resourceHostRegionIDs(HOST_REGION_IDS)
         .build();
 
     // when
@@ -102,8 +101,7 @@ public class DelfiEnrichServiceTest {
     // then
     Map<String, Object> enrichedData = enrichedFile.getRecord().getData();
     assertThat(enrichedData.get(RESOURCE_HOME_REGION_ID)).isEqualTo(HOME_REGION_ID);
-    assertThat(enrichedData.get(RESOURCE_HOST_REGION_IDS)).isEqualTo(HOST_REGION_ID);
-    assertThat(enrichedData.get(RESOURCE_HOST_REGION_IDS)).isEqualTo(HOST_REGION_ID);
+    assertThat(enrichedData.get(RESOURCE_HOST_REGION_IDS)).isEqualTo(HOST_REGION_IDS);
     assertThat(enrichedData.get(TEST_KEY)).isEqualTo(TEST_VALUE);
   }
 }

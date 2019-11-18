@@ -16,6 +16,7 @@
 
 package com.osdu.model;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,7 +31,7 @@ public class IngestHeaders {
   String authorizationToken;
   String partition;
   String legalTags;
-  String homeRegionID;
-  String hostRegionIDs;
+  String resourceHomeRegionID;
+  List<String> resourceHostRegionIDs;
 
 }

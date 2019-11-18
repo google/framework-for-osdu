@@ -56,7 +56,7 @@ public abstract class SchemaDataMapperDecorator implements
     log.debug("Request to map schemaDataDto to schemaData : {} ", schemaDataDto);
 
     SchemaData schemaData = schemaDataMapper.schemaDataDtoToSchemaData(schemaDataDto);
-    schemaData.setSchema(JsonUtils.getJsonNode(schemaDataDto.getSchema()));
+    schemaData.setSchema(JsonUtils.stringToJson(schemaDataDto.getSchema()));
 
     log.debug("Result of mapping: {} ", schemaData);
     return schemaData;

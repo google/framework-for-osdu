@@ -24,6 +24,7 @@ public interface SchemaDataRepository {
 
   SchemaDataDto findLastByTypeId(String typeId);
 
-  void save(SchemaDataDto schemaData);
+  SchemaDataDto findByReference(String reference);
 
+  void save(SchemaDataDto schemaData);
 }

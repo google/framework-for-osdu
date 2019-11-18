@@ -28,5 +28,6 @@ public class SchemaDataDto {
   String schema;
   @ServerTimestamp
   Date created;
+  String reference;
 
 }

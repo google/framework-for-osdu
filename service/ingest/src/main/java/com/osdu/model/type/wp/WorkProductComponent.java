@@ -1,6 +1,7 @@
 package com.osdu.model.type.wp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.osdu.model.type.base.OsduObject;
 import lombok.Data;
@@ -12,6 +13,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class WorkProductComponent extends OsduObject {
 
   @JsonIgnore

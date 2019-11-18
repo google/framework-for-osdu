@@ -18,18 +18,22 @@ package com.osdu.service.validation;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.JsonMetaSchema;
-import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.ValidationMessage;
 import com.osdu.exception.IngestException;
+import com.osdu.service.processing.CustomSchemeFetcher;
 import java.util.Set;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class JsonValidationService {
+
+  final CustomSchemeFetcher schemeFetcher;
 
   /**
    * Validates given json against given schema.
@@ -40,9 +44,9 @@ public class JsonValidationService {
    */
   public Set<ValidationMessage> validate(String schema, JsonNode toValidate) {
     try {
-      JsonSchema jsonSchema = JsonSchemaFactory.getInstance().getSchema(schema);
-
-      return jsonSchema.validate(toValidate);
+      return getFactory()
+          .getSchema(schema)
+          .validate(toValidate);
     } catch (JsonSchemaException e) {
       throw new IngestException(
           String.format("Error creating json validation schema from json object: %s", schema), e);
@@ -58,18 +62,22 @@ public class JsonValidationService {
    */
   public Set<ValidationMessage> validate(JsonNode schema, JsonNode toValidate) {
     try {
-      JsonSchemaFactory factory = JsonSchemaFactory.builder(JsonSchemaFactory.getInstance())
-          .addMetaSchema(JsonMetaSchema
-              .builder("http://json-schema.org/draft-07/schema#", JsonMetaSchema.getDraftV4())
-              .build())
-          .build();
-      JsonSchema jsonSchema = factory.getSchema(schema);
-
-      return jsonSchema.validate(toValidate);
+      return getFactory()
+          .getSchema(schema)
+          .validate(toValidate);
     } catch (JsonSchemaException e) {
       throw new IngestException(
           String.format("Error creating json validation schema from json object: %s", schema), e);
     }
+  }
+
+  private JsonSchemaFactory getFactory() {
+    return JsonSchemaFactory.builder(JsonSchemaFactory.getInstance())
+        .addMetaSchema(JsonMetaSchema
+            .builder("http://json-schema.org/draft-07/schema#", JsonMetaSchema.getDraftV4())
+            .build())
+        .uriFetcher(schemeFetcher, "https")
+        .build();
   }
 
 }

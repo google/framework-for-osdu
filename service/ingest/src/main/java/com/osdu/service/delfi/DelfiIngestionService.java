@@ -17,9 +17,9 @@
 package com.osdu.service.delfi;
 
 import static com.osdu.model.job.IngestJobStatus.FAILED;
-import static com.osdu.service.helper.IngestionHelper.generateSrn;
+import static com.osdu.service.JsonUtils.deepCopy;
 import static com.osdu.service.helper.IngestionHelper.getAcl;
-import static com.osdu.service.helper.IngestionHelper.getResourceHostRegionIDs;
+import static java.lang.String.format;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.storage.Blob;
@@ -73,30 +73,30 @@ public class DelfiIngestionService implements IngestionService {
   final IngestionHelper ingestionHelper;
 
   @Override
-  public String createRecordForWorkProductComponent(WorkProductComponent wpc,
-      List<String> srns, RequestMeta requestMeta, IngestHeaders headers) {
-    final String resourceTypeId = wpc.getResourceTypeID();
-    ResourceTypeId wpcTypeId = new ResourceTypeId(wpc.getResourceTypeID());
+  public Record createRecordForWorkProductComponent(WorkProductComponent wpc, String wpcSrn,
+      List<String> fileSrns, RequestMeta requestMeta, IngestHeaders headers) {
+    WorkProductComponent newWpc = deepCopy(wpc, WorkProductComponent.class);
+
+    final String resourceTypeId = newWpc.getResourceTypeID();
+    ResourceTypeId wpcTypeId = new ResourceTypeId(newWpc.getResourceTypeID());
     final SchemaData schemaData = gcpSrnMappingService.getSchemaData(resourceTypeId);
-    String wpcSrn = generateSrn(new ResourceTypeId(resourceTypeId));
     LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
-
-    wpc.setResourceID(wpcSrn);
-    wpc.setResourceTypeID(wpcTypeId.hasVersion() ? resourceTypeId : resourceTypeId + "1");
-    wpc.setResourceHomeRegionID(headers.getHomeRegionID());
-    wpc.setResourceHostRegionIDs(getResourceHostRegionIDs(headers.getHostRegionIDs()));
-    wpc.setResourceObjectCreationDatetime(now);
-    wpc.setResourceVersionCreationDatetime(now);
-    wpc.setResourceCurationStatus("srn:reference-data/ResourceCurationStatus:CREATED:");
-    wpc.setResourceLifecycleStatus("srn:reference-data/ResourceLifecycleStatus:RECIEVED:");
-    wpc.getData().getGroupTypeProperties().setFiles(srns);
+    newWpc.setResourceID(wpcSrn);
+    newWpc.setResourceTypeID(wpcTypeId.hasVersion() ? resourceTypeId : resourceTypeId + "1");
+    newWpc.setResourceHomeRegionID(headers.getResourceHomeRegionID());
+    newWpc.setResourceHostRegionIDs(headers.getResourceHostRegionIDs());
+    newWpc.setResourceObjectCreationDatetime(now);
+    newWpc.setResourceVersionCreationDatetime(now);
+    newWpc.setResourceCurationStatus("srn:reference-data/ResourceCurationStatus:CREATED:");
+    newWpc.setResourceLifecycleStatus("srn:reference-data/ResourceLifecycleStatus:RECIEVED:");
+    newWpc.getData().getGroupTypeProperties().setFiles(fileSrns);
 
     DelfiRecord delfiRecord = DelfiRecord.builder()
         .kind(schemaData.getKind())
         .acl(getAcl(requestMeta.getUserGroupEmailByName()))
         .legal(getLegal(requestMeta.getLegalTags()))
-        .data(ImmutableMap.of("osdu", wpc))
+        .data(ImmutableMap.of("osdu", newWpc))
         .build();
 
     Record record = delfiPortalService.putRecord(delfiRecord, requestMeta.getAuthorizationToken(),
@@ -107,7 +107,7 @@ public class DelfiIngestionService implements IngestionService {
         .srn(wpcSrn)
         .build());
 
-    return wpcSrn;
+    return record;
   }
 
   @Override
@@ -149,6 +149,7 @@ public class DelfiIngestionService implements IngestionService {
   public List<Record> failRecords(List<Record> records, RequestMeta requestMeta) {
     return records.stream()
         .map(record -> {
+          log.debug(format("Fail delfi record : %s", record.getId()));
           record.getData().put("ResourceLifecycleStatus", FAILED);
           portalService.putRecord(record, requestMeta.getAuthorizationToken(),
               requestMeta.getPartition());
