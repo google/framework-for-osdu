@@ -119,6 +119,7 @@
     <plugins>
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>
+        <version>${maven-shade-plugin.version}</version>
         <configuration>
           <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
           <createDependencyReducedPom>true</createDependencyReducedPom>
@@ -137,7 +138,7 @@
           <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-maven-plugin</artifactId>
-            <version>2.1.7.RELEASE</version>
+            <version>${org.springframwork.version}</version>
           </dependency>
         </dependencies>
         <executions>
@@ -193,6 +194,7 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>${org.springframwork.version}</version>
       </plugin>
       <plugin>
         <groupId>com.spotify</groupId>
