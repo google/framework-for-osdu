@@ -115,7 +115,6 @@ public class DelfiSubmitServiceTest {
 
   @Test
   public void shouldSubmitFile() {
-
     // given
     SchemaData data = new SchemaData();
     data.setSrn(SRN);
@@ -132,7 +131,9 @@ public class DelfiSubmitServiceTest {
 
     String filePath = "/test-path";
     String ingestorRoutines = toJson(Collections.singletonList(LasIngestorObject.builder()
-        .lasIngestor(LasIngestor.builder().build())
+        .lasIngestor(LasIngestor.builder()
+            .createRawWellRecord(true)
+            .build())
         .build()));
 
     when(portalProperties.getAppKey()).thenReturn(APP_KEY);

@@ -152,6 +152,7 @@ public class DelfiSubmitService implements SubmitService {
     return resourceTypeId.getResourceType() == ResourceType.WPC_WELL_LOG ? toJson(
         Collections.singletonList(LasIngestorObject.builder()
             .lasIngestor(LasIngestor.builder()
+                .createRawWellRecord(true)
                 .build())
             .build())) : null;
   }
