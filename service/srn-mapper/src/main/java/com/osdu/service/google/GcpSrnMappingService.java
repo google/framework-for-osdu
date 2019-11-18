@@ -16,6 +16,9 @@
 
 package com.osdu.service.google;
 
+import static java.lang.String.format;
+
+import com.osdu.exception.OsduNotFoundException;
 import com.osdu.mapper.SchemaDataMapper;
 import com.osdu.mapper.SrnToRecordMapper;
 import com.osdu.model.ResourceTypeId;
@@ -51,9 +54,13 @@ public class GcpSrnMappingService implements SrnMappingService {
     SchemaDataDto schemaDataDto = resourceTypeId.hasVersion()
         ? schemaDataRepository.findExactByTypeId(typeId)
         : schemaDataRepository.findLastByTypeId(typeId);
+
+    if (schemaDataDto == null) {
+      throw new OsduNotFoundException(format("Can not find schema data for type - %s", typeId));
+    }
     log.debug("Found SchemaData: {}", schemaDataDto);
 
-    return schemaDataDto == null ? null : schemaDataMapper.schemaDataDtoToSchemaData(schemaDataDto);
+    return schemaDataMapper.schemaDataDtoToSchemaData(schemaDataDto);
   }
 
   @Override

@@ -22,6 +22,8 @@ import static com.osdu.service.JsonUtils.getJsonNode;
 import static com.osdu.service.helper.IngestionHelper.generateSrn;
 import static com.osdu.service.helper.IngestionHelper.normalizePartition;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.ValidationMessage;
 import com.osdu.client.DelfiEntitlementsClient;
 import com.osdu.model.IngestHeaders;
 import com.osdu.model.Record;
@@ -50,8 +52,10 @@ import com.osdu.service.helper.IngestionHelper;
 import com.osdu.service.processing.InnerIngestionProcess;
 import com.osdu.service.validation.JsonValidationService;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -73,6 +77,7 @@ public class DelfiInnerIngestionProcess implements InnerIngestionProcess {
   final JsonValidationService jsonValidationService;
   final DelfiIngestionService delfiIngestionService;
   final IngestionHelper ingestionHelper;
+  final ObjectMapper objectMapper;
 
   @Override
   public void process(String innerJobId, LoadManifest loadManifest, IngestHeaders headers) {
@@ -168,8 +173,7 @@ public class DelfiInnerIngestionProcess implements InnerIngestionProcess {
 
           // post validation
           enrichedFiles.stream()
-              .map(file -> jsonValidationService.validate(schemaData.getSchema(),
-                  getJsonNode(file.getRecord().getData().get("osdu"))))
+              .map(this::validateFile)
               .filter(result -> !result.isEmpty())
               .peek(result -> log.warn("Post submit record validation fail - " + result.toString()))
               .findFirst()
@@ -193,8 +197,23 @@ public class DelfiInnerIngestionProcess implements InnerIngestionProcess {
           }).collect(Collectors.toList());
 
           // create work product component record
-          String wpcSrn = delfiIngestionService.createRecordForWorkProductComponent(wpc, fileSrns,
-              requestMeta, headers);
+          String wpcSrn = generateSrn(new ResourceTypeId(wpc.getResourceTypeID()));
+          Record wpcRecord = delfiIngestionService.createRecordForWorkProductComponent(wpc, wpcSrn,
+              fileSrns, requestMeta, headers);
+
+          SchemaData wpcSchemaData = srnMappingService.getSchemaData(wpc.getResourceTypeID());
+          Set<ValidationMessage> errors = jsonValidationService.validate(wpcSchemaData.getSchema(),
+              objectMapper.valueToTree(wpcRecord.getData().get("osdu")));
+          if (!errors.isEmpty()) {
+            log.warn("Work product component record validation fail - " + errors.toString());
+            ingestJobStatus[0] = FAILED;
+            List<Record> recordsToFail = enrichedFiles.stream()
+                .map(EnrichedFile::getRecord)
+                .collect(Collectors.toList());
+            recordsToFail.add(wpcRecord);
+            delfiIngestionService.failRecords(recordsToFail, requestMeta);
+          }
+
           srns.add(wpcSrn);
         });
 
@@ -202,6 +221,12 @@ public class DelfiInnerIngestionProcess implements InnerIngestionProcess {
         .jobStatus(ingestJobStatus[0])
         .srns(srns)
         .build();
+  }
+
+  private Set<ValidationMessage> validateFile(EnrichedFile file) {
+    return jsonValidationService.validate(srnMappingService.getSchemaData(file.getIngestedFile()
+            .getSubmittedFile().getSignedFile().getFile().getResourceTypeID()).getSchema(),
+        getJsonNode(file.getRecord().getData().get("osdu")));
   }
 
   private SubmittedFile submitFile(SignedFile file, RequestMeta requestMeta) {

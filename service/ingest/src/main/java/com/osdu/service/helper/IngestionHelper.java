@@ -16,10 +16,8 @@
 
 package com.osdu.service.helper;
 
-import static com.osdu.service.JsonUtils.toObject;
 import static java.lang.String.format;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.osdu.exception.IngestException;
 import com.osdu.model.ResourceTypeId;
 import com.osdu.model.delfi.Acl;
@@ -31,10 +29,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -55,12 +51,6 @@ public class IngestionHelper {
 
   public static String normalizePartition(String partition) {
     return RegExUtils.replaceAll(partition, PARTITION_PATTERN, "");
-  }
-
-  public static List<String> getResourceHostRegionIDs(String resourceHostRegionIDs) {
-    return Optional.ofNullable(resourceHostRegionIDs)
-        .map(regionIDs -> toObject(resourceHostRegionIDs, new TypeReference<List<String>>() {}))
-        .orElse(Collections.emptyList());
   }
 
   public List<ManifestWpc> getWorkProductComponents(LoadManifest loadManifest) {

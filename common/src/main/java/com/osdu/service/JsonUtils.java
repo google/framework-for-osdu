@@ -61,6 +61,19 @@ public class JsonUtils {
   }
 
   /**
+   * Returns String in JSON format.
+   * @param value String to convert to JsonNode
+   * @return JsonNode
+   */
+  public JsonNode stringToJson(String value) {
+    try {
+      return mapper.readTree(value);
+    } catch (IOException e) {
+      throw new OsduException("Could not convert string to JSON. String: " + value, e);
+    }
+  }
+
+  /**
    * Convert json string to object.
    * @param value json string
    * @param clazz object class
@@ -86,6 +99,18 @@ public class JsonUtils {
     } catch (IOException e) {
       throw new OsduException("Could not convert json string to object. String: " + value, e);
     }
+  }
+
+  /**
+   * Deep copy object with type T to object with type R using JSON.
+   * @param object object for copy
+   * @param clazz object class
+   * @param <T> source object type
+   * @param <R> dest object type
+   * @return deep copy object with type R
+   */
+  public <T, R> R deepCopy(T object, Class<R> clazz) {
+    return toObject(toJson(object), clazz);
   }
 
 }

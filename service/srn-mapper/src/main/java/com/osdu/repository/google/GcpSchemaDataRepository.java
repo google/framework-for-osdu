@@ -37,6 +37,7 @@ public class GcpSchemaDataRepository implements SchemaDataRepository {
 
   private static final String COLLECTION_NAME = "schemaData";
   private static final String SRN_FIELD_NAME = "srn";
+  private static final String REFERENCE_FIELD_NAME = "reference";
 
   final Firestore firestore;
 
@@ -92,6 +93,33 @@ public class GcpSchemaDataRepository implements SchemaDataRepository {
     }
 
     log.debug("TypeId request resulted in schema data : {}", schemaDataDto);
+    return schemaDataDto;
+  }
+
+  @Override
+  public SchemaDataDto findByReference(String reference) {
+    log.debug("Requesting schema data by reference: {}", reference);
+    final ApiFuture<QuerySnapshot> query = firestore.collection(COLLECTION_NAME)
+        .whereEqualTo(REFERENCE_FIELD_NAME, reference).get();
+    final QuerySnapshot querySnapshot;
+    try {
+      querySnapshot = query.get();
+    } catch (InterruptedException | ExecutionException e) {
+      Thread.currentThread().interrupt();
+      throw new SrnMappingException(String.format("Failed to find SchemaData for reference: %s", reference),
+          e);
+    }
+    final List<QueryDocumentSnapshot> documents = querySnapshot.getDocuments();
+
+    if (documents.size() > 1) {
+      throw new SrnMappingException(String
+          .format("Find by reference returned %s document(s), expected 1, query by reference: %s",
+              documents.size(), reference));
+    }
+
+    SchemaDataDto schemaDataDto = documents.isEmpty() ? null :
+        documents.get(0).toObject(SchemaDataDto.class);
+    log.debug("Find by reference request resulted in schema data : {}", schemaDataDto);
     return schemaDataDto;
   }
 

@@ -23,10 +23,10 @@ public class OsduObject {
   @JsonProperty("ResourceHostRegionIDs")
   List<String> resourceHostRegionIDs;
 
-  @JsonProperty("ResourceObjectCreationDatetime")
+  @JsonProperty("ResourceObjectCreationDateTime")
   LocalDateTime resourceObjectCreationDatetime;
 
-  @JsonProperty("ResourceVersionCreationDatetime")
+  @JsonProperty("ResourceVersionCreationDateTime")
   LocalDateTime resourceVersionCreationDatetime;
 
   @JsonProperty("ResourceCurationStatus")

@@ -16,11 +16,8 @@
 
 package com.osdu.service.delfi;
 
-import static com.osdu.service.JsonUtils.toJson;
-import static com.osdu.service.helper.IngestionHelper.getResourceHostRegionIDs;
+import static com.osdu.service.JsonUtils.deepCopy;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.osdu.exception.IngestException;
 import com.osdu.model.IngestHeaders;
 import com.osdu.model.Record;
 import com.osdu.model.delfi.IngestedFile;
@@ -30,7 +27,6 @@ import com.osdu.model.type.file.OsduFile;
 import com.osdu.model.type.wp.WorkProductComponent;
 import com.osdu.service.EnrichService;
 import com.osdu.service.PortalService;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +38,6 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class DelfiEnrichService implements EnrichService {
 
-  final ObjectMapper objectMapper;
   final PortalService portalService;
 
   @Override
@@ -72,22 +67,14 @@ public class DelfiEnrichService implements EnrichService {
     LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
     OsduFile osduFile = deepCopy(file.getSubmittedFile().getSignedFile().getFile(), OsduFile.class);
     osduFile.setResourceID(file.getSubmittedFile().getSrn());
-    osduFile.setResourceHomeRegionID(headers.getHomeRegionID());
-    osduFile.setResourceHostRegionIDs(getResourceHostRegionIDs(headers.getHostRegionIDs()));
+    osduFile.setResourceHomeRegionID(headers.getResourceHomeRegionID());
+    osduFile.setResourceHostRegionIDs(headers.getResourceHostRegionIDs());
     osduFile.setResourceObjectCreationDatetime(now);
     osduFile.setResourceVersionCreationDatetime(now);
     osduFile.setResourceCurationStatus("srn:reference-data/ResourceCurationStatus:CREATED:");
     osduFile.setResourceLifecycleStatus("srn:reference-data/ResourceLifecycleStatus:RECIEVED:");
 
     return osduFile;
-  }
-
-  private <T> T deepCopy(T wpc, Class<T> clazz) {
-    try {
-      return objectMapper.readValue(toJson(wpc), clazz);
-    } catch (IOException e) {
-      throw new IngestException("Error processing WorkProductComponent json", e);
-    }
   }
 
 }

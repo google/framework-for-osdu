@@ -29,8 +29,8 @@ import java.util.List;
 
 public interface IngestionService {
 
-  String createRecordForWorkProductComponent(WorkProductComponent wpc, List<String> srns,
-      RequestMeta requestMeta, IngestHeaders headers);
+  Record createRecordForWorkProductComponent(WorkProductComponent wpc, String wpcSrn,
+      List<String> srns, RequestMeta requestMeta, IngestHeaders headers);
 
   SignedFile uploadFile(ManifestFile file, String authorizationToken, String partition);
 
