@@ -18,6 +18,7 @@ package com.osdu.service;
 
 import static com.osdu.service.DelfiSearchService.KIND_HEADER_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.when;
@@ -25,7 +26,7 @@ import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.osdu.client.delfi.DelfiSearchClient;
-import com.osdu.model.SearchResult;
+import com.osdu.exception.SearchException;
 import com.osdu.model.delfi.DelfiSearchObject;
 import com.osdu.model.delfi.DelfiSearchResult;
 import com.osdu.model.delfi.entitlement.UserGroups;
@@ -120,7 +121,7 @@ public class DelfiSearchServiceTest {
   }
 
   @Test
-  public void shouldReturnEmptyIfParametersInvalid() throws JsonProcessingException {
+  public void shouldThrowExceptionIfParametersInvalid() throws JsonProcessingException {
 
     //given
     Map<String, Object> headersMap = new HashMap<>();
@@ -141,9 +142,11 @@ public class DelfiSearchServiceTest {
         .thenReturn(new UserGroups());
 
     // when
-    SearchResult searchResult = searchService.searchIndex(osduSearchObject, headers);
+    Throwable thrown = catchThrowable(() -> searchService.searchIndex(osduSearchObject, headers));
 
     // then
-    assertThat(objectMapper.writeValueAsString(searchResult)).isEqualTo("{}");
+    assertThat(thrown)
+        .isInstanceOf(SearchException.class)
+        .hasMessageContaining("Input parameters validation fail - ");
   }
 }
