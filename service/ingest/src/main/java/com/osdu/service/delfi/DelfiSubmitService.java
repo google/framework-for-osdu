@@ -43,8 +43,6 @@ import com.osdu.model.delfi.submit.SubmitFileObject;
 import com.osdu.model.delfi.submit.SubmitFileResult;
 import com.osdu.model.delfi.submit.SubmitJobResult;
 import com.osdu.model.delfi.submit.SubmittedFile;
-import com.osdu.model.delfi.submit.ingestor.CsvIngestor;
-import com.osdu.model.delfi.submit.ingestor.CsvIngestorRoutine;
 import com.osdu.model.delfi.submit.ingestor.IngestorRoutine;
 import com.osdu.model.delfi.submit.ingestor.LasIngestor;
 import com.osdu.model.delfi.submit.ingestor.LasIngestorRoutine;
@@ -161,12 +159,6 @@ public class DelfiSubmitService implements SubmitService {
         break;
       case WPC_WELLBORE_PATH:
       case WPC_WELLBORE_MARKER:
-        ingestorRoutine = CsvIngestorRoutine.builder()
-            .csvIngestor(CsvIngestor.builder()
-                .datasetDescriptor(requestMeta.getSchemaData().getDatasetDescriptor())
-                .build())
-            .build();
-        break;
       default:
         ingestorRoutine = null;
     }
