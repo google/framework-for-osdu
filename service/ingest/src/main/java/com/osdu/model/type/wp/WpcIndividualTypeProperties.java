@@ -56,12 +56,12 @@ public class WpcIndividualTypeProperties extends IndividualTypeProperties {
   public static class LineageAssertion {
 
     @JsonProperty("ID")
-    String ID;
+    String id;
 
     @JsonProperty("RelationshipType")
     LineageAssertion.RelationshipType relationshipType;
 
-    public static enum RelationshipType {
+    public enum RelationshipType {
       PREDECESSOR, SOURCE, REFERENCE
     }
   }

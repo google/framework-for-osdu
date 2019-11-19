@@ -54,6 +54,9 @@ public class DelfiRecord extends Record {
   @JsonProperty(access = Access.WRITE_ONLY)
   LocalDateTime modifyTime;
 
+  /**
+   * Builder constructor for DelfiRecord.
+   */
   @Builder
   public DelfiRecord(Map<String, Object> data, String id, String kind,
       Long version, Acl acl, Legal legal, String createUser, LocalDateTime createTime,

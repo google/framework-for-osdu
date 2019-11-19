@@ -106,8 +106,8 @@ public class GcpSchemaDataRepository implements SchemaDataRepository {
       querySnapshot = query.get();
     } catch (InterruptedException | ExecutionException e) {
       Thread.currentThread().interrupt();
-      throw new SrnMappingException(String.format("Failed to find SchemaData for reference: %s", reference),
-          e);
+      throw new SrnMappingException(String.format("Failed to find SchemaData for reference: %s",
+          reference), e);
     }
     final List<QueryDocumentSnapshot> documents = querySnapshot.getDocuments();
 

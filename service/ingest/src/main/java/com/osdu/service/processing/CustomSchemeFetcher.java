@@ -33,6 +33,11 @@ public class CustomSchemeFetcher implements URIFetcher {
 
   final SchemaDataRepository schemaDataRepository;
 
+  /**
+   * Custom implementation for scheme fetcher.
+   * It looks for schema in Firestore. It is workaround because currently validation schemas are not
+   * public.
+   */
   public InputStream fetch(final URI uri) {
 
     SchemaDataDto schemaData = schemaDataRepository.findByReference(uri.toString());

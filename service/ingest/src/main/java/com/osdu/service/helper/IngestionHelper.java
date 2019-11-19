@@ -53,6 +53,10 @@ public class IngestionHelper {
     return RegExUtils.replaceAll(partition, PARTITION_PATTERN, "");
   }
 
+  /**
+   * Get WorkProductComponents from LoadManifest.
+   * Also map incoming files and wpc objects to each other
+   */
   public List<ManifestWpc> getWorkProductComponents(LoadManifest loadManifest) {
     Map<String, ManifestFile> fileById = loadManifest.getFiles().stream()
         .collect(Collectors.toMap(ManifestFile::getAssociativeId, Function.identity()));
@@ -70,6 +74,9 @@ public class IngestionHelper {
         .collect(Collectors.toList());
   }
 
+  /**
+   * Build Acl from group email map.
+   */
   public static Acl getAcl(Map<String, String> groupEmailByName) {
     return Acl.builder()
         .owner(groupEmailByName.get("data.default.owners"))
@@ -77,6 +84,9 @@ public class IngestionHelper {
         .build();
   }
 
+  /**
+   * Creates URL from ManifestFile proper field.
+   */
   public URL createUrlFromManifestFile(ManifestFile file) {
     String preLoadFilePath = file.getData().getGroupTypeProperties().getPreLoadFilePath();
     try {
@@ -88,6 +98,9 @@ public class IngestionHelper {
     }
   }
 
+  /**
+   * Returns file name from URL. Is used to get file name from signed URL.
+   */
   public String getFileNameFromUrl(URL fileUrl) {
     try {
       final String fileName = Paths.get(new URI(fileUrl.toString()).getPath()).getFileName()
