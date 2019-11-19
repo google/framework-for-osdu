@@ -37,7 +37,7 @@ import com.osdu.model.delfi.submit.SubmitFileObject;
 import com.osdu.model.delfi.submit.SubmitFileResult;
 import com.osdu.model.delfi.submit.SubmitJobResult;
 import com.osdu.model.delfi.submit.ingestor.LasIngestor;
-import com.osdu.model.delfi.submit.ingestor.LasIngestorObject;
+import com.osdu.model.delfi.submit.ingestor.LasIngestorRoutine;
 import com.osdu.model.property.DelfiPortalProperties;
 import java.util.Arrays;
 import java.util.Collections;
@@ -130,7 +130,7 @@ public class DelfiSubmitServiceTest {
         .partition(PARTITION).build();
 
     String filePath = "/test-path";
-    String ingestorRoutines = toJson(Collections.singletonList(LasIngestorObject.builder()
+    String ingestorRoutines = toJson(Collections.singletonList(LasIngestorRoutine.builder()
         .lasIngestor(LasIngestor.builder()
             .createRawWellRecord(true)
             .build())

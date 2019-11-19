@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package com.osdu.model;
+package com.osdu.model.delfi.submit.ingestor;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
-public class SchemaData {
+@Builder
+public class LasIngestorRoutine implements IngestorRoutine {
 
-  String srn;
-  String kind;
-  JsonNode schema;
-  String reference;
-  String datasetDescriptor;
+  @JsonProperty("LASIngestor")
+  LasIngestor lasIngestor;
 
 }

@@ -28,8 +28,6 @@ import static java.util.stream.Collectors.toList;
 
 import com.osdu.client.DelfiIngestionClient;
 import com.osdu.exception.IngestException;
-import com.osdu.model.ResourceType;
-import com.osdu.model.ResourceTypeId;
 import com.osdu.model.delfi.Acl;
 import com.osdu.model.delfi.DelfiFile;
 import com.osdu.model.delfi.IngestedFile;
@@ -45,8 +43,11 @@ import com.osdu.model.delfi.submit.SubmitFileObject;
 import com.osdu.model.delfi.submit.SubmitFileResult;
 import com.osdu.model.delfi.submit.SubmitJobResult;
 import com.osdu.model.delfi.submit.SubmittedFile;
+import com.osdu.model.delfi.submit.ingestor.CsvIngestor;
+import com.osdu.model.delfi.submit.ingestor.CsvIngestorRoutine;
+import com.osdu.model.delfi.submit.ingestor.IngestorRoutine;
 import com.osdu.model.delfi.submit.ingestor.LasIngestor;
-import com.osdu.model.delfi.submit.ingestor.LasIngestorObject;
+import com.osdu.model.delfi.submit.ingestor.LasIngestorRoutine;
 import com.osdu.model.property.DelfiPortalProperties;
 import com.osdu.service.SubmitService;
 import java.util.ArrayList;
@@ -123,7 +124,7 @@ public class DelfiSubmitService implements SubmitService {
                 .legalTags(requestMeta.getLegalTags())
                 .filePath(GCS_PROTOCOL + relativeFilePath)
                 .fileInput(FileInput.FILE_PATH)
-                .ingestorRoutines(getIngestorRoutines(requestMeta.getResourceTypeId()))
+                .ingestorRoutines(getIngestorRoutines(requestMeta))
                 .build());
 
     return SubmitJobResult.builder()
@@ -148,13 +149,29 @@ public class DelfiSubmitService implements SubmitService {
         .build());
   }
 
-  private String getIngestorRoutines(ResourceTypeId resourceTypeId) {
-    return resourceTypeId.getResourceType() == ResourceType.WPC_WELL_LOG ? toJson(
-        Collections.singletonList(LasIngestorObject.builder()
+  private String getIngestorRoutines(RequestMeta requestMeta) {
+    IngestorRoutine ingestorRoutine;
+    switch (requestMeta.getResourceTypeId().getResourceType()) {
+      case WPC_WELL_LOG:
+        ingestorRoutine = LasIngestorRoutine.builder()
             .lasIngestor(LasIngestor.builder()
                 .createRawWellRecord(true)
                 .build())
-            .build())) : null;
+            .build();
+        break;
+      case WPC_WELLBORE_PATH:
+      case WPC_WELLBORE_MARKER:
+        ingestorRoutine = CsvIngestorRoutine.builder()
+            .csvIngestor(CsvIngestor.builder()
+                .datasetDescriptor(requestMeta.getSchemaData().getDatasetDescriptor())
+                .build())
+            .build();
+        break;
+      default:
+        ingestorRoutine = null;
+    }
+
+    return ingestorRoutine == null ? null : toJson(Collections.singletonList(ingestorRoutine));
   }
 
   private IngestedFile getIngestedFile(Map<String, SubmittedFile> jobIdToFile,
