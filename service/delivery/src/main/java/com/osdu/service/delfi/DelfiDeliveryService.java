@@ -64,6 +64,7 @@ public class DelfiDeliveryService implements DeliveryService {
     authenticationService.checkAuthentication(authorizationToken, partition);
 
     Map<String, Future<ProcessingResult>> srnToFutureMap = inputPayload.getSrns().stream()
+        .distinct()
         .collect(Collectors.toMap(Function.identity(),
             srn -> dataProcessingJob.process(srn, authorizationToken, partition)));
 
