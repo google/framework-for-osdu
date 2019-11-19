@@ -171,8 +171,8 @@ public class SearchObjectMapperDecoratorTest {
     // given
     OsduSearchObject osduSearchObject = new OsduSearchObject();
     Map<String, List<String>> query = new HashMap<>();
-    query.put("data", Collections.singletonList("value"));
-    query.put("data1", Arrays.asList("value11", "value12"));
+    query.put("data.test", Collections.singletonList("value"));
+    query.put("data.test1", Arrays.asList("value11", "value12"));
     osduSearchObject.setMetadata(query);
     osduSearchObject.setFulltext("full-text-query");
 
@@ -183,6 +183,6 @@ public class SearchObjectMapperDecoratorTest {
     // then
     assertThat(delfiSearchObject).isNotNull();
     assertThat(delfiSearchObject.getQuery())
-        .isEqualTo("full-text-query AND (data : \"value\") AND (data1 : \"value11\" OR data1 : \"value12\")");
+        .isEqualTo("full-text-query AND ((data.osdu.test : \"value\") OR (data.test : \"value\")) AND ((data.osdu.test1 : \"value11\") OR (data.test1 : \"value11\") OR (data.osdu.test1 : \"value12\") OR (data.test1 : \"value12\"))");
   }
 }

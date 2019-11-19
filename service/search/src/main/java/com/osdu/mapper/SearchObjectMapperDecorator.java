@@ -100,7 +100,9 @@ public abstract class SearchObjectMapperDecorator implements SearchObjectMapper 
       final String result = osduSearchObject.getMetadata().entrySet().stream()
           .map(queryEntry -> queryEntry.getValue().stream()
               .map(queryKeyValuePair ->
-                  format("%s : \"%s\"", getModifiedKey(queryEntry), queryKeyValuePair))
+                  format("(%s : \"%s\")" + LUCENE_OR_TERM + "(%s : \"%s\")",
+                      getModifiedKey(queryEntry), queryKeyValuePair,
+                      queryEntry.getKey(), queryKeyValuePair))
               .collect(Collectors.joining(LUCENE_OR_TERM))).map(queryTerm -> "(" + queryTerm + ")")
           .collect(Collectors.joining(LUCENE_AND_TERM));
       log.debug("Result of mapping: {}", result);
