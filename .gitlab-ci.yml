@@ -17,6 +17,12 @@ verify:
   stage: test
   script:
     - mvn $MAVEN_CLI_OPTS verify sonar:sonar -Dsonar.host.url=https://sonar.osdu-gcp.dev -Dsonar.projectKey=osdu-gcp -Dsonar.login=$SONAR_TOKEN -Dsonar.coverage.jacoco.xmlReportsPath=target/site/jacoco/jacoco.xml
+  artifacts:
+    reports:
+      junit:
+        - service/delivery/target/surefire-reports/TEST-*.xml
+        - service/ingest/target/surefire-reports/TEST-*.xml
+        - service/search/target/surefire-reports/TEST-*.xml
 
 .deploy_template: &deploy_template
   stage: deploy
