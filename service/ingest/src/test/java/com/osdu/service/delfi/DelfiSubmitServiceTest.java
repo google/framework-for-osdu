@@ -139,7 +139,7 @@ public class DelfiSubmitServiceTest {
     when(portalProperties.getAppKey()).thenReturn(APP_KEY);
 
     when(portalProperties.getAppKey()).thenReturn(APP_KEY);
-    when(delfiIngestionClient.submitFile(eq(AUTHORIZATION_TOKEN), eq(APP_KEY), eq(PARTITION),
+    when(delfiIngestionClient.submitFile(eq(AUTHORIZATION_TOKEN), eq(APP_KEY), eq(PARTITION), eq(PARTITION),
         refEq(SubmitFileObject.builder()
             .kind(requestMeta.getSchemaData().getKind())
             .filePath("gs://test-path")

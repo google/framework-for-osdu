@@ -116,6 +116,7 @@ public class DelfiSubmitService implements SubmitService {
         .submitFile(requestMeta.getAuthorizationToken(),
             portalProperties.getAppKey(),
             requestMeta.getPartition(),
+            requestMeta.getPartition(),
             SubmitFileObject.builder()
                 .kind(requestMeta.getSchemaData().getKind())
                 .acl(getAcl(requestMeta.getUserGroupEmailByName()))
