@@ -63,7 +63,7 @@ public class SearchObjectMapperDecoratorTest {
     osduSearchObject.setStart(1);
     osduSearchObject.setCount(2);
 
-    osduSearchObject.setGeoCentroid(new List[]{Arrays.asList(36.742612, -99.074218)});
+    osduSearchObject.setGeoCentroid(Arrays.asList(Arrays.asList(36.742612, -99.074218)));
 
     // when
     DelfiSearchObject delfiSearchObject = searchObjectMapper.osduToDelfi(osduSearchObject, KIND,
@@ -87,7 +87,7 @@ public class SearchObjectMapperDecoratorTest {
     // given
     GeoLocation osduLocation = new GeoLocation();
     osduLocation.setDistance(1000D);
-    osduLocation.setCoordinates(new List[]{Arrays.asList(36.742612, -99.074218), Arrays.asList(42.54, 36.18)});
+    osduLocation.setCoordinates(Arrays.asList(Arrays.asList(36.742612, -99.074218), Arrays.asList(42.54, 36.18)));
     osduLocation.setType(BY_BOUNDING_BOX.getTypeFieldName());
 
     OsduSearchObject osduSearchObject = new OsduSearchObject();
@@ -113,10 +113,10 @@ public class SearchObjectMapperDecoratorTest {
     // given
     GeoLocation osduLocation = new GeoLocation();
     osduLocation.setDistance(1000D);
-    osduLocation.setCoordinates(new List[]{Arrays.asList(36.742612, -99.074218),
+    osduLocation.setCoordinates(Arrays.asList(Arrays.asList(36.742612, -99.074218),
         Arrays.asList(47.54, 37.18),
         Arrays.asList(48.54, 38.18),
-        Arrays.asList(49.54, 39.18)});
+        Arrays.asList(49.54, 39.18)));
     osduLocation.setType(BY_GEO_POLYGON.getTypeFieldName());
 
     OsduSearchObject osduSearchObject = new OsduSearchObject();
@@ -153,7 +153,7 @@ public class SearchObjectMapperDecoratorTest {
     sortOption2.setOrderType(OrderType.DESC);
 
     OsduSearchObject osduSearchObject = new OsduSearchObject();
-    osduSearchObject.setSort(new SortOption[]{sortOption1, sortOption2});
+    osduSearchObject.setSort(Arrays.asList(sortOption1, sortOption2));
 
     // when
     DelfiSearchObject delfiSearchObject = searchObjectMapper.osduToDelfi(osduSearchObject, KIND,

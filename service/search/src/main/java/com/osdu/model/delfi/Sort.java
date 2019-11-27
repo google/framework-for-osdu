@@ -16,12 +16,13 @@
 
 package com.osdu.model.delfi;
 
+import java.util.List;
 import lombok.Data;
 
 @Data
 public class Sort {
 
-  String[] field;
-  String[] order;
+  List<String> field;
+  List<String> order;
 
 }

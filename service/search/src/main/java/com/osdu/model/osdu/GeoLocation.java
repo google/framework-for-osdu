@@ -16,6 +16,7 @@
 
 package com.osdu.model.osdu;
 
+import java.util.List;
 import lombok.Data;
 
 /**
@@ -29,6 +30,6 @@ public class GeoLocation {
 
   Double distance;
   String type;
-  Object[] coordinates;
+  List<List<Double>> coordinates;
 
 }

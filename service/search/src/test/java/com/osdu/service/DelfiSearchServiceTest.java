@@ -86,7 +86,7 @@ public class DelfiSearchServiceTest {
     osduSearchObject.setStart(1);
     osduSearchObject.setCount(2);
 
-    osduSearchObject.setGeoCentroid(new List[]{Arrays.asList(36.742612, -99.074218)});
+    osduSearchObject.setGeoCentroid(Arrays.asList(Arrays.asList(36.742612, -99.074218)));
 
     DelfiSearchObject expectedDelfiSearchObject = new DelfiSearchObject();
     expectedDelfiSearchObject.setKind(KIND);
@@ -94,7 +94,7 @@ public class DelfiSearchServiceTest {
     expectedDelfiSearchObject.setOffset(1);
     SpatialFilter filter = new SpatialFilter();
     filter.setField("data.dlLatLongWGS84");
-    GeoLocation location = new ByDistance(new Object[]{Arrays.asList(36.742612, -99.074218)},
+    GeoLocation location = new ByDistance(Arrays.asList(Arrays.asList(36.742612, -99.074218)),
         1000D);
     filter.setByDistance(location);
     expectedDelfiSearchObject.setSpatialFilter(filter);

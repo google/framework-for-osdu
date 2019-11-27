@@ -35,9 +35,9 @@ public class OsduSearchObject implements SearchObject {
   List<String> facets;
   @JsonAlias("full-results")
   Boolean fullResults;
-  SortOption[] sort;
+  List<SortOption> sort;
   @JsonAlias("geo-location")
   GeoLocation geoLocation;
   @JsonAlias("geo-centroid")
-  List<Double>[] geoCentroid;
+  List<List<Double>> geoCentroid;
 }
