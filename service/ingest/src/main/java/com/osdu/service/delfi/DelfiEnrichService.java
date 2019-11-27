@@ -20,13 +20,14 @@ import static com.osdu.service.JsonUtils.deepCopy;
 
 import com.osdu.model.IngestHeaders;
 import com.osdu.model.Record;
-import com.osdu.model.delfi.IngestedFile;
-import com.osdu.model.delfi.RequestMeta;
+import com.osdu.model.RequestContext;
+import com.osdu.model.delfi.DelfiIngestedFile;
 import com.osdu.model.delfi.enrich.EnrichedFile;
 import com.osdu.model.type.file.OsduFile;
 import com.osdu.model.type.wp.WorkProductComponent;
 import com.osdu.service.EnrichService;
 import com.osdu.service.PortalService;
+import com.osdu.service.helper.IngestionHelper;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import lombok.RequiredArgsConstructor;
@@ -41,32 +42,35 @@ public class DelfiEnrichService implements EnrichService {
   final PortalService portalService;
 
   @Override
-  public EnrichedFile enrichRecord(IngestedFile file, RequestMeta requestMeta,
-      IngestHeaders headers) {
+  public EnrichedFile enrichRecord(DelfiIngestedFile file, String srn,
+      RequestContext requestContext) {
 
     WorkProductComponent wpc = file.getSubmittedFile().getSignedFile().getFile().getWpc();
     WorkProductComponent reducedWpc = deepCopy(wpc, WorkProductComponent.class);
 
     Record record = portalService
-        .getRecord(file.getRecordId(), requestMeta.getAuthorizationToken(),
-            requestMeta.getPartition());
+        .getRecord(file.getRecordId(), requestContext.getAuthorizationToken(),
+            requestContext.getPartition());
 
     record.getData().put("wpc", reducedWpc);
-    record.getData().put("osdu", generateOsduFileRecord(file, headers));
+    record.getData().put("osdu", generateOsduFileRecord(file, srn, requestContext.getHeaders()));
 
-    Record enrichedRecord = portalService.putRecord(record, requestMeta.getAuthorizationToken(),
-        requestMeta.getPartition());
+    Record enrichedRecord = portalService.putRecord(record, requestContext.getAuthorizationToken(),
+        requestContext.getPartition());
 
     return EnrichedFile.builder()
-        .ingestedFile(file)
+        .delfiIngestedFile(file)
         .record(enrichedRecord)
         .build();
   }
 
-  private OsduFile generateOsduFileRecord(IngestedFile file, IngestHeaders headers) {
+  private OsduFile generateOsduFileRecord(DelfiIngestedFile file, String srn,
+      IngestHeaders headers) {
     LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
     OsduFile osduFile = deepCopy(file.getSubmittedFile().getSignedFile().getFile(), OsduFile.class);
-    osduFile.setResourceID(file.getSubmittedFile().getSrn());
+
+    osduFile.setResourceID(srn);
+    osduFile.setResourceTypeID(IngestionHelper.prepareTypeId(osduFile.getResourceTypeID()));
     osduFile.setResourceHomeRegionID(headers.getResourceHomeRegionID());
     osduFile.setResourceHostRegionIDs(headers.getResourceHostRegionIDs());
     osduFile.setResourceObjectCreationDatetime(now);

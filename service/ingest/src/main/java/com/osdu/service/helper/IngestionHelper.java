@@ -21,57 +21,38 @@ import static java.lang.String.format;
 import com.osdu.exception.IngestException;
 import com.osdu.model.ResourceTypeId;
 import com.osdu.model.delfi.Acl;
-import com.osdu.model.type.manifest.LoadManifest;
 import com.osdu.model.type.manifest.ManifestFile;
-import com.osdu.model.type.manifest.ManifestWpc;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 @Component
 public class IngestionHelper {
 
-  private static final Pattern PARTITION_PATTERN = Pattern.compile("[^a-zA-Z0-9]+");
-
+  /**
+   * Generate SRN like "srn:{type_id}:{uuid}:{1 as version}".
+   * @param resourceTypeId resource type id
+   * @return generated SRN with 1st version
+   */
   public static String generateSrn(ResourceTypeId resourceTypeId) {
     String uuid = UUID.randomUUID().toString().replace("-", "");
     return String.format("srn:%s:%s:1", resourceTypeId.getType(), uuid);
   }
 
-  public static String normalizePartition(String partition) {
-    return RegExUtils.replaceAll(partition, PARTITION_PATTERN, "");
-  }
-
   /**
-   * Get WorkProductComponents from LoadManifest.
-   * Also map incoming files and wpc objects to each other
+   * Put 1st version if type ID has no version.
+   * @param resourceTypeId resource type ID
+   * @return prepared resource type ID with version
    */
-  public List<ManifestWpc> getWorkProductComponents(LoadManifest loadManifest) {
-    Map<String, ManifestFile> fileById = loadManifest.getFiles().stream()
-        .collect(Collectors.toMap(ManifestFile::getAssociativeId, Function.identity()));
-    return loadManifest.getWorkProductComponents().stream()
-        .map(wpc -> {
-          wpc.setFiles(wpc.getFileAssociativeIds().stream()
-              .map(fileById::get)
-              .map(file -> {
-                file.setWpc(wpc);
-                return file;
-              })
-              .collect(Collectors.toList()));
-          return wpc;
-        })
-        .collect(Collectors.toList());
+  public static String prepareTypeId(String resourceTypeId) {
+    ResourceTypeId typeId = new ResourceTypeId(resourceTypeId);
+    return typeId.hasVersion() ? resourceTypeId : resourceTypeId + "1";
   }
 
   /**

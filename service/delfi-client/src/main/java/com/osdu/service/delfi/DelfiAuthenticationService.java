@@ -18,9 +18,12 @@ package com.osdu.service.delfi;
 
 import com.osdu.client.DelfiEntitlementsClient;
 import com.osdu.exception.OsduUnauthorizedException;
+import com.osdu.model.delfi.entitlement.Group;
 import com.osdu.model.delfi.entitlement.UserGroups;
 import com.osdu.model.property.DelfiPortalProperties;
 import com.osdu.service.AuthenticationService;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -64,6 +67,14 @@ public class DelfiAuthenticationService implements AuthenticationService {
     }
 
     log.debug("Finished checking authentication. User belongs to groups: {}", userGroups);
+  }
+
+  @Override
+  public Map<String, String> getGroupEmailToName(String authorizationToken, String partition) {
+    return delfiEntitlementsClient
+        .getUserGroups(authorizationToken, portalProperties.getAppKey(), partition)
+        .getGroups().stream()
+        .collect(Collectors.toMap(Group::getName, Group::getEmail));
   }
 
   private void checkPreconditions(String authorizationToken, String partition) {

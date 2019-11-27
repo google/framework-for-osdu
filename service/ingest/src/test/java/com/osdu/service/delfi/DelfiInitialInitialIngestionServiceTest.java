@@ -18,8 +18,6 @@ package com.osdu.service.delfi;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,7 +27,6 @@ import com.osdu.model.IngestHeaders;
 import com.osdu.model.IngestResult;
 import com.osdu.model.type.manifest.LoadManifest;
 import com.osdu.service.JobStatusService;
-import com.osdu.service.processing.InnerIngestionProcess;
 import com.osdu.service.validation.LoadManifestValidationService;
 import java.util.HashMap;
 import org.junit.Ignore;
@@ -48,8 +45,6 @@ public class DelfiInitialInitialIngestionServiceTest {
 
   @Mock
   JobStatusService jobStatusService;
-  @Mock
-  InnerIngestionProcess innerIngestionProcess;
   @Mock
   LoadManifestValidationService loadManifestValidationService;
 
@@ -70,7 +65,6 @@ public class DelfiInitialInitialIngestionServiceTest {
 
     // then
     IngestHeaders ingestHeaders = IngestHeaders.builder().build();
-    verify(innerIngestionProcess).process(eq(JOB_ID), eq(manifest), eq(ingestHeaders));
     assertThat(ingestResult.getJobId()).isEqualTo(JOB_ID);
   }
 
@@ -86,6 +80,5 @@ public class DelfiInitialInitialIngestionServiceTest {
 
     // then
     verify(jobStatusService, never()).initInjectJob();
-    verify(innerIngestionProcess, never()).process(any(), any(), any());
   }
 }

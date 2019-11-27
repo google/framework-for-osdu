@@ -23,30 +23,31 @@ import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.when;
 
 import com.osdu.client.DelfiIngestionClient;
-import com.osdu.model.ResourceTypeId;
+import com.osdu.model.RequestContext;
 import com.osdu.model.SchemaData;
 import com.osdu.model.delfi.Acl;
-import com.osdu.model.delfi.RequestMeta;
 import com.osdu.model.delfi.status.JobInfo;
+import com.osdu.model.delfi.status.JobPollingResult;
 import com.osdu.model.delfi.status.JobStatusResponse;
-import com.osdu.model.delfi.status.JobsPullingResult;
 import com.osdu.model.delfi.status.MasterJobStatus;
 import com.osdu.model.delfi.submit.AclObject;
 import com.osdu.model.delfi.submit.FileInput;
+import com.osdu.model.delfi.submit.SubmitFileContext;
 import com.osdu.model.delfi.submit.SubmitFileObject;
 import com.osdu.model.delfi.submit.SubmitFileResult;
 import com.osdu.model.delfi.submit.SubmitJobResult;
 import com.osdu.model.delfi.submit.ingestor.LasIngestor;
 import com.osdu.model.delfi.submit.ingestor.LasIngestorRoutine;
 import com.osdu.model.property.DelfiPortalProperties;
+import com.osdu.model.property.SubmitProperties;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -66,68 +67,63 @@ public class DelfiSubmitServiceTest {
   private static final String DATA_DEFAULT_OWNERS = "data.default.owners";
   private static final String DATA_DEFAULT_VIEWERS = "data.default.viewers";
 
-  @Mock
-  private DelfiPortalProperties portalProperties;
+  private DelfiPortalProperties portalProperties = DelfiPortalProperties.builder()
+      .appKey(APP_KEY)
+      .build();
+  private SubmitProperties submitProperties = SubmitProperties.builder()
+      .pollingInterval(1000)
+      .pollingCycles(180)
+      .build();
+
   @Mock
   private DelfiIngestionClient delfiIngestionClient;
 
-  @InjectMocks
   private DelfiSubmitService delfiSubmitService;
+
+  @Before
+  public void setUp() {
+    delfiSubmitService = new DelfiSubmitService(portalProperties, submitProperties,
+        null, delfiIngestionClient, null);
+  }
 
   @Test
   public void shouldWaitTillSubmitJobsDone() {
 
     // given
-    RequestMeta requestMeta = RequestMeta.builder().authorizationToken(AUTHORIZATION_TOKEN)
-        .partition(PARTITION).build();
+    RequestContext requestContext = RequestContext.builder()
+        .authorizationToken(AUTHORIZATION_TOKEN)
+        .partition(PARTITION)
+        .build();
 
     List<String> jobIds = Arrays.asList(JOB_ID_1, JOB_ID_2, JOB_ID_3);
-
-    when(portalProperties.getAppKey()).thenReturn(APP_KEY);
 
     when(delfiIngestionClient.getJobStatus(eq(JOB_ID_1), eq(AUTHORIZATION_TOKEN),
         eq(APP_KEY), eq(PARTITION)))
         .thenReturn(buildJobResponse(JOB_ID_1, MasterJobStatus.RUNNING))
         .thenReturn(buildJobResponse(JOB_ID_1, MasterJobStatus.COMPLETED));
 
-    when(delfiIngestionClient.getJobStatus(eq(JOB_ID_2), eq(AUTHORIZATION_TOKEN),
-        eq(APP_KEY), eq(PARTITION)))
-        .thenReturn(buildJobResponse(JOB_ID_2, MasterJobStatus.COMPLETED));
-
-    when(delfiIngestionClient.getJobStatus(eq(JOB_ID_3), eq(AUTHORIZATION_TOKEN),
-        eq(APP_KEY), eq(PARTITION)))
-        .thenReturn(buildJobResponse(JOB_ID_3, MasterJobStatus.RUNNING))
-        .thenReturn(buildJobResponse(JOB_ID_3, MasterJobStatus.RUNNING))
-        .thenReturn(buildJobResponse(JOB_ID_3, MasterJobStatus.FAILED));
-
     // when
-    JobsPullingResult jobsPullingResult = delfiSubmitService.awaitSubmitJobs(jobIds, requestMeta);
+    JobPollingResult jobsPullingResult = delfiSubmitService.awaitSubmitJob(JOB_ID_1, requestContext);
 
     // then
-    assertThat(jobsPullingResult.getRunningJobs()).isEqualTo(jobIds);
-    assertThat(jobsPullingResult.getCompletedJobs())
-        .extracting(response -> response.getJobInfo().getJobId())
-        .containsExactlyInAnyOrder(JOB_ID_1, JOB_ID_2);
-    assertThat(jobsPullingResult.getFailedJobs())
-        .extracting(response -> response.getJobInfo().getJobId())
-        .containsExactly(JOB_ID_3);
+    assertThat(jobsPullingResult.getRunningJob()).isEqualTo(JOB_ID_1);
+    assertThat(jobsPullingResult.getStatus()).isEqualTo(MasterJobStatus.COMPLETED);
   }
 
   @Test
   public void shouldSubmitFile() {
     // given
     SchemaData data = new SchemaData();
-    data.setSrn(SRN);
 
     Map<String, String> emails = new HashMap<>();
     emails.put(DATA_DEFAULT_OWNERS, EMAIL_1);
     emails.put(DATA_DEFAULT_VIEWERS, EMAIL_2);
 
-    RequestMeta requestMeta = RequestMeta.builder().schemaData(data)
-        .resourceTypeId(new ResourceTypeId("srn:type:work-product-component/WellLog:version1"))
+    RequestContext requestContext = RequestContext.builder()
         .userGroupEmailByName(emails)
         .authorizationToken(AUTHORIZATION_TOKEN)
-        .partition(PARTITION).build();
+        .partition(PARTITION)
+        .build();
 
     String filePath = "/test-path";
     String ingestorRoutines = toJson(Collections.singletonList(LasIngestorRoutine.builder()
@@ -136,14 +132,18 @@ public class DelfiSubmitServiceTest {
             .build())
         .build()));
 
-    when(portalProperties.getAppKey()).thenReturn(APP_KEY);
+    SubmitFileContext fileContext = SubmitFileContext.builder()
+        .relativeFilePath(filePath)
+        .kind("")
+        .wpcResourceTypeId("srn:type:work-product-component/WellLog:version1")
+        .fileResourceTypeId("srn:type:file/las2:version1")
+        .build();
 
-    when(portalProperties.getAppKey()).thenReturn(APP_KEY);
     when(delfiIngestionClient.submitFile(eq(AUTHORIZATION_TOKEN), eq(APP_KEY), eq(PARTITION), eq(PARTITION),
         refEq(SubmitFileObject.builder()
-            .kind(requestMeta.getSchemaData().getKind())
+            .kind("")
             .filePath("gs://test-path")
-            .legalTags(requestMeta.getLegalTags())
+            .legalTags(requestContext.getLegalTags())
             .acl(getAcl())
             .fileInput(FileInput.FILE_PATH)
             .ingestorRoutines(ingestorRoutines)
@@ -151,7 +151,7 @@ public class DelfiSubmitServiceTest {
         .thenReturn(SubmitFileResult.builder().jobId(JOB_ID).build());
 
     // when
-    SubmitJobResult submitJobResult = delfiSubmitService.submitFile(filePath, SRN, requestMeta);
+    SubmitJobResult submitJobResult = delfiSubmitService.submitFile(fileContext, requestContext);
 
     // then
     assertThat(submitJobResult.getJobId()).isEqualTo(JOB_ID);

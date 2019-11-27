@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package com.osdu.model.delfi.enrich;
+package com.osdu.model.delfi;
 
-import com.osdu.model.Record;
-import com.osdu.model.delfi.DelfiIngestedFile;
+import com.osdu.model.delfi.submit.SubmittedFile;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
-public class EnrichedFile {
+public class DelfiIngestedFile {
 
-  DelfiIngestedFile delfiIngestedFile;
-  Record record;
+  SubmittedFile submittedFile;
+  String recordId;
 
 }

@@ -14,23 +14,28 @@
  * limitations under the License.
  */
 
-package com.osdu.model.delfi;
+package com.osdu.model.ingest;
 
-import com.osdu.model.ResourceTypeId;
-import com.osdu.model.SchemaData;
-import java.util.Map;
+import com.osdu.model.Record;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Singular;
 
 @Data
-@Builder
-public class RequestMeta {
+@Builder(toBuilder = true)
+public class IngestedWp {
 
-  String authorizationToken;
-  String partition;
-  String legalTags;
-  SchemaData schemaData;
-  Map<String, String> userGroupEmailByName;
-  ResourceTypeId resourceTypeId;
+  @Builder.Default
+  List<IngestedWpc> ingestedWpcs = new ArrayList<>();
 
+  String srn;
+
+  Record wpRecord;
+
+  boolean success;
+
+  @Singular
+  List<String> summaries;
 }
