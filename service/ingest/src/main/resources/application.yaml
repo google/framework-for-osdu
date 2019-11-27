@@ -12,6 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+spring:
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
 osdu:
   delfi:
     filePortal:
@@ -19,11 +24,10 @@ osdu:
     portal:
       appkey: PtVguojl2DUr0qimhDclNMwZAeAJwK1T
       url: https://api.evq.csp.slb.com
+  ingest:
+    submit:
+      pollingInterval: 1000
+      pollingCycles: 180
 gcp:
   storage:
     tempLocationBucket: osdu-gcp-temp-location
-spring:
-  jackson:
-    default-property-inclusion: non_null
-    serialization:
-      FAIL_ON_EMPTY_BEANS: false

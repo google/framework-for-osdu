@@ -16,7 +16,7 @@
 
 package com.osdu.model.type.manifest;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.osdu.model.type.file.OsduFile;
 import lombok.Data;
@@ -28,12 +28,12 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true, exclude = {"wpc"})
 @ToString(callSuper = true, exclude = {"wpc"})
 @NoArgsConstructor
+@JsonIgnoreProperties({ "wpc" })
 public class ManifestFile extends OsduFile {
 
   @JsonProperty("AssociativeID")
   String associativeId;
 
-  @JsonIgnore
   ManifestWpc wpc;
 
 }

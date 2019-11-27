@@ -25,8 +25,8 @@ import static org.mockito.Mockito.when;
 
 import com.osdu.model.IngestHeaders;
 import com.osdu.model.Record;
-import com.osdu.model.delfi.IngestedFile;
-import com.osdu.model.delfi.RequestMeta;
+import com.osdu.model.RequestContext;
+import com.osdu.model.delfi.DelfiIngestedFile;
 import com.osdu.model.delfi.enrich.EnrichedFile;
 import com.osdu.model.delfi.signed.SignedFile;
 import com.osdu.model.delfi.submit.SubmittedFile;
@@ -54,6 +54,7 @@ public class DelfiEnrichServiceTest {
   private static final String RECORD_ID = "recordId";
   private static final String HOME_REGION_ID = "home_region_id";
   private static final List<String> HOST_REGION_IDS = Collections.singletonList("host_region_id");
+  private static final String SRN = "srn";
 
   @Mock
   private PortalService portalService;
@@ -77,7 +78,7 @@ public class DelfiEnrichServiceTest {
     ManifestFile manifestFile = null/*ManifestFile.builder().wpc(wpc).build()*/;
     SignedFile signedFile = SignedFile.builder().file(manifestFile).build();
     SubmittedFile file = SubmittedFile.builder().signedFile(signedFile).build();
-    IngestedFile ingestedFile = IngestedFile.builder().submittedFile(file).build();
+    DelfiIngestedFile delfiIngestedFile = DelfiIngestedFile.builder().submittedFile(file).build();
 
     Record record = new Record();
     record.setData(new HashMap<>());
@@ -87,8 +88,10 @@ public class DelfiEnrichServiceTest {
     when(portalService.putRecord(eq(record), eq(AUTHORIZATION_TOKEN), eq(PARTITION)))
         .thenAnswer(i -> i.getArguments()[0]);
 
-    RequestMeta meta = RequestMeta.builder().authorizationToken(AUTHORIZATION_TOKEN)
-        .partition(PARTITION).build();
+    RequestContext context = RequestContext.builder()
+        .authorizationToken(AUTHORIZATION_TOKEN)
+        .partition(PARTITION)
+        .build();
 
     IngestHeaders ingestHeaders = IngestHeaders.builder()
         .resourceHomeRegionID(HOME_REGION_ID)
@@ -96,7 +99,7 @@ public class DelfiEnrichServiceTest {
         .build();
 
     // when
-    EnrichedFile enrichedFile = delfiEnrichService.enrichRecord(ingestedFile, meta, ingestHeaders);
+    EnrichedFile enrichedFile = delfiEnrichService.enrichRecord(delfiIngestedFile, SRN, context);
 
     // then
     Map<String, Object> enrichedData = enrichedFile.getRecord().getData();

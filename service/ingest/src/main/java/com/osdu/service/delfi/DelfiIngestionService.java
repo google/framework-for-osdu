@@ -16,42 +16,25 @@
 
 package com.osdu.service.delfi;
 
-import static com.osdu.model.job.IngestJobStatus.FAILED;
-import static com.osdu.service.JsonUtils.deepCopy;
-import static com.osdu.service.helper.IngestionHelper.getAcl;
 import static java.lang.String.format;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.storage.Blob;
-import com.google.common.collect.ImmutableMap;
 import com.osdu.client.DelfiIngestionClient;
-import com.osdu.exception.OsduServerErrorException;
-import com.osdu.model.IngestHeaders;
 import com.osdu.model.Record;
-import com.osdu.model.ResourceTypeId;
-import com.osdu.model.SchemaData;
-import com.osdu.model.SrnToRecord;
-import com.osdu.model.delfi.DelfiRecord;
-import com.osdu.model.delfi.IngestedFile;
-import com.osdu.model.delfi.Legal;
-import com.osdu.model.delfi.RequestMeta;
+import com.osdu.model.RequestContext;
 import com.osdu.model.delfi.signed.SignedFile;
 import com.osdu.model.delfi.signed.SignedUrlResult;
 import com.osdu.model.property.DelfiPortalProperties;
 import com.osdu.model.type.manifest.ManifestFile;
-import com.osdu.model.type.wp.WorkProductComponent;
 import com.osdu.service.IngestionService;
 import com.osdu.service.PortalService;
 import com.osdu.service.SrnMappingService;
 import com.osdu.service.StorageService;
 import com.osdu.service.google.GcpSrnMappingService;
 import com.osdu.service.helper.IngestionHelper;
-import java.io.IOException;
 import java.net.URL;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -71,44 +54,6 @@ public class DelfiIngestionService implements IngestionService {
   final ObjectMapper mapper;
   final GcpSrnMappingService gcpSrnMappingService;
   final IngestionHelper ingestionHelper;
-
-  @Override
-  public Record createRecordForWorkProductComponent(WorkProductComponent wpc, String wpcSrn,
-      List<String> fileSrns, RequestMeta requestMeta, IngestHeaders headers) {
-    WorkProductComponent newWpc = deepCopy(wpc, WorkProductComponent.class);
-
-    final String resourceTypeId = newWpc.getResourceTypeID();
-    ResourceTypeId wpcTypeId = new ResourceTypeId(newWpc.getResourceTypeID());
-    final SchemaData schemaData = gcpSrnMappingService.getSchemaData(resourceTypeId);
-    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
-
-    newWpc.setResourceID(wpcSrn);
-    newWpc.setResourceTypeID(wpcTypeId.hasVersion() ? resourceTypeId : resourceTypeId + "1");
-    newWpc.setResourceHomeRegionID(headers.getResourceHomeRegionID());
-    newWpc.setResourceHostRegionIDs(headers.getResourceHostRegionIDs());
-    newWpc.setResourceObjectCreationDatetime(now);
-    newWpc.setResourceVersionCreationDatetime(now);
-    newWpc.setResourceCurationStatus("srn:reference-data/ResourceCurationStatus:CREATED:");
-    newWpc.setResourceLifecycleStatus("srn:reference-data/ResourceLifecycleStatus:RECIEVED:");
-    newWpc.getData().getGroupTypeProperties().setFiles(fileSrns);
-
-    DelfiRecord delfiRecord = DelfiRecord.builder()
-        .kind(schemaData.getKind())
-        .acl(getAcl(requestMeta.getUserGroupEmailByName()))
-        .legal(getLegal(requestMeta.getLegalTags()))
-        .data(ImmutableMap.of("osdu", newWpc))
-        .build();
-
-    Record record = delfiPortalService.putRecord(delfiRecord, requestMeta.getAuthorizationToken(),
-        requestMeta.getPartition());
-
-    srnMappingService.saveSrnToRecord(SrnToRecord.builder()
-        .recordId(record.getId())
-        .srn(wpcSrn)
-        .build());
-
-    return record;
-  }
 
   @Override
   public SignedFile uploadFile(ManifestFile file, String authorizationToken, String partition) {
@@ -135,34 +80,19 @@ public class DelfiIngestionService implements IngestionService {
   }
 
   @Override
-  public List<Record> failSubmittedFiles(List<IngestedFile> ingestedFiles,
-      RequestMeta requestMeta) {
-    List<Record> foundRecords = ingestedFiles.stream()
-        .map(file -> portalService.getRecord(file.getRecordId(),
-            requestMeta.getAuthorizationToken(), requestMeta.getPartition()))
-        .filter(Objects::nonNull)
-        .collect(Collectors.toList());
-    return failRecords(foundRecords, requestMeta);
-  }
-
-  @Override
-  public List<Record> failRecords(List<Record> records, RequestMeta requestMeta) {
+  public List<Record> failRecords(List<Record> records, RequestContext requestContext) {
     return records.stream()
-        .map(record -> {
-          log.debug(format("Fail delfi record : %s", record.getId()));
-          record.getData().put("ResourceLifecycleStatus", FAILED);
-          portalService.putRecord(record, requestMeta.getAuthorizationToken(),
-              requestMeta.getPartition());
-          return record;
-        }).collect(Collectors.toList());
+        .map(record -> failRecord(requestContext, record))
+        .collect(Collectors.toList());
   }
 
-  private Legal getLegal(String legalTags) {
-    try {
-      return mapper.readValue(mapper.readTree(legalTags).get(Legal.LEGAL_ROOT).toString(),
-          Legal.class);
-    } catch (IOException e) {
-      throw new OsduServerErrorException("Error processing load manifest", e);
-    }
+  private Record failRecord(RequestContext requestContext, Record record) {
+    log.debug(format("Fail delfi record : %s", record.getId()));
+    record.getData().put("ResourceLifecycleStatus",
+        "srn:reference-data/ResourceLifecycleStatus:RESCINDED:");
+    portalService.putRecord(record, requestContext.getAuthorizationToken(),
+        requestContext.getPartition());
+    return record;
   }
+
 }

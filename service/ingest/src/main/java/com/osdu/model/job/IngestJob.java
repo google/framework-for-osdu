@@ -17,6 +17,7 @@
 package com.osdu.model.job;
 
 import com.google.cloud.firestore.annotation.ServerTimestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -27,13 +28,18 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 public class IngestJob {
 
   String id;
+
   IngestJobStatus status;
+
   String summary;
-  List<String> srns;
+
+  @Builder.Default
+  List<String> srns = new ArrayList<>();
+
   @ServerTimestamp
   Date created;
 

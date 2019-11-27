@@ -31,11 +31,11 @@ import lombok.ToString;
 public class WpData extends OsduObjectData {
 
   @JsonIgnore
-  WpcGroupTypeProperties groupTypeProperties;
+  WpGroupTypeProperties groupTypeProperties;
 
   @Override
   @JsonProperty("GroupTypeProperties")
-  public WpcGroupTypeProperties getGroupTypeProperties() {
+  public WpGroupTypeProperties getGroupTypeProperties() {
     return groupTypeProperties;
   }
 

@@ -16,21 +16,22 @@
 
 package com.osdu.service;
 
-import com.osdu.model.delfi.IngestedFile;
-import com.osdu.model.delfi.RequestMeta;
-import com.osdu.model.delfi.status.JobsPullingResult;
+import com.osdu.model.RequestContext;
+import com.osdu.model.delfi.DelfiIngestedFile;
+import com.osdu.model.delfi.status.JobPollingResult;
+import com.osdu.model.delfi.status.JobStatusResponse;
+import com.osdu.model.delfi.submit.SubmitFileContext;
 import com.osdu.model.delfi.submit.SubmitJobResult;
 import com.osdu.model.delfi.submit.SubmittedFile;
-import java.util.List;
 import java.util.Map;
 
 public interface SubmitService {
 
-  JobsPullingResult awaitSubmitJobs(List<String> jobIds, RequestMeta requestMeta);
+  JobPollingResult awaitSubmitJob(String jobId, RequestContext requestContext);
 
-  SubmitJobResult submitFile(String relativeFilePath, String srn, RequestMeta requestMeta);
+  SubmitJobResult submitFile(SubmitFileContext fileContext, RequestContext requestContext);
 
-  List<IngestedFile> getIngestionResult(JobsPullingResult jobsPullingResult,
-      Map<String, SubmittedFile> jobIdToFile, RequestMeta requestMeta);
+  DelfiIngestedFile getIngestedFile(Map<String, SubmittedFile> jobIdToFile,
+      RequestContext requestContext, JobStatusResponse response);
 
 }

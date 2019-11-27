@@ -22,10 +22,9 @@ import lombok.Data;
 @Data
 public class SchemaData {
 
-  String srn;
   String kind;
   JsonNode schema;
   String reference;
-  String datasetDescriptor;
+  String typeId;
 
 }

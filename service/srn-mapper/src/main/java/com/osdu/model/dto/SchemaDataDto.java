@@ -29,6 +29,6 @@ public class SchemaDataDto {
   @ServerTimestamp
   Date created;
   String reference;
-  String datasetDescriptor;
+  String typeId;
 
 }

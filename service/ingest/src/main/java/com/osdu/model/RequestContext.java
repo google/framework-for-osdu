@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package com.osdu.model.delfi.enrich;
+package com.osdu.model;
 
-import com.osdu.model.Record;
-import com.osdu.model.delfi.DelfiIngestedFile;
+import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
-public class EnrichedFile {
+public class RequestContext {
 
-  DelfiIngestedFile delfiIngestedFile;
-  Record record;
+  String authorizationToken;
+  String partition;
+  String legalTags;
+  Map<String, String> userGroupEmailByName;
+  IngestHeaders headers;
 
 }
