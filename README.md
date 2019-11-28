@@ -20,7 +20,7 @@ The framework leverages [Google Cloud Platform](cloud.google.com) functionality,
 * [Cloud Pub Sub](https://cloud.google.com/pubsub)
 
 
-The framework is implemented in Java, and uses the following libraries:
+The framework uses the following Java libraries:
 
 * [Spring Cloud Greenwich.SR2](https://spring.io/blog/2019/06/27/spring-cloud-greenwich-sr2-is-available)
 * [Mapstruct 1.3.0.Final](https://github.com/mapstruct/mapstruct)
@@ -37,6 +37,7 @@ The framework is implemented in Java, and uses the following libraries:
 
 * [Google Cloud Platform](cloud.google.com)
 * [Java](https://www.java.com/en/)
+* [Terraform](https://www.terraform.io/)
 
 
 ## License
