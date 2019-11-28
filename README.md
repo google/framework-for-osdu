@@ -1,5 +1,7 @@
 # Framework for OSDU
 
+This is not an officially supported Google product.
+
 The Framework for OSDU provides an [Open Subsurface Data Universe](https://www.opengroup.org/osdu/forum-homepage) standard compatibility layer for the [DELFI Data Ecosystem](https://www.software.slb.com/delfi/openness/delfi-data-ecosystem); it provides a subset of [OSDU Release 1](https://www.opengroup.org/membership/forums/open-subsurface-data-universe/achievement-and-plans) functionality sufficient for demo and testing purposes. 
 
 The DELFI Data Ecosystem is being [open-sourced as OpenDES](https://www.slb.com/newsroom/press-release/2019/pr-2019-0822-osdu-data-ecosystem).
