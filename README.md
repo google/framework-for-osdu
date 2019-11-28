@@ -14,7 +14,8 @@ This framework is dependent on the [Schlumberger Data Ecosystem](https://www.sof
 
 The framework leverages [Google Cloud Platform](cloud.google.com) functionality, specifically:
 
-* [KNative](https://cloud.google.com/knative/)
+* [Cloud Run](https://cloud.google.com/run/)
+* [Cloud Storage](https://cloud.google.com/storage/)
 * [Firebase](https://firebase.google.com/)
 * [Cloud Pub Sub](https://cloud.google.com/pubsub)
 
