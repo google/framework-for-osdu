@@ -41,7 +41,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,7 +82,6 @@ public class DeliveryFlowIntegrationTest {
   private ObjectMapper mapper = new ObjectMapper();
 
   @Test
-  @Ignore
   public void shouldDeliverRecords() throws Exception {
 
     // given
@@ -98,7 +96,9 @@ public class DeliveryFlowIntegrationTest {
     };
     Map<String, Object> data = new HashMap<>();
     data.put("test", "test");
-    recordNoLocation.setData(data);
+    Map<String, Object> osduData = new HashMap<>();
+    osduData.put("osdu", data);
+    recordNoLocation.setData(osduData);
     SrnToRecord srnToRecord1 = SrnToRecord.builder().recordId(RECORD_ID_1).srn(SRN_1).build();
     when(srnMappingService.getSrnToRecord(eq(NO_LOCATION_EXAMPLE))).thenReturn(srnToRecord1);
     when(portalService.getRecord(eq(RECORD_ID_1), eq(AUTHENTICATION), eq(PARTITION)))
@@ -109,8 +109,10 @@ public class DeliveryFlowIntegrationTest {
     };
     Map<String, Object> dataLocation = new HashMap<>();
     dataLocation.put("one", "test");
-    dataLocation.put(BUCKET_URL, FILE_LOCATION);
-    recordWithLocation.setData(dataLocation);
+    Map<String, Object> osduDataLocation = new HashMap<>();
+    osduDataLocation.put("osdu", dataLocation);
+    osduDataLocation.put(BUCKET_URL, FILE_LOCATION);
+    recordWithLocation.setData(osduDataLocation);
     SrnToRecord srnToRecord2 = SrnToRecord.builder().recordId(RECORD_ID_2).srn(SRN_2).build();
     when(srnMappingService.getSrnToRecord(eq(LOCATION_EXAMPLE))).thenReturn(srnToRecord2);
     when(portalService.getRecord(eq(RECORD_ID_2), eq(AUTHENTICATION), eq(PARTITION)))
@@ -144,11 +146,12 @@ public class DeliveryFlowIntegrationTest {
 
     assertThat(items.get(0).getSrn()).isEqualTo(NO_LOCATION_EXAMPLE);
     assertThat(items.get(0).getFileLocation()).isNull();
-    Map<String, Object> noLocationData = ((DelfiRecord) items.get(0).getData()).getData();
-    assertThat(noLocationData.get("test")).isEqualTo("test");
+    Map<String, Object> noLocationData = items.get(0).getData();
+    assertEquals(items.get(0).getData(), data);
 
     assertThat(items.get(1).getSrn()).isEqualTo(LOCATION_EXAMPLE);
-    assertThat(items.get(1).getFileLocation()).isEqualTo(SIGNED_URL);
+    assertEquals(items.get(1).getFileLocation().getSignedUrl(), SIGNED_URL);
+    assertEquals(items.get(1).getData(), dataLocation);
   }
 
 }

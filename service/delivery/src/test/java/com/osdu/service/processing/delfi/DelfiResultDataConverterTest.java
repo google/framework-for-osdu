@@ -17,18 +17,19 @@
 package com.osdu.service.processing.delfi;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 import com.osdu.model.FileRecord;
 import com.osdu.model.Record;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResultStatus;
 import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
+import com.osdu.model.osdu.delivery.dto.ResponseFileLocation;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -48,7 +49,6 @@ public class DelfiResultDataConverterTest {
   private DelfiResultDataConverter resultDataConverter;
 
   @Test
-  @Ignore
   public void shouldConvertDataRecordResult() {
 
     // given
@@ -68,13 +68,12 @@ public class DelfiResultDataConverterTest {
     // then
     assertThat(response.getUnprocessedSrns()).isEmpty();
     assertThat(response.getResult()).hasSize(1);
-    assertThat(((Record) response.getResult().get(0).getData()).getData()).isEqualTo(data);
+    assertEquals(response.getResult().get(0).getData(), data);
     assertThat(response.getResult().get(0).getFileLocation()).isNull();
     assertThat(response.getResult().get(0).getSrn()).isEqualTo(SRN_1);
   }
 
   @Test
-  @Ignore
   public void shouldConvertDataRecordFileRecordAndNoMappingResults() {
 
     // given
@@ -101,13 +100,13 @@ public class DelfiResultDataConverterTest {
 
     // then
     assertThat(response.getResult()).hasSize(2);
-    assertThat(((Record) response.getResult().get(0).getData()).getData()).isEqualTo(data);
+    assertEquals(response.getResult().get(0).getData(), data);
     assertThat(response.getResult().get(0).getFileLocation()).isNull();
     assertThat(response.getResult().get(0).getSrn()).isEqualTo(SRN_1);
 
-    assertThat(((FileRecord) response.getResult().get(1).getData()).getAdditionalProperties())
-        .isEqualTo(data);
-    assertThat(response.getResult().get(1).getFileLocation()).isEqualTo("http://url.com");
+    assertEquals(response.getResult().get(1).getData(), data);
+    assertEquals(response.getResult().get(1).getFileLocation(),
+        new ResponseFileLocation("http://url.com"));
     assertThat(response.getResult().get(1).getSrn()).isEqualTo(SRN_2);
 
     assertThat(response.getUnprocessedSrns()).hasSize(1);
