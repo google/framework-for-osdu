@@ -22,12 +22,9 @@ import com.osdu.exception.OsduException;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
 import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
 import com.osdu.model.osdu.delivery.input.InputPayload;
-import com.osdu.model.osdu.delivery.property.OsduDeliveryProperties;
 import com.osdu.request.OsduHeader;
 import com.osdu.service.AuthenticationService;
 import com.osdu.service.DeliveryService;
-import com.osdu.service.PortalService;
-import com.osdu.service.SrnMappingService;
 import com.osdu.service.processing.DataProcessingJob;
 import com.osdu.service.processing.ResultDataConverter;
 import java.util.List;
@@ -47,11 +44,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class DelfiDeliveryService implements DeliveryService {
 
-  final SrnMappingService srnMappingService;
-  final PortalService portalService;
   final ResultDataConverter resultDataConverter;
   final AuthenticationService authenticationService;
-  final OsduDeliveryProperties properties;
   final DataProcessingJob dataProcessingJob;
 
   @Override

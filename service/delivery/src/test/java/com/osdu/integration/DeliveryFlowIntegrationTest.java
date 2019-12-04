@@ -147,7 +147,7 @@ public class DeliveryFlowIntegrationTest {
     assertThat(items.get(0).getSrn()).isEqualTo(NO_LOCATION_EXAMPLE);
     assertThat(items.get(0).getFileLocation()).isNull();
     Map<String, Object> noLocationData = items.get(0).getData();
-    assertEquals(items.get(0).getData(), data);
+    assertEquals(items.get(0).getData(), noLocationData);
 
     assertThat(items.get(1).getSrn()).isEqualTo(LOCATION_EXAMPLE);
     assertEquals(items.get(1).getFileLocation().getSignedUrl(), SIGNED_URL);

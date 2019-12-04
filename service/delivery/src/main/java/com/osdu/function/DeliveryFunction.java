@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class DataTransferFunction implements Function<Message<InputPayload>,
+public class DeliveryFunction implements Function<Message<InputPayload>,
     Message<DeliveryResponse>> {
 
   private final DeliveryService deliveryService;

@@ -48,7 +48,8 @@ public class DelfiAuthenticationService implements AuthenticationService {
     UserGroups userGroups = delfiEntitlementsClient
         .getUserGroups(authorizationToken, portalProperties.getAppKey(), partition);
 
-    log.debug("Finished fetching user groups. User groups: {}", userGroups.toString());
+    log.debug("Finished fetching user groups. User groups: {}",
+        userGroups == null ? null : userGroups.toString());
 
     return userGroups;
   }

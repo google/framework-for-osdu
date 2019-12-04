@@ -43,6 +43,6 @@ public interface AuthenticationService {
    */
   void checkAuthentication(String authorizationToken, String partition);
 
-  public Map<String, String> getGroupEmailToName(String authorizationToken, String partition);
+  Map<String, String> getGroupEmailToName(String authorizationToken, String partition);
 
 }
