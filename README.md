@@ -56,7 +56,7 @@ The project also uses the following Java libraries:
 
 * [Spring Cloud Greenwich Service Release 2]
 * [Spring Framework 2.1.7]
-* [Spring Security Test 4.0]
+* [Spring Security Test 4.0.0]
 * [Spring Boot 2.1.6 ]
 * [MapStruct]
 * [Project Lombok 1.18.8]
@@ -86,7 +86,7 @@ This project is licensed under the Apache License. Consult the [LICENSE](./LICEN
 [Spring Framework 2.1.7]: https://mvnrepository.com/artifact/org.springframework
 [Spring Security Test 4.0.0]: https://mvnrepository.com/artifact/org.springframework.security/spring-security-test/4.0.0.RELEASE
 [Spring Boot 2.1.6]: https://mvnrepository.com/artifact/org.springframework.boot/spring-boot/2.1.6.RELEASE
-[MapStruct]: https://github.com/mapstruct/mapstruct
+[MapStruct]: https://mapstruct.org/
 [Project Lombok 1.18.8]: https://mvnrepository.com/artifact/org.projectlombok/lombok/1.18.8
 [Javax Inject 1]: https://mvnrepository.com/artifact/javax.inject/javax.inject/1
 [Apache HttpClient 4.3.4]: https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient/4.3.4
