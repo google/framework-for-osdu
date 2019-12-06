@@ -19,7 +19,6 @@ package com.osdu.service.processing.delfi;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
-import com.osdu.model.FileRecord;
 import com.osdu.model.Record;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResultStatus;
@@ -85,7 +84,7 @@ public class DelfiResultDataConverterTest {
     ProcessingResult dataResult = createProcessingResult(ProcessingResultStatus.DATA, null, data,
         SRN_1);
 
-    FileRecord fileRecord = new FileRecord();
+    Record fileRecord = new Record();
     fileRecord.setAdditionalProperties(data);
     ProcessingResult fileResult = createProcessingResult(ProcessingResultStatus.FILE,
         "http://url.com", data, SRN_2);
