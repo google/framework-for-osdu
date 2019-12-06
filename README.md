@@ -1,14 +1,24 @@
 # OSDU Compatibility Layer
 
 The OSDU Compatibility Layer is a dedicated layer for the [Open Subsurface Data Universe] standard developed for the 
-[DELFI data ecosystem] on top of [Google Cloud Platform]. 
-
-The OSDU Compatibility Layer provides a subset of [OSDU Release 1] functionality sufficient for demo and testing 
-purposes. 
+[DELFI Data Ecosystem] on top of [Google Cloud Platform].
 
 > DELFI Data Ecosystem is being open-sourced as [OpenDES] and is an internal project of Schlumberger.
 
-This is not an officially supported Google product.
+The OSDU Compatibility Layer provides a subset of [OSDU Release 1] functionality &mdash; Demo1 &mdash; sufficient for 
+demo and testing purposes. Demo 1 is centered around creating minimal services implementation to integrate with 
+third-party applications.
+
+The OSDU Compatibility Layer Demo 1 covers the following 3 services:
+
+1. Search, implementation is the same as in OSDU Release 1
+2. Delivery, implementation is the same as in OSDU Release 1
+3. Ingest, reduced implementation compared to OSDU R1 covering only ingestion of .las files 
+
+The OSDU Compatibility Layer Release 1 will extend the three services to also cover processing other file types. A new
+service Collection will also be added to the OSDU Compatibility Layer Release 1.
+
+**This is not an officially supported Google product.**
 
 ## Getting Started
 
@@ -85,4 +95,3 @@ This project is licensed under the Apache License. Consult the [LICENSE](./LICEN
 [Cloud Storage]: https://cloud.google.com/storage/
 [Cloud Firestore]: https://firebase.google.com/
 [Cloud Pub/Sub]: https://cloud.google.com/pubsub
-[Comparing OSDU and OpenDES Semantics]: https://gitlab.opengroup.org/osdu/opendes-contribution-wiki/wikis/OSDU-(C)/Design-and-Implementation/Entity-and-Schemas/Comparing-OSDU-&-OpenDES-Schema-Semantics
