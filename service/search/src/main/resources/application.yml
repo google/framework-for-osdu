@@ -19,14 +19,14 @@ osdu:
   delfi:
     portal:
       appkey: ${osdu.delfi.portal.appKey}
-      url: https://api.evq.csp.slb.com
+      url: ${osdu.delfi.portal.url}
 search:
   delfi:
     client:
       appKeyHeader: AppKey
       authorizationHeader: Authorization
       partitionHeader: slb-data-partition-id
-      serverUrl: https://api.evq.csp.slb.com
+      serverUrl: ${search.delfi.client.serverUrl}
   mapper:
     searchEndpoint: de/search/v2/query
 

@@ -20,14 +20,14 @@ spring:
 osdu:
   delfi:
     filePortal:
-      url: https://signed-url-dot-p4d-ddl-eu-services.appspot.com
+      url: ${osdu.delfi.filePortal.url}
     portal:
-      appkey: PtVguojl2DUr0qimhDclNMwZAeAJwK1T
-      url: https://api.evq.csp.slb.com
+      appkey: ${osdu.delfi.portal.appKey}
+      url: ${osdu.delfi.portal.url}
   ingest:
     submit:
       pollingInterval: 1000
       pollingCycles: 180
 gcp:
   storage:
-    tempLocationBucket: osdu-gcp-temp-location
+    tempLocationBucket: ${gcp.storage.tempLocationBucket}
