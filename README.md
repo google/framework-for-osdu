@@ -29,7 +29,7 @@ team will provide you with the following details:
     * OpenID credentials
     * DELFI partition
 2. Contact the Google account team and provide them with the DELFI partition you received from SLB.
-3. Obtain the Apigee URI to which you can sent requests.
+3. Obtain the Apigee URI to which you can send your requests.
 
 The Apigee URI looks similar to this: `https://<gcp-project-id>.apigee.net`.
 
