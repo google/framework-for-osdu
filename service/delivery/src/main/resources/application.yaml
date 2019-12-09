@@ -18,7 +18,7 @@ osdu:
     fields-to-strip: location, kind, signedUrl
   delfi:
     filePortal:
-      url: https://signed-url-dot-p4d-ddl-eu-services.appspot.com
+      url: ${osdu.delfi.filePortal.url}
     portal:
-      appkey: PtVguojl2DUr0qimhDclNMwZAeAJwK1T
-      url: https://api.evq.csp.slb.com
+      appkey: ${osdu.delfi.portal.appKey}
+      url: ${osdu.delfi.portal.url}
