@@ -24,6 +24,7 @@ import com.networknt.schema.ValidationMessage;
 import com.osdu.exception.IngestException;
 import com.osdu.exception.OsduServerErrorException;
 import com.osdu.model.type.manifest.LoadManifest;
+import com.osdu.service.validation.schema.ManifestSchemaReceiver;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
@@ -39,6 +40,7 @@ public class LoadManifestValidationService {
   private static final String DEFAULT_MANIFEST_SCHEMA_NAME =
       "WorkProductLoadManifestStagedFiles.json";
 
+  final ManifestSchemaReceiver manifestSchemaReceiver;
   final JsonValidationService jsonValidationService;
   final ObjectMapper objectMapper;
 
@@ -74,8 +76,7 @@ public class LoadManifestValidationService {
 
   private JsonNode getDefaultManifestSchema() throws IOException {
     log.debug("Fetching default load manifest json schema.");
-    InputStream resource = getClass().getClassLoader()
-        .getResourceAsStream(DEFAULT_MANIFEST_SCHEMA_NAME);
+    InputStream resource = manifestSchemaReceiver.getLoadManifestSchema();
 
     if (resource == null) {
       throw new OsduServerErrorException("Can not find resource for load manifest schema");

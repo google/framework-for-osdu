@@ -16,12 +16,14 @@
 
 package com.osdu.service.delfi;
 
+import com.osdu.exception.OsduBadRequestException;
 import com.osdu.mapper.IngestHeadersMapper;
 import com.osdu.messaging.IngestPubSubGateway;
 import com.osdu.model.IngestHeaders;
 import com.osdu.model.IngestResult;
 import com.osdu.model.job.IngestMessage;
 import com.osdu.model.type.manifest.LoadManifest;
+import com.osdu.request.OsduHeader;
 import com.osdu.service.AuthenticationService;
 import com.osdu.service.InitialIngestService;
 import com.osdu.service.JobStatusService;
@@ -51,6 +53,8 @@ public class DelfiInitialIngestService implements InitialIngestService {
     log.debug("Request to ingest file with following parameters: {}, and headers : {}",
         loadManifest, headers);
 
+    checkPreconditions(headers);
+
     IngestHeaders ingestHeaders = ingestHeadersMapper.toIngestHeaders(headers);
     log.debug("Parse ingest headers. Headers: {}", ingestHeaders);
 
@@ -66,13 +70,36 @@ public class DelfiInitialIngestService implements InitialIngestService {
         .loadManifest(loadManifest)
         .headers(ingestHeaders)
         .build();
-    log.info("Send ingest message for processing. Message: {}", ingestMessage);
+    log.debug("Send ingest message for processing. Message: {}", ingestMessage);
     ingestGateway.sendIngestToPubSub(ingestMessage);
 
-    log.info("Request to ingest with parameters : {}, init the injection jobId: {}", loadManifest,
+    log.debug("Request to ingest with parameters : {}, init the injection jobId: {}", loadManifest,
         jobId);
     return IngestResult.builder()
         .jobId(jobId)
         .build();
   }
+
+  private void checkPreconditions(MessageHeaders headers) {
+    if (!headers.containsKey(OsduHeader.AUTHORIZATION)) {
+      throw new OsduBadRequestException("Missing authorization token");
+    }
+
+    if (!headers.containsKey(OsduHeader.PARTITION)) {
+      throw new OsduBadRequestException("Missing partition");
+    }
+
+    if (!headers.containsKey(OsduHeader.LEGAL_TAGS)) {
+      throw new OsduBadRequestException("Missing \"legal-tags\" header");
+    }
+
+    if (!headers.containsKey(OsduHeader.RESOURCE_HOME_REGION_ID)) {
+      throw new OsduBadRequestException("Missing \"resource-home-region-id\" header");
+    }
+
+    if (!headers.containsKey(OsduHeader.RESOURCE_HOST_REGION_IDS)) {
+      throw new OsduBadRequestException("Missing \"resource-host-region-ids\" header");
+    }
+  }
+
 }

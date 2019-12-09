@@ -16,9 +16,15 @@
 
 package com.osdu.model.delfi;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class DelfiFile {
 
   String signedUrl;

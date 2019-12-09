@@ -16,103 +16,50 @@
 
 package com.osdu.service.delfi;
 
-import static com.osdu.model.job.IngestJobStatus.FAILED;
-import static com.osdu.service.JsonUtils.deepCopy;
-import static com.osdu.service.helper.IngestionHelper.getAcl;
 import static java.lang.String.format;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.storage.Blob;
-import com.google.common.collect.ImmutableMap;
 import com.osdu.client.DelfiIngestionClient;
-import com.osdu.exception.OsduServerErrorException;
-import com.osdu.model.IngestHeaders;
+import com.osdu.client.delfi.RecordDataFields;
+import com.osdu.exception.IngestException;
 import com.osdu.model.Record;
-import com.osdu.model.ResourceTypeId;
-import com.osdu.model.SchemaData;
-import com.osdu.model.SrnToRecord;
-import com.osdu.model.delfi.DelfiRecord;
-import com.osdu.model.delfi.IngestedFile;
-import com.osdu.model.delfi.Legal;
-import com.osdu.model.delfi.RequestMeta;
+import com.osdu.model.RequestContext;
 import com.osdu.model.delfi.signed.SignedFile;
 import com.osdu.model.delfi.signed.SignedUrlResult;
 import com.osdu.model.property.DelfiPortalProperties;
+import com.osdu.model.type.base.OsduObject;
 import com.osdu.model.type.manifest.ManifestFile;
-import com.osdu.model.type.wp.WorkProductComponent;
 import com.osdu.service.IngestionService;
+import com.osdu.service.JsonUtils;
 import com.osdu.service.PortalService;
-import com.osdu.service.SrnMappingService;
 import com.osdu.service.StorageService;
-import com.osdu.service.google.GcpSrnMappingService;
-import com.osdu.service.helper.IngestionHelper;
-import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 @RequiredArgsConstructor
 @Slf4j
 public class DelfiIngestionService implements IngestionService {
 
   final DelfiPortalProperties portalProperties;
   final DelfiIngestionClient delfiIngestionClient;
-  final SrnMappingService srnMappingService;
   final StorageService storageService;
   final PortalService portalService;
-  final DelfiPortalService delfiPortalService;
-  final ObjectMapper mapper;
-  final GcpSrnMappingService gcpSrnMappingService;
-  final IngestionHelper ingestionHelper;
-
-  @Override
-  public Record createRecordForWorkProductComponent(WorkProductComponent wpc, String wpcSrn,
-      List<String> fileSrns, RequestMeta requestMeta, IngestHeaders headers) {
-    WorkProductComponent newWpc = deepCopy(wpc, WorkProductComponent.class);
-
-    final String resourceTypeId = newWpc.getResourceTypeID();
-    ResourceTypeId wpcTypeId = new ResourceTypeId(newWpc.getResourceTypeID());
-    final SchemaData schemaData = gcpSrnMappingService.getSchemaData(resourceTypeId);
-    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
-
-    newWpc.setResourceID(wpcSrn);
-    newWpc.setResourceTypeID(wpcTypeId.hasVersion() ? resourceTypeId : resourceTypeId + "1");
-    newWpc.setResourceHomeRegionID(headers.getResourceHomeRegionID());
-    newWpc.setResourceHostRegionIDs(headers.getResourceHostRegionIDs());
-    newWpc.setResourceObjectCreationDatetime(now);
-    newWpc.setResourceVersionCreationDatetime(now);
-    newWpc.setResourceCurationStatus("srn:reference-data/ResourceCurationStatus:CREATED:");
-    newWpc.setResourceLifecycleStatus("srn:reference-data/ResourceLifecycleStatus:RECIEVED:");
-    newWpc.getData().getGroupTypeProperties().setFiles(fileSrns);
-
-    DelfiRecord delfiRecord = DelfiRecord.builder()
-        .kind(schemaData.getKind())
-        .acl(getAcl(requestMeta.getUserGroupEmailByName()))
-        .legal(getLegal(requestMeta.getLegalTags()))
-        .data(ImmutableMap.of("osdu", newWpc))
-        .build();
-
-    Record record = delfiPortalService.putRecord(delfiRecord, requestMeta.getAuthorizationToken(),
-        requestMeta.getPartition());
-
-    srnMappingService.saveSrnToRecord(SrnToRecord.builder()
-        .recordId(record.getId())
-        .srn(wpcSrn)
-        .build());
-
-    return record;
-  }
 
   @Override
   public SignedFile uploadFile(ManifestFile file, String authorizationToken, String partition) {
-    URL url = ingestionHelper.createUrlFromManifestFile(file);
+    URL url = createUrlFromManifestFile(file);
     SignedUrlResult result = transferFile(url, authorizationToken, partition);
 
     return SignedFile.builder()
@@ -122,47 +69,64 @@ public class DelfiIngestionService implements IngestionService {
         .build();
   }
 
-  @Override
-  public SignedUrlResult transferFile(URL fileUrl, String authToken, String partition) {
-    String fileName = ingestionHelper.getFileNameFromUrl(fileUrl);
+  private SignedUrlResult transferFile(URL fileUrl, String authToken, String partition) {
+    String fileName = getFileNameFromUrl(fileUrl);
     Blob blob = storageService.uploadFileToStorage(fileUrl, fileName);
 
     SignedUrlResult signedUrlResult = delfiIngestionClient
         .getSignedUrlForLocation(fileName, authToken, portalProperties.getAppKey(), partition);
+
+    if (signedUrlResult.getResponseCode() != HttpStatus.CREATED.value()) {
+      throw new IngestException("Count not fetch a signed URL to landing zone for file: "
+          + fileName);
+    }
 
     storageService.writeFileToSignedUrlLocation(blob, signedUrlResult.getLocationUrl());
     return signedUrlResult;
   }
 
   @Override
-  public List<Record> failSubmittedFiles(List<IngestedFile> ingestedFiles,
-      RequestMeta requestMeta) {
-    List<Record> foundRecords = ingestedFiles.stream()
-        .map(file -> portalService.getRecord(file.getRecordId(),
-            requestMeta.getAuthorizationToken(), requestMeta.getPartition()))
-        .filter(Objects::nonNull)
-        .collect(Collectors.toList());
-    return failRecords(foundRecords, requestMeta);
-  }
-
-  @Override
-  public List<Record> failRecords(List<Record> records, RequestMeta requestMeta) {
+  public List<Record> failRecords(List<Record> records, RequestContext requestContext) {
     return records.stream()
-        .map(record -> {
-          log.debug(format("Fail delfi record : %s", record.getId()));
-          record.getData().put("ResourceLifecycleStatus", FAILED);
-          portalService.putRecord(record, requestMeta.getAuthorizationToken(),
-              requestMeta.getPartition());
-          return record;
-        }).collect(Collectors.toList());
+        .map(record -> failRecord(requestContext, record))
+        .collect(Collectors.toList());
   }
 
-  private Legal getLegal(String legalTags) {
+  private static URL createUrlFromManifestFile(ManifestFile file) {
+    String preLoadFilePath = file.getData().getGroupTypeProperties().getPreLoadFilePath();
     try {
-      return mapper.readValue(mapper.readTree(legalTags).get(Legal.LEGAL_ROOT).toString(),
-          Legal.class);
-    } catch (IOException e) {
-      throw new OsduServerErrorException("Error processing load manifest", e);
+      return new URL(preLoadFilePath);
+    } catch (MalformedURLException e) {
+      throw new IngestException(
+          format("Could not create URL from preload file path: %s", preLoadFilePath),
+          e);
     }
   }
+
+  /**
+   * Returns file name from URL. Is used to get file name from signed URL.
+   */
+  private static String getFileNameFromUrl(URL fileUrl) {
+    try {
+      Path filePath = Paths.get(new URI(fileUrl.toString()).getPath()).getFileName();
+      final String fileName = filePath == null ? null : filePath.toString();
+      if (StringUtils.isEmpty(fileName)) {
+        throw new IngestException(format("File name obtained is empty, URL : %s", fileUrl));
+      }
+      return fileName;
+    } catch (URISyntaxException e) {
+      throw new IngestException(format("Can not get file name from URL: %s", fileUrl), e);
+    }
+  }
+
+  private Record failRecord(RequestContext requestContext, Record record) {
+    log.debug(format("Fail delfi record : %s", record.getId()));
+    OsduObject osduObject = JsonUtils.deepCopy(record.getData().get(RecordDataFields.OSDU_DATA),
+        OsduObject.class);
+    osduObject.setResourceLifecycleStatus("srn:reference-data/ResourceLifecycleStatus:RESCINDED:");
+    record.getData().put(RecordDataFields.OSDU_DATA, osduObject);
+    return portalService.putRecord(record, requestContext.getAuthorizationToken(),
+        requestContext.getPartition());
+  }
+
 }

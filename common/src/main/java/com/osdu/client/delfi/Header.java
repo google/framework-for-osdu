@@ -25,5 +25,6 @@ public class Header {
   public static final String AUTHORIZATION = "Authorization";
   public static final String APP_KEY = "AppKey";
   public static final String SLB_DATA_PARTITION_ID = "Slb-Data-Partition-Id";
+  public static final String SLB_ACCOUNT_ID = "Slb-Account-Id";
 
 }

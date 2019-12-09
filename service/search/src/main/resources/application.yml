@@ -6,7 +6,7 @@
 #
 #     https://www.apache.org/licenses/LICENSE-2.0
 #
-# Unless required by applicable law or agreed to in writing, software
+# Unless required by applicable law or agreed to in writing, software§
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
@@ -18,15 +18,15 @@ git:
 osdu:
   delfi:
     portal:
-      appkey: PtVguojl2DUr0qimhDclNMwZAeAJwK1T
-      url: https://api.evq.csp.slb.com
+      appkey: ${osdu.delfi.portal.appKey}
+      url: ${osdu.delfi.portal.url}
 search:
   delfi:
     client:
       appKeyHeader: AppKey
       authorizationHeader: Authorization
       partitionHeader: slb-data-partition-id
-      serverUrl: https://api.evq.csp.slb.com
+      serverUrl: ${search.delfi.client.serverUrl}
   mapper:
     searchEndpoint: de/search/v2/query
 

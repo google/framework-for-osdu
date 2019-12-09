@@ -19,6 +19,7 @@ package com.osdu.service.processing.delfi;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResult;
 import com.osdu.model.osdu.delivery.delfi.ProcessingResultStatus;
 import com.osdu.model.osdu.delivery.dto.DeliveryResponse;
+import com.osdu.model.osdu.delivery.dto.ResponseFileLocation;
 import com.osdu.model.osdu.delivery.dto.ResponseItem;
 import com.osdu.service.processing.ResultDataConverter;
 import java.util.List;
@@ -46,7 +47,8 @@ public class DelfiResultDataConverter implements ResultDataConverter {
 
     List<ResponseItem> responseItems = precessedToResultMap.get(Boolean.TRUE).stream()
         .map(result -> ResponseItem.builder()
-            .fileLocation(result.getFileLocation())
+            .fileLocation(result.getFileLocation() == null? null :
+                new ResponseFileLocation(result.getFileLocation()))
             .data(result.getData())
             .srn(result.getSrn()).build())
         .collect(Collectors.toList());

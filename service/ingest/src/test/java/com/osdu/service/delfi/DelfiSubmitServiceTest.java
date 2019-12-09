@@ -16,165 +16,285 @@
 
 package com.osdu.service.delfi;
 
-import static com.osdu.service.JsonUtils.toJson;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.refEq;
-import static org.mockito.Mockito.when;
+import static com.osdu.model.delfi.status.MasterJobStatus.COMPLETED;
+import static com.osdu.model.delfi.status.MasterJobStatus.FAILED;
+import static com.osdu.model.delfi.status.MasterJobStatus.RUNNING;
+import static java.lang.String.format;
+import static org.assertj.core.api.BDDAssertions.then;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.timeout;
 
+import com.osdu.ReplaceCamelCase;
 import com.osdu.client.DelfiIngestionClient;
-import com.osdu.model.ResourceTypeId;
-import com.osdu.model.SchemaData;
-import com.osdu.model.delfi.Acl;
-import com.osdu.model.delfi.RequestMeta;
+import com.osdu.model.RequestContext;
+import com.osdu.model.delfi.DelfiFile;
+import com.osdu.model.delfi.DelfiIngestedFile;
 import com.osdu.model.delfi.status.JobInfo;
+import com.osdu.model.delfi.status.JobPollingResult;
 import com.osdu.model.delfi.status.JobStatusResponse;
-import com.osdu.model.delfi.status.JobsPullingResult;
 import com.osdu.model.delfi.status.MasterJobStatus;
-import com.osdu.model.delfi.submit.AclObject;
+import com.osdu.model.delfi.status.Summary;
 import com.osdu.model.delfi.submit.FileInput;
+import com.osdu.model.delfi.submit.SubmitFileContext;
 import com.osdu.model.delfi.submit.SubmitFileObject;
 import com.osdu.model.delfi.submit.SubmitFileResult;
 import com.osdu.model.delfi.submit.SubmitJobResult;
-import com.osdu.model.delfi.submit.ingestor.LasIngestor;
-import com.osdu.model.delfi.submit.ingestor.LasIngestorRoutine;
+import com.osdu.model.delfi.submit.SubmittedFile;
 import com.osdu.model.property.DelfiPortalProperties;
+import com.osdu.model.property.SubmitProperties;
+import com.osdu.service.SubmitService;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.AdditionalAnswers;
+import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.client.RestTemplate;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
+@DisplayNameGeneration(ReplaceCamelCase.class)
 public class DelfiSubmitServiceTest {
 
+  private static final String APP_KEY = "appKey";
   private static final String AUTHORIZATION_TOKEN = "authToken";
   private static final String PARTITION = "partition";
-  private static final String JOB_ID = "jobId";
-  private static final String SRN = "srn";
-  private static final String APP_KEY = "appKey";
+
   private static final String JOB_ID_1 = "jobId-1";
   private static final String JOB_ID_2 = "jobId-2";
   private static final String JOB_ID_3 = "jobId-3";
-  private static final String EMAIL_1 = "email1";
-  private static final String EMAIL_2 = "email2";
+
+  private static final String STORAGE_HREF = "http://storage.host.com";
+  private static final String GCS_PROTOCOL = "gs:/";
+  private static final String SUCCESS_METADATA_JSON_PATH = "successrecords/success-metadata.json";
+
+  private static final String RECORD_KIND = "tenant:ingestion-test:wellbore:1.0.0";
+  private static final String WPC_RESOURCE_TYPE_ID = "srn:type:work-product-component/WellLog:version1";
+  private static final String FILE_RESOURCE_TYPE_ID = "srn:type:file/las2:version1";
+  private static final String DELFI_RECORD_ID_1 = "recordId-1";
+  private static final String OWNER_EMAIL_1 = "data.default.owners@tenant.host.com";
+  private static final String VIEWER_EMAIL_1 = "data.default.viewers@tenant.host.com";
   private static final String DATA_DEFAULT_OWNERS = "data.default.owners";
   private static final String DATA_DEFAULT_VIEWERS = "data.default.viewers";
+  private static final String LAS_INGESTOR = "[{\"LASIngestor\":{\"createRawWellRecord\":true}}]";
 
   @Mock
-  private DelfiPortalProperties portalProperties;
+  private RestTemplate restTemplate;
   @Mock
   private DelfiIngestionClient delfiIngestionClient;
+  @Mock
+  private DelfiPortalService portalService;
 
-  @InjectMocks
-  private DelfiSubmitService delfiSubmitService;
+  private DelfiPortalProperties portalProperties = DelfiPortalProperties.builder()
+      .appKey(APP_KEY)
+      .build();
+  private SubmitProperties submitProperties = SubmitProperties.builder()
+      .pollingInterval(10)
+      .pollingCycles(3)
+      .build();
 
-  @Test
-  public void shouldWaitTillSubmitJobsDone() {
+  private SubmitService submitService;
 
+  @BeforeEach
+  public void setUp() {
+    submitService = new DelfiSubmitService(portalProperties, submitProperties, restTemplate,
+        delfiIngestionClient, portalService);
+  }
+
+  @ParameterizedTest(name = "#{index}: Job (jobId = {0}) should be in status {2}")
+  @MethodSource("awaitJobProvider")
+  public void shouldPollAndAwaitingStatusOfTheSubmittedIngestionJob(String jobId,
+      List<MasterJobStatus> jobStatuses, MasterJobStatus expectedStatus) {
     // given
-    RequestMeta requestMeta = RequestMeta.builder().authorizationToken(AUTHORIZATION_TOKEN)
-        .partition(PARTITION).build();
+    RequestContext requestContext = getRequestContext();
 
-    List<String> jobIds = Arrays.asList(JOB_ID_1, JOB_ID_2, JOB_ID_3);
+    List<JobStatusResponse> jobStatusResponses = jobStatuses.stream()
+        .map(status -> getJobStatusResponse(jobId, status))
+        .collect(Collectors.toList());
 
-    when(portalProperties.getAppKey()).thenReturn(APP_KEY);
-
-    when(delfiIngestionClient.getJobStatus(eq(JOB_ID_1), eq(AUTHORIZATION_TOKEN),
-        eq(APP_KEY), eq(PARTITION)))
-        .thenReturn(buildJobResponse(JOB_ID_1, MasterJobStatus.RUNNING))
-        .thenReturn(buildJobResponse(JOB_ID_1, MasterJobStatus.COMPLETED));
-
-    when(delfiIngestionClient.getJobStatus(eq(JOB_ID_2), eq(AUTHORIZATION_TOKEN),
-        eq(APP_KEY), eq(PARTITION)))
-        .thenReturn(buildJobResponse(JOB_ID_2, MasterJobStatus.COMPLETED));
-
-    when(delfiIngestionClient.getJobStatus(eq(JOB_ID_3), eq(AUTHORIZATION_TOKEN),
-        eq(APP_KEY), eq(PARTITION)))
-        .thenReturn(buildJobResponse(JOB_ID_3, MasterJobStatus.RUNNING))
-        .thenReturn(buildJobResponse(JOB_ID_3, MasterJobStatus.RUNNING))
-        .thenReturn(buildJobResponse(JOB_ID_3, MasterJobStatus.FAILED));
+    given(delfiIngestionClient.getJobStatus(jobId, AUTHORIZATION_TOKEN, APP_KEY, PARTITION))
+        .willAnswer(AdditionalAnswers.returnsElementsOf(jobStatusResponses));
 
     // when
-    JobsPullingResult jobsPullingResult = delfiSubmitService.awaitSubmitJobs(jobIds, requestMeta);
+    JobPollingResult jobPollingResult = submitService.awaitSubmitJob(jobId, requestContext);
 
     // then
-    assertThat(jobsPullingResult.getRunningJobs()).isEqualTo(jobIds);
-    assertThat(jobsPullingResult.getCompletedJobs())
-        .extracting(response -> response.getJobInfo().getJobId())
-        .containsExactlyInAnyOrder(JOB_ID_1, JOB_ID_2);
-    assertThat(jobsPullingResult.getFailedJobs())
-        .extracting(response -> response.getJobInfo().getJobId())
-        .containsExactly(JOB_ID_3);
+    then(jobPollingResult).isEqualToIgnoringGivenFields(JobPollingResult.builder()
+        .runningJob(jobId)
+        .status(expectedStatus)
+        .build(), "job");
+
+    InOrder inOrder = Mockito.inOrder(restTemplate, delfiIngestionClient, portalService);
+    inOrder.verify(delfiIngestionClient, timeout(7 * 10).times(jobStatuses.size()))
+        .getJobStatus(jobId, AUTHORIZATION_TOKEN, APP_KEY, PARTITION);
+    inOrder.verifyNoMoreInteractions();
   }
 
   @Test
-  public void shouldSubmitFile() {
+  public void shouldSubmitFileToIngestIntoDatalakeUsingLasIngestor() {
     // given
-    SchemaData data = new SchemaData();
-    data.setSrn(SRN);
+    String fileRelativePath = "/some-landing-zone/some-user/uuid/file-name-1.las";
+    RequestContext requestContext = getRequestContext();
+    SubmitFileContext fileContext = SubmitFileContext.builder()
+        .relativeFilePath(fileRelativePath)
+        .kind(RECORD_KIND)
+        .wpcResourceTypeId(WPC_RESOURCE_TYPE_ID)
+        .fileResourceTypeId(FILE_RESOURCE_TYPE_ID)
+        .build();
+    SubmitFileObject fileObject = getSubmitFileObject(fileContext, LAS_INGESTOR);
 
-    Map<String, String> emails = new HashMap<>();
-    emails.put(DATA_DEFAULT_OWNERS, EMAIL_1);
-    emails.put(DATA_DEFAULT_VIEWERS, EMAIL_2);
-
-    RequestMeta requestMeta = RequestMeta.builder().schemaData(data)
-        .resourceTypeId(new ResourceTypeId("srn:type:work-product-component/WellLog:version1"))
-        .userGroupEmailByName(emails)
-        .authorizationToken(AUTHORIZATION_TOKEN)
-        .partition(PARTITION).build();
-
-    String filePath = "/test-path";
-    String ingestorRoutines = toJson(Collections.singletonList(LasIngestorRoutine.builder()
-        .lasIngestor(LasIngestor.builder()
-            .createRawWellRecord(true)
-            .build())
-        .build()));
-
-    when(portalProperties.getAppKey()).thenReturn(APP_KEY);
-
-    when(portalProperties.getAppKey()).thenReturn(APP_KEY);
-    when(delfiIngestionClient.submitFile(eq(AUTHORIZATION_TOKEN), eq(APP_KEY), eq(PARTITION),
-        refEq(SubmitFileObject.builder()
-            .kind(requestMeta.getSchemaData().getKind())
-            .filePath("gs://test-path")
-            .legalTags(requestMeta.getLegalTags())
-            .acl(getAcl())
-            .fileInput(FileInput.FILE_PATH)
-            .ingestorRoutines(ingestorRoutines)
-            .build(), "additionalProperties")))
-        .thenReturn(SubmitFileResult.builder().jobId(JOB_ID).build());
+    given(delfiIngestionClient.submitFile(AUTHORIZATION_TOKEN, APP_KEY, PARTITION, PARTITION, fileObject))
+        .willReturn(SubmitFileResult.builder().jobId(JOB_ID_1).build());
 
     // when
-    SubmitJobResult submitJobResult = delfiSubmitService.submitFile(filePath, SRN, requestMeta);
+    SubmitJobResult submitJobResult = submitService.submitFile(fileContext, requestContext);
 
     // then
-    assertThat(submitJobResult.getJobId()).isEqualTo(JOB_ID);
-  }
-
-  private String getAcl() {
-    return toJson(AclObject.builder()
-        .acl(Acl.builder()
-            .owner(EMAIL_1)
-            .viewer(EMAIL_2)
-            .build())
+    then(submitJobResult).isEqualTo(SubmitJobResult.builder()
+        .jobId(JOB_ID_1)
         .build());
+
+    InOrder inOrder = Mockito.inOrder(restTemplate, delfiIngestionClient, portalService);
+    inOrder.verify(delfiIngestionClient)
+        .submitFile(AUTHORIZATION_TOKEN, APP_KEY, PARTITION, PARTITION, fileObject);
+    inOrder.verifyNoMoreInteractions();
   }
 
-  private JobStatusResponse buildJobResponse(String jobId, MasterJobStatus status) {
+  @Test
+  public void shouldSubmitFileToIngestIntoDatalakeUsingDefaultIngestor() {
+    // given
+    String fileRelativePath = "/some-landing-zone/some-user/uuid/file-name-2.csv";
+    RequestContext requestContext = getRequestContext();
+    SubmitFileContext fileContext = SubmitFileContext.builder()
+        .relativeFilePath(fileRelativePath)
+        .kind("tenant:ingestion-test:wellbore-traj:1.0.0")
+        .wpcResourceTypeId("srn:type:work-product-component/WellboreTrajectory:version1")
+        .fileResourceTypeId("srn:type:file/csv:version1")
+        .build();
+    SubmitFileObject fileObject = getSubmitFileObject(fileContext, null);
 
-    JobInfo jobInfo = new JobInfo();
-    jobInfo.setJobId(jobId);
-    jobInfo.setMasterJobStatus(status);
+    given(delfiIngestionClient.submitFile(AUTHORIZATION_TOKEN, APP_KEY, PARTITION, PARTITION, fileObject))
+        .willReturn(SubmitFileResult.builder().jobId(JOB_ID_2).build());
 
-    JobStatusResponse jobStatusResponse = new JobStatusResponse();
-    jobStatusResponse.setJobInfo(jobInfo);
+    // when
+    SubmitJobResult submitJobResult = submitService.submitFile(fileContext, requestContext);
 
-    return jobStatusResponse;
+    // then
+    then(submitJobResult).isEqualTo(SubmitJobResult.builder()
+        .jobId(JOB_ID_2)
+        .build());
+
+    InOrder inOrder = Mockito.inOrder(restTemplate, delfiIngestionClient, portalService);
+    inOrder.verify(delfiIngestionClient)
+        .submitFile(AUTHORIZATION_TOKEN, APP_KEY, PARTITION, PARTITION, fileObject);
+    inOrder.verifyNoMoreInteractions();
   }
+
+  @Test
+  public void shouldFetchRecordIdOfIngestedFile() {
+    // given
+    String outputLocation = "/some-ingestion-persistent-zone/some-user/uuid/output";
+    String fileRelativePath = outputLocation + SUCCESS_METADATA_JSON_PATH;
+    String fileUri = GCS_PROTOCOL + fileRelativePath;
+    String fileSignedUrl = STORAGE_HREF + fileRelativePath
+        + "?AccessId=datafier@email.com&Expires=123&Signature=lX";
+
+    SubmittedFile file = SubmittedFile.builder().build();
+    JobStatusResponse jobStatusResponse = JobStatusResponse.builder()
+        .summary(Summary.builder()
+            .outputLocation(outputLocation)
+            .build())
+        .jobInfo(JobInfo.builder()
+            .jobId(JOB_ID_1)
+            .masterJobStatus(COMPLETED)
+            .build())
+        .build();
+    RequestContext requestContext = getRequestContext();
+    DelfiFile delfiFile = DelfiFile.builder()
+        .signedUrl(fileSignedUrl)
+        .build();
+
+    String jobMetadata = getMetadataFileContent(DELFI_RECORD_ID_1);
+
+    given(portalService.getFile(fileUri, AUTHORIZATION_TOKEN, PARTITION))
+        .willReturn(delfiFile);
+    given(restTemplate.getForObject(fileSignedUrl, String.class))
+        .willReturn(jobMetadata);
+
+    // when
+    DelfiIngestedFile ingestedFile = submitService
+        .getIngestedFile(file, jobStatusResponse, requestContext);
+
+    // then
+    then(ingestedFile).isEqualTo(DelfiIngestedFile.builder()
+        .submittedFile(file)
+        .recordId(DELFI_RECORD_ID_1)
+        .build());
+
+    InOrder inOrder = Mockito.inOrder(restTemplate, delfiIngestionClient, portalService);
+    inOrder.verify(portalService).getFile(fileUri, AUTHORIZATION_TOKEN, PARTITION);
+    inOrder.verify(restTemplate).getForObject(fileSignedUrl, String.class);
+    inOrder.verifyNoMoreInteractions();
+  }
+
+  private static Stream<Arguments> awaitJobProvider() {
+    return Stream.of(
+        arguments(JOB_ID_1, Arrays.asList(RUNNING, COMPLETED), COMPLETED),
+        arguments(JOB_ID_2, Arrays.asList(RUNNING, FAILED), FAILED),
+        arguments(JOB_ID_3, Arrays.asList(RUNNING, RUNNING, RUNNING), RUNNING)
+    );
+  }
+
+  private RequestContext getRequestContext() {
+    Map<String, String> emails = new HashMap<>();
+    emails.put(DATA_DEFAULT_OWNERS, OWNER_EMAIL_1);
+    emails.put(DATA_DEFAULT_VIEWERS, VIEWER_EMAIL_1);
+
+    return RequestContext.builder()
+        .authorizationToken(AUTHORIZATION_TOKEN)
+        .partition(PARTITION)
+        .userGroupEmailByName(emails)
+        .build();
+  }
+
+  private JobStatusResponse getJobStatusResponse(String jobId, MasterJobStatus jobStatus) {
+    return JobStatusResponse.builder()
+        .jobInfo(JobInfo.builder()
+            .jobId(jobId)
+            .masterJobStatus(jobStatus)
+            .build())
+        .build();
+  }
+
+  private String getAcl(String ownerEmail, String viewerEmail) {
+    return format("{\"acl\":{\"owners\":[\"%s\"],\"viewers\":[\"%s\"]}}", ownerEmail, viewerEmail);
+  }
+
+  private String getMetadataFileContent(String recordId) {
+    return format("{\"status\":201,\"message\":\"{\\\"recordCount\\\":1,"
+        + "\\\"recordIds\\\":[\\\"%s\\\"],\\\"skippedRecordIds\\\":[]}\"}", recordId);
+  }
+
+  private SubmitFileObject getSubmitFileObject(SubmitFileContext fileContext, String ingestor) {
+    return SubmitFileObject.builder()
+        .kind(fileContext.getKind())
+        .acl(getAcl(OWNER_EMAIL_1, VIEWER_EMAIL_1))
+        .filePath(GCS_PROTOCOL + fileContext.getRelativeFilePath())
+        .fileInput(FileInput.FILE_PATH)
+        .ingestorRoutines(ingestor)
+        .build();
+  }
+
 }

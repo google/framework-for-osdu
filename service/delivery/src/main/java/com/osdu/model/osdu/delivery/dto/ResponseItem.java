@@ -29,7 +29,7 @@ import lombok.Data;
 public class ResponseItem {
 
   @JsonProperty("FileLocation")
-  String fileLocation;
+  ResponseFileLocation fileLocation;
 
   @JsonProperty("Data")
   Map<String, Object> data;

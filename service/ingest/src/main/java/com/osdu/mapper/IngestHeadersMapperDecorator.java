@@ -16,18 +16,27 @@
 
 package com.osdu.mapper;
 
+import static com.osdu.request.OsduHeader.AUTHORIZATION;
+import static com.osdu.request.OsduHeader.LEGAL_TAGS;
+import static com.osdu.request.OsduHeader.PARTITION;
+import static com.osdu.request.OsduHeader.RESOURCE_HOME_REGION_ID;
+import static com.osdu.request.OsduHeader.RESOURCE_HOST_REGION_IDS;
 import static com.osdu.request.OsduHeader.extractHeaderByName;
 import static com.osdu.service.JsonUtils.toObject;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.osdu.model.IngestHeaders;
-import com.osdu.request.OsduHeader;
+import com.osdu.model.delfi.submit.LegalTagsObject;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
+import org.apache.commons.lang3.RegExUtils;
 import org.springframework.messaging.MessageHeaders;
 
 public abstract class IngestHeadersMapperDecorator implements IngestHeadersMapper {
+
+  private static final Pattern PARTITION_PATTERN = Pattern.compile("[^a-zA-Z0-9]+");
 
   @Override
   public IngestHeaders toIngestHeaders(MessageHeaders headers) {
@@ -35,13 +44,16 @@ public abstract class IngestHeadersMapperDecorator implements IngestHeadersMappe
       return null;
     }
 
+    String legalTags = extractHeaderByName(headers, LEGAL_TAGS);
     return IngestHeaders.builder()
-        .authorizationToken(extractHeaderByName(headers, OsduHeader.AUTHORIZATION))
-        .partition(extractHeaderByName(headers, OsduHeader.PARTITION))
-        .legalTags(extractHeaderByName(headers, OsduHeader.LEGAL_TAGS))
-        .resourceHomeRegionID(extractHeaderByName(headers, OsduHeader.RESOURCE_HOME_REGION_ID))
+        .authorizationToken(extractHeaderByName(headers, AUTHORIZATION))
+        .partition(normalizePartition(extractHeaderByName(headers, PARTITION)))
+        .legalTags(legalTags)
+        .legalTagsObject(toObject(legalTags,
+            LegalTagsObject.class))
+        .resourceHomeRegionID(extractHeaderByName(headers, RESOURCE_HOME_REGION_ID))
         .resourceHostRegionIDs(getResourceHostRegionIDs(
-            extractHeaderByName(headers, OsduHeader.RESOURCE_HOST_REGION_IDS)))
+            extractHeaderByName(headers, RESOURCE_HOST_REGION_IDS)))
         .build();
   }
 
@@ -49,6 +61,10 @@ public abstract class IngestHeadersMapperDecorator implements IngestHeadersMappe
     return Optional.ofNullable(resourceHostRegionIDs)
         .map(regionIDs -> toObject(resourceHostRegionIDs, new TypeReference<List<String>>() {}))
         .orElse(Collections.emptyList());
+  }
+
+  private static String normalizePartition(String partition) {
+    return RegExUtils.replaceAll(partition, PARTITION_PATTERN, "");
   }
 
 }

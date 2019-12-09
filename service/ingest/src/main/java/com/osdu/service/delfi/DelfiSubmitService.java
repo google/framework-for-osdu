@@ -16,29 +16,26 @@
 
 package com.osdu.service.delfi;
 
-import static com.osdu.model.delfi.status.MasterJobStatus.COMPLETED;
-import static com.osdu.model.delfi.status.MasterJobStatus.FAILED;
 import static com.osdu.model.delfi.status.MasterJobStatus.RUNNING;
 import static com.osdu.service.JsonUtils.toJson;
 import static com.osdu.service.JsonUtils.toObject;
-import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
-import static java.util.stream.Collectors.toList;
 
 import com.osdu.client.DelfiIngestionClient;
 import com.osdu.exception.IngestException;
+import com.osdu.model.RequestContext;
+import com.osdu.model.ResourceType;
+import com.osdu.model.ResourceTypeId;
 import com.osdu.model.delfi.Acl;
 import com.osdu.model.delfi.DelfiFile;
-import com.osdu.model.delfi.IngestedFile;
-import com.osdu.model.delfi.RequestMeta;
+import com.osdu.model.delfi.DelfiIngestedFile;
 import com.osdu.model.delfi.SaveRecordsResult;
 import com.osdu.model.delfi.SuccessMetadata;
+import com.osdu.model.delfi.status.JobPollingResult;
 import com.osdu.model.delfi.status.JobStatusResponse;
-import com.osdu.model.delfi.status.JobsPullingResult;
 import com.osdu.model.delfi.status.MasterJobStatus;
 import com.osdu.model.delfi.submit.AclObject;
 import com.osdu.model.delfi.submit.FileInput;
+import com.osdu.model.delfi.submit.SubmitFileContext;
 import com.osdu.model.delfi.submit.SubmitFileObject;
 import com.osdu.model.delfi.submit.SubmitFileResult;
 import com.osdu.model.delfi.submit.SubmitJobResult;
@@ -47,16 +44,12 @@ import com.osdu.model.delfi.submit.ingestor.IngestorRoutine;
 import com.osdu.model.delfi.submit.ingestor.LasIngestor;
 import com.osdu.model.delfi.submit.ingestor.LasIngestorRoutine;
 import com.osdu.model.property.DelfiPortalProperties;
+import com.osdu.model.property.SubmitProperties;
 import com.osdu.service.SubmitService;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -68,61 +61,67 @@ public class DelfiSubmitService implements SubmitService {
   private static final String GCS_PROTOCOL = "gs:/";
   private static final String SUCCESS_METADATA_JSON_PATH = "successrecords/success-metadata.json";
 
-  final RestTemplate restTemplate;
   final DelfiPortalProperties portalProperties;
+  final SubmitProperties submitProperties;
+  final RestTemplate restTemplate;
   final DelfiIngestionClient delfiIngestionClient;
   final DelfiPortalService portalService;
 
   @Override
-  public JobsPullingResult awaitSubmitJobs(List<String> jobIds, RequestMeta requestMeta) {
-    List<String> runningJobs = jobIds;
-    List<JobStatusResponse> failedJobs = new ArrayList<>(runningJobs.size());
-    List<JobStatusResponse> completedJobs = new ArrayList<>(runningJobs.size());
+  public JobPollingResult awaitSubmitJob(String jobId, RequestContext requestContext) {
+    JobStatusResponse submittedJob;
+    MasterJobStatus currentStatus;
 
-    while (!runningJobs.isEmpty()) {
-      Map<MasterJobStatus, List<JobStatusResponse>> submittedJobsByStatus = runningJobs.stream()
-          .map(jobId -> delfiIngestionClient.getJobStatus(jobId,
-              requestMeta.getAuthorizationToken(),
-              portalProperties.getAppKey(),
-              requestMeta.getPartition()))
-          .collect(groupingBy(response -> response.getJobInfo().getMasterJobStatus(),
-              mapping(Function.identity(), toList())));
+    long attempts = 0;
+    long pollingInterval = submitProperties.getPollingInterval();
+    long cycles = submitProperties.getPollingCycles();
 
-      runningJobs = MapUtils.getObject(submittedJobsByStatus, RUNNING, emptyList()).stream()
-          .map(response -> response.getJobInfo().getJobId())
-          .collect(toList());
-      failedJobs.addAll(MapUtils.getObject(submittedJobsByStatus, FAILED, emptyList()));
-      completedJobs.addAll(MapUtils.getObject(submittedJobsByStatus, COMPLETED, emptyList()));
+    log.debug("Awaiting submitted job. JobId: {}, polling interval: {}, cycles: {}",
+        jobId, pollingInterval, cycles);
 
-      try {
-        Thread.sleep(1000);
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-        throw new IngestException("Pulling submitted jobs was unexpected interrupted. JobIds = "
-            + jobIds, e);
+    do {
+      attempts++;
+      submittedJob = delfiIngestionClient.getJobStatus(jobId,
+          requestContext.getAuthorizationToken(),
+          portalProperties.getAppKey(),
+          requestContext.getPartition());
+      currentStatus = submittedJob.getJobInfo().getMasterJobStatus();
+
+      if (currentStatus == RUNNING && attempts < cycles) {
+        try {
+          Thread.sleep(pollingInterval);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          throw new IngestException("Pulling submitted job was unexpected interrupted. JobId = "
+              + jobId, e);
+        }
       }
-    }
+    } while (currentStatus == RUNNING && attempts < cycles);
 
-    return JobsPullingResult.builder()
-        .runningJobs(jobIds)
-        .failedJobs(failedJobs)
-        .completedJobs(completedJobs)
+    log.debug("Finished pooling job status. JobId: {}, status: {} attempts: {}",
+        jobId, currentStatus, attempts);
+
+    return JobPollingResult.builder()
+        .runningJob(jobId)
+        .job(submittedJob)
+        .status(currentStatus)
         .build();
   }
 
   @Override
-  public SubmitJobResult submitFile(String relativeFilePath, String srn, RequestMeta requestMeta) {
+  public SubmitJobResult submitFile(SubmitFileContext fileContext, RequestContext requestContext) {
     SubmitFileResult submitFileResult = delfiIngestionClient
-        .submitFile(requestMeta.getAuthorizationToken(),
+        .submitFile(requestContext.getAuthorizationToken(),
             portalProperties.getAppKey(),
-            requestMeta.getPartition(),
+            requestContext.getPartition(),
+            requestContext.getPartition(),
             SubmitFileObject.builder()
-                .kind(requestMeta.getSchemaData().getKind())
-                .acl(getAcl(requestMeta.getUserGroupEmailByName()))
-                .legalTags(requestMeta.getLegalTags())
-                .filePath(GCS_PROTOCOL + relativeFilePath)
+                .kind(fileContext.getKind())
+                .acl(getAcl(requestContext.getUserGroupEmailByName()))
+                .legalTags(requestContext.getLegalTags())
+                .filePath(GCS_PROTOCOL + fileContext.getRelativeFilePath())
                 .fileInput(FileInput.FILE_PATH)
-                .ingestorRoutines(getIngestorRoutines(requestMeta))
+                .ingestorRoutines(getIngestorRoutines(fileContext))
                 .build());
 
     return SubmitJobResult.builder()
@@ -131,11 +130,23 @@ public class DelfiSubmitService implements SubmitService {
   }
 
   @Override
-  public List<IngestedFile> getIngestionResult(JobsPullingResult jobsPullingResult,
-      Map<String, SubmittedFile> jobIdToFile, RequestMeta requestMeta) {
-    return jobsPullingResult.getCompletedJobs().stream()
-        .map(response -> getIngestedFile(jobIdToFile, requestMeta, response))
-        .collect(Collectors.toList());
+  public DelfiIngestedFile getIngestedFile(SubmittedFile file, JobStatusResponse response,
+      RequestContext requestContext) {
+    String location = GCS_PROTOCOL + response.getSummary().getOutputLocation()
+        + SUCCESS_METADATA_JSON_PATH;
+    log.debug("File location of ingestion job success metadata: {}", location);
+    DelfiFile delfiFile = portalService.getFile(location, requestContext.getAuthorizationToken(),
+        requestContext.getPartition());
+    String fileContent = restTemplate.getForObject(delfiFile.getSignedUrl(), String.class);
+    log.debug("Success metadata: {}", fileContent);
+    SuccessMetadata metadata = toObject(fileContent, SuccessMetadata.class);
+    SaveRecordsResult saveResult = toObject(metadata.getMessage(), SaveRecordsResult.class);
+    log.debug("Save records result: {}", saveResult);
+
+    return DelfiIngestedFile.builder()
+        .submittedFile(file)
+        .recordId(saveResult.getRecordIds().get(0))
+        .build();
   }
 
   private String getAcl(Map<String, String> groupEmailByName) {
@@ -147,42 +158,22 @@ public class DelfiSubmitService implements SubmitService {
         .build());
   }
 
-  private String getIngestorRoutines(RequestMeta requestMeta) {
-    IngestorRoutine ingestorRoutine;
-    switch (requestMeta.getResourceTypeId().getResourceType()) {
-      case WPC_WELL_LOG:
-        ingestorRoutine = LasIngestorRoutine.builder()
-            .lasIngestor(LasIngestor.builder()
-                .createRawWellRecord(true)
-                .build())
-            .build();
-        break;
-      case WPC_WELLBORE_PATH:
-      case WPC_WELLBORE_MARKER:
-      default:
-        ingestorRoutine = null;
+  private String getIngestorRoutines(SubmitFileContext fileContext) {
+    IngestorRoutine ingestorRoutine = null;
+    ResourceType wpcType = new ResourceTypeId(fileContext.getWpcResourceTypeId())
+        .getResourceType();
+    ResourceType fileType = new ResourceTypeId(fileContext.getFileResourceTypeId())
+        .getResourceType();
+
+    if (wpcType == ResourceType.WPC_WELL_LOG && fileType == ResourceType.FILE_LAS2) {
+      ingestorRoutine = LasIngestorRoutine.builder()
+          .lasIngestor(LasIngestor.builder()
+              .createRawWellRecord(true)
+              .build())
+          .build();
     }
 
     return ingestorRoutine == null ? null : toJson(Collections.singletonList(ingestorRoutine));
-  }
-
-  private IngestedFile getIngestedFile(Map<String, SubmittedFile> jobIdToFile,
-      RequestMeta requestMeta, JobStatusResponse response) {
-    String location = GCS_PROTOCOL + response.getSummary().getOutputLocation()
-        + SUCCESS_METADATA_JSON_PATH;
-    log.debug("File location of ingestion job success metadata: {}", location);
-    DelfiFile file = portalService.getFile(location, requestMeta.getAuthorizationToken(),
-        requestMeta.getPartition());
-    String fileContent = restTemplate.getForObject(file.getSignedUrl(), String.class);
-    log.debug("Success metadata: {}", fileContent);
-    SuccessMetadata metadata = toObject(fileContent, SuccessMetadata.class);
-    SaveRecordsResult saveResult = toObject(metadata.getMessage(), SaveRecordsResult.class);
-    log.debug("Save records result: {}", saveResult);
-
-    return IngestedFile.builder()
-        .submittedFile(jobIdToFile.get(response.getJobInfo().getJobId()))
-        .recordId(saveResult.getRecordIds().get(0))
-        .build();
   }
 
 }

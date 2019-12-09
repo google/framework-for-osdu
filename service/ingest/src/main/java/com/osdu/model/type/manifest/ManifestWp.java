@@ -16,21 +16,29 @@
 
 package com.osdu.model.type.manifest;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.osdu.model.type.wp.WorkProduct;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
+@SuperBuilder
+@EqualsAndHashCode(callSuper = true, exclude = {"manifestWpcs"})
+@ToString(callSuper = true, exclude = {"manifestWpcs"})
 @NoArgsConstructor
+@AllArgsConstructor
+@JsonIgnoreProperties({ "manifestWpcs" })
 public class ManifestWp extends WorkProduct {
 
   @JsonProperty("ComponentsAssociativeIDs")
   List<String> componentsAssociativeIDs;
+
+  List<ManifestWpc> manifestWpcs;
 
 }

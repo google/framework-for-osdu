@@ -17,7 +17,7 @@
 package com.osdu.model.delfi.enrich;
 
 import com.osdu.model.Record;
-import com.osdu.model.delfi.IngestedFile;
+import com.osdu.model.delfi.DelfiIngestedFile;
 import lombok.Builder;
 import lombok.Data;
 
@@ -25,7 +25,7 @@ import lombok.Data;
 @Builder
 public class EnrichedFile {
 
-  IngestedFile ingestedFile;
+  DelfiIngestedFile delfiIngestedFile;
   Record record;
 
 }

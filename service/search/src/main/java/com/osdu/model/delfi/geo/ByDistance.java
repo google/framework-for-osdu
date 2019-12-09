@@ -38,13 +38,13 @@ public class ByDistance implements GeoLocation {
    * @param coordinates coordinates
    * @param distance    distance
    */
-  public ByDistance(Object[] coordinates, Double distance) {
-    if (coordinates.length != 1) {
+  public ByDistance(List<List<Double>> coordinates, Double distance) {
+    if (coordinates.size() != 1) {
       throw new GeoLocationException(
           " By Distance GeoJSON requires exactly 1 point for creation, actual, received "
-              + coordinates.length);
+              + coordinates.size());
     }
-    List<Double> pointCoordinates = (List<Double>) coordinates[0];
+    List<Double> pointCoordinates = coordinates.get(0);
     this.point = new Point(Double.valueOf(pointCoordinates.get(X_INDEX).toString()),
         Double.valueOf(pointCoordinates.get(Y_INDEX).toString()));
 

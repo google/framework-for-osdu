@@ -12,18 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-osdu:
-  delfi:
-    filePortal:
-      url: https://signed-url-dot-p4d-ddl-eu-services.appspot.com
-    portal:
-      appkey: PtVguojl2DUr0qimhDclNMwZAeAJwK1T
-      url: https://api.evq.csp.slb.com
-gcp:
-  storage:
-    tempLocationBucket: osdu-gcp-temp-location
 spring:
   jackson:
     default-property-inclusion: non_null
     serialization:
       FAIL_ON_EMPTY_BEANS: false
+osdu:
+  delfi:
+    filePortal:
+      url: ${osdu.delfi.filePortal.url}
+    portal:
+      appkey: ${osdu.delfi.portal.appKey}
+      url: ${osdu.delfi.portal.url}
+  ingest:
+    submit:
+      pollingInterval: 1000
+      pollingCycles: 180
+gcp:
+  storage:
+    tempLocationBucket: ${gcp.storage.tempLocationBucket}

@@ -16,6 +16,7 @@
 
 package com.osdu.model;
 
+import com.osdu.model.delfi.submit.LegalTagsObject;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,6 +32,7 @@ public class IngestHeaders {
   String authorizationToken;
   String partition;
   String legalTags;
+  LegalTagsObject legalTagsObject;
   String resourceHomeRegionID;
   List<String> resourceHostRegionIDs;
 

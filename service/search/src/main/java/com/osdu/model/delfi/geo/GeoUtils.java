@@ -23,8 +23,7 @@ public class GeoUtils {
   private GeoUtils() {
   }
 
-  public static Point coordinatesToPoint(Object coordinates) {
-    List<Double> pointCoordinates = (List<Double>) coordinates;
-    return new Point(pointCoordinates.get(0), pointCoordinates.get(1));
+  public static Point coordinatesToPoint(List<Double> coordinates) {
+    return new Point(coordinates.get(0), coordinates.get(1));
   }
 }

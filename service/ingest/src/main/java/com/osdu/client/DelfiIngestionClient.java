@@ -40,6 +40,7 @@ public interface DelfiIngestionClient {
   SubmitFileResult submitFile(@RequestHeader(Header.AUTHORIZATION) String authorization,
       @RequestHeader(Header.APP_KEY) String applicationKey,
       @RequestHeader(Header.SLB_DATA_PARTITION_ID) String partition,
+      @RequestHeader(Header.SLB_ACCOUNT_ID) String accountId,
       SubmitFileObject submitFileObject);
 
   @GetMapping("/status?jobId={jobId}")

@@ -19,24 +19,37 @@ package com.osdu.model.type.wp;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.osdu.model.type.base.OsduObjectData;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @Data
+@SuperBuilder
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @NoArgsConstructor
+@AllArgsConstructor
 public class WpData extends OsduObjectData {
 
   @JsonIgnore
-  WpcGroupTypeProperties groupTypeProperties;
+  WpGroupTypeProperties groupTypeProperties;
+
+  @JsonIgnore
+  WpIndividualTypeProperties individualTypeProperties;
 
   @Override
   @JsonProperty("GroupTypeProperties")
-  public WpcGroupTypeProperties getGroupTypeProperties() {
+  public WpGroupTypeProperties getGroupTypeProperties() {
     return groupTypeProperties;
+  }
+
+  @Override
+  @JsonProperty("IndividualTypeProperties")
+  public WpIndividualTypeProperties getIndividualTypeProperties() {
+    return individualTypeProperties;
   }
 
 }

@@ -17,6 +17,7 @@
 package com.osdu.model.delfi.geo;
 
 import com.osdu.model.delfi.geo.exception.GeoLocationException;
+import java.util.List;
 import lombok.Data;
 import lombok.NonNull;
 
@@ -33,13 +34,13 @@ public class ByBoundingBox implements GeoLocation {
    *
    * @param coordinates coordinates
    */
-  public ByBoundingBox(Object[] coordinates) {
-    if (coordinates.length != 2) {
+  public ByBoundingBox(List<List<Double>> coordinates) {
+    if (coordinates.size() != 2) {
       throw new GeoLocationException(
           "Bounding box GeoJSON requires exactly 2 points for creation, actual, received "
-              + coordinates.length);
+              + coordinates.size());
     }
-    topLeft = GeoUtils.coordinatesToPoint(coordinates[0]);
-    bottomRight = GeoUtils.coordinatesToPoint(coordinates[1]);
+    topLeft = GeoUtils.coordinatesToPoint(coordinates.get(0));
+    bottomRight = GeoUtils.coordinatesToPoint(coordinates.get(1));
   }
 }

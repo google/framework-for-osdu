@@ -21,7 +21,7 @@ import com.osdu.model.job.IngestJob;
 import com.osdu.model.job.IngestJobStatus;
 import com.osdu.model.job.IngestMessage;
 import com.osdu.service.JobStatusService;
-import com.osdu.service.processing.InnerIngestionProcess;
+import com.osdu.service.processing.IngestProcessService;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,8 +35,8 @@ import org.springframework.stereotype.Component;
 public class IngestProcessFunction implements
     Function<Message<IngestProcessRequest>, Message<Boolean>> {
 
-  final InnerIngestionProcess ingestionProcess;
   final JobStatusService jobStatusService;
+  final IngestProcessService ingestProcessService;
 
   @Override
   public Message<Boolean> apply(Message<IngestProcessRequest> request) {
@@ -54,7 +54,7 @@ public class IngestProcessFunction implements
       log.warn("Ingestion job (jobId: {}) is already processing (status: {}). Ignore this message",
           ingestJobId, ingestJob.getStatus());
     } else {
-      ingestionProcess.process(ingestJobId, ingestMessage.getLoadManifest(),
+      ingestProcessService.processLoadManifest(ingestJobId, ingestMessage.getLoadManifest(),
           ingestMessage.getHeaders());
       log.debug("Finish ingest processing. JobId: {}", ingestJobId);
     }

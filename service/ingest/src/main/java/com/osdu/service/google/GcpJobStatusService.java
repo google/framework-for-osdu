@@ -47,7 +47,7 @@ public class GcpJobStatusService implements JobStatusService {
 
   @Override
   public IngestJobStatusDto getStatus(String jobId, MessageHeaders headers) {
-    log.info("Request for getting a injection job status. JobId: {}, headers: {}", jobId, headers);
+    log.debug("Request for getting a injection job status. JobId: {}, headers: {}", jobId, headers);
 
     String authorizationToken = extractHeaderByName(headers, OsduHeader.AUTHORIZATION);
     String partition = extractHeaderByName(headers, OsduHeader.PARTITION);
@@ -59,40 +59,40 @@ public class GcpJobStatusService implements JobStatusService {
         .map(ingestJobMapper::toStatusDto)
         .orElseThrow(() -> new IngestJobNotFoundException("Not ingest job found by id = " + jobId));
 
-    log.info("Found the injection job status: {}", jobStatusDto);
+    log.debug("Found the injection job status: {}", jobStatusDto);
     return jobStatusDto;
   }
 
   @Override
   public IngestJob get(String jobId) {
-    log.info("Request for getting a injection job. JobId: {}", jobId);
+    log.debug("Request for getting a injection job. JobId: {}", jobId);
     return ingestJobRepository.findById(jobId)
         .orElseThrow(() -> new IngestJobNotFoundException("Not ingest job found by id = " + jobId));
   }
 
   @Override
   public String initInjectJob() {
-    log.info("Initiating a new injection job");
+    log.debug("Initiating a new injection job");
     String jobId = UUID.randomUUID().toString();
     ingestJobRepository.save(IngestJob.builder()
         .id(jobId)
         .status(IngestJobStatus.CREATED)
         .build());
 
-    log.info("Created a new running injection job. JobId: {}", jobId);
+    log.debug("Created a new running injection job. JobId: {}", jobId);
     return jobId;
   }
 
   @Override
   public void updateJobStatus(String jobId, IngestJobStatus status) {
-    log.info("Update the injection job status. JobId: {}, status: {}", jobId, status);
+    log.debug("Update the injection job status. JobId: {}, status: {}", jobId, status);
     ingestJobRepository.updateFields(jobId, ImmutableMap.of("status", status.name()));
-    log.info("Updated the injection job status. Status: {}", status);
+    log.debug("Updated the injection job status. Status: {}", status);
   }
 
   @Override
   public void save(IngestJob ingestJob) {
-    log.info("Update the ingestion job. Job: {}", ingestJob);
+    log.debug("Update the ingestion job. Job: {}", ingestJob);
     ingestJobRepository.save(ingestJob);
   }
 }

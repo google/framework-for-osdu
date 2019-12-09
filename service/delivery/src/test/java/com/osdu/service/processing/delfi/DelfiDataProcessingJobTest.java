@@ -18,6 +18,7 @@ package com.osdu.service.processing.delfi;
 
 import static com.osdu.service.processing.delfi.DelfiDataProcessingJob.BUCKET_URL;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -32,7 +33,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -60,7 +60,6 @@ public class DelfiDataProcessingJobTest {
   }
 
   @Test
-  @Ignore
   public void testNoLocation() throws Exception {
     // given
     SrnToRecord srnToRecord = SrnToRecord.builder().recordId(RECORD_ID_1).srn(SRN).build();
@@ -70,11 +69,10 @@ public class DelfiDataProcessingJobTest {
     Map<String, Object> data = new HashMap<>();
     data.put("one", "test");
 
-    Map<String, Object> details = new HashMap<>();
-    details.put("two", "test");
+    Map<String, Object> osduData = new HashMap<>();
+    osduData.put("osdu", data);
 
-    record.setAdditionalProperties(details);
-    record.setData(data);
+    record.setData(osduData);
 
     when(portalService.getRecord(eq(RECORD_ID_1), eq(AUTHORIZATION_TOKEN), eq(PARTITION)))
         .thenReturn(record);
@@ -88,7 +86,7 @@ public class DelfiDataProcessingJobTest {
     assertThat(result.getProcessingResultStatus()).isEqualTo(ProcessingResultStatus.DATA);
     assertThat(result.getFileLocation()).isNull();
     assertThat(result.getSrn()).isEqualTo(SRN);
-    assertThat(result.getData()).isEqualTo(record);
+    assertEquals(result.getData(), data);
   }
 
   @Test
@@ -100,9 +98,9 @@ public class DelfiDataProcessingJobTest {
     Record record = new Record();
     Map<String, Object> data = new HashMap<>();
     data.put(BUCKET_URL, "test location");
-    Map<String, Object> details = new HashMap<>();
-    details.put("two", "test");
-    record.setAdditionalProperties(details);
+    Map<String, Object> osduData = new HashMap<>();
+    osduData.put("two", "test");
+    data.put("osdu", osduData);
     record.setData(data);
     when(portalService.getRecord(eq(RECORD_ID_1), eq(AUTHORIZATION_TOKEN), eq(PARTITION)))
         .thenReturn(record);
@@ -121,6 +119,7 @@ public class DelfiDataProcessingJobTest {
     assertThat(result.getProcessingResultStatus()).isEqualTo(ProcessingResultStatus.FILE);
     assertThat(result.getFileLocation()).isEqualTo(SIGNED_URL);
     assertThat(result.getSrn()).isEqualTo(SRN);
+    assertEquals(result.getData(), osduData);
   }
 
   @Test

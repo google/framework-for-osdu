@@ -32,13 +32,13 @@ public class ByGeoPolygon implements GeoLocation {
    *
    * @param coordinates coordinates
    */
-  public ByGeoPolygon(Object[] coordinates) {
-    if (coordinates.length < 3) {
+  public ByGeoPolygon(List<List<Double>> coordinates) {
+    if (coordinates.size() < 3) {
       throw new GeoLocationException(String.format(
           "Polygon GeoJSON requires at least 3 points for creation, actual, received : %s ",
-          coordinates.length));
+          coordinates.size()));
     }
-    points = Arrays.stream(coordinates)
+    points = coordinates.stream()
         .map(GeoUtils::coordinatesToPoint).collect(Collectors.toList());
   }
 }

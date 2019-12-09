@@ -45,7 +45,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class DelfiSearchService implements SearchService {
 
-  static final String KIND_HEADER_KEY = "kind";
+  public static final String KIND_HEADER_KEY = "kind";
 
   final DelfiPortalProperties portalProperties;
 
@@ -87,7 +87,7 @@ public class DelfiSearchService implements SearchService {
     String partition = extractHeaderByName(headers, OsduHeader.PARTITION);
     String authorizationToken = extractHeaderByName(headers, OsduHeader.AUTHORIZATION);
 
-    authenticationService.getUserGroups(authorizationToken, partition);
+    authenticationService.checkAuthentication(authorizationToken, partition);
 
     checkIfInputParametersValid((OsduSearchObject) searchObject);
 

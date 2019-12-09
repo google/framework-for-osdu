@@ -29,6 +29,7 @@ import com.osdu.model.delfi.geo.exception.GeoLocationException;
 import com.osdu.model.osdu.GeoLocation;
 import com.osdu.model.osdu.OsduSearchObject;
 import com.osdu.model.osdu.SortOption;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -69,7 +70,7 @@ public abstract class SearchObjectMapperDecorator implements SearchObjectMapper 
     return result;
   }
 
-  private Sort mapSort(SortOption[] sortOptions) {
+  private Sort mapSort(List<SortOption> sortOptions) {
     log.debug("Mapping sort object: {}", sortOptions);
     if (sortOptions != null) {
       Sort sort = osduToDelfiSort(sortOptions);
@@ -79,7 +80,7 @@ public abstract class SearchObjectMapperDecorator implements SearchObjectMapper 
     return null;
   }
 
-  private SpatialFilter mapGeoParameters(List<Double>[] geoCentroidList) {
+  private SpatialFilter mapGeoParameters(List<List<Double>> geoCentroidList) {
     log.debug("Mapping geoCentroid object: {}", geoCentroidList);
     SpatialFilter spatialFilter = mapGeoCentroidObject(geoCentroidList);
     log.debug("Result of mapping: {}", spatialFilter);
@@ -123,13 +124,13 @@ public abstract class SearchObjectMapperDecorator implements SearchObjectMapper 
    * @param sortOptions sort option
    * @return Sort object
    */
-  private Sort osduToDelfiSort(SortOption[] sortOptions) {
-    String[] fields = new String[sortOptions.length];
-    String[] orders = new String[sortOptions.length];
+  private Sort osduToDelfiSort(List<SortOption> sortOptions) {
+    List<String> fields = new ArrayList<>();
+    List<String> orders = new ArrayList<>();
 
-    for (int i = 0; i < sortOptions.length; i++) {
-      fields[i] = sortOptions[i].getFieldName();
-      orders[i] = sortOptions[i].getOrderType().toString().toLowerCase();
+    for (int i = 0; i < sortOptions.size(); i++) {
+      fields.add(sortOptions.get(i).getFieldName());
+      orders.add(sortOptions.get(i).getOrderType().toString().toLowerCase());
     }
 
     Sort sort = new Sort();
@@ -145,7 +146,7 @@ public abstract class SearchObjectMapperDecorator implements SearchObjectMapper 
    * @param geoCentroidList points for geo centroid
    * @return Delfi GeoLocation
    */
-  private SpatialFilter mapGeoCentroidObject(List<Double>[] geoCentroidList) {
+  private SpatialFilter mapGeoCentroidObject(List<List<Double>> geoCentroidList) {
     SpatialFilter spatialFilter = new SpatialFilter();
 
     //there is no direct match between OSDU GeoCentroid and Delfi GeoLocation.
@@ -155,7 +156,7 @@ public abstract class SearchObjectMapperDecorator implements SearchObjectMapper 
     //2 - This is a unique "BoundingBox" type that is not present in RFC for GeoJson
     //3+- This is something else. But given that we know other types that can be used by
     // Delfi Portal this is the only possible option.
-    switch (geoCentroidList.length) {
+    switch (geoCentroidList.size()) {
       case 1:
         spatialFilter.setByDistance(
             new ByDistance(geoCentroidList, DEFAULT_DISTANCE));
@@ -205,7 +206,7 @@ public abstract class SearchObjectMapperDecorator implements SearchObjectMapper 
                 DEFAULT_DISTANCE));
         break;
       default:
-        log.info("Not defined geo type for " + GeoType.lookup(geoLocation.getType()));
+        log.warn("Not defined geo type for " + GeoType.lookup(geoLocation.getType()));
     }
     if (geoLocation.getType().equals(BY_BOUNDING_BOX_GEOLOCATION_TYPE)) {
       spatialFilter

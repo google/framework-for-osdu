@@ -19,7 +19,7 @@ package com.osdu.model.type.wp;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.osdu.model.type.base.GroupTypeProperties;
 import java.util.List;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -31,26 +31,11 @@ import lombok.ToString;
 @NoArgsConstructor
 public class WpGroupTypeProperties extends GroupTypeProperties {
 
-  @JsonProperty("Files")
-  List<String> files;
+  @JsonProperty("Components")
+  List<String> components;
 
-  @JsonProperty("Artefacts")
-  List<Artefact> artefacts;
-
-  @Data
-  @NoArgsConstructor
-  @AllArgsConstructor
-  public static class Artefact {
-
-    @JsonProperty("RoleID")
-    String roleID;
-
-    @JsonProperty("ResourceTypeID")
-    String resourceTypeID;
-
-    @JsonProperty("ResourceID")
-    String resourceID;
-
+  @Builder
+  public WpGroupTypeProperties(List<String> components) {
+    this.components = components;
   }
-
 }
