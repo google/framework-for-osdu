@@ -42,8 +42,7 @@
     <javax.inject.version>1</javax.inject.version>
     <spring-boot.version>2.1.6.RELEASE</spring-boot.version>
     <org.apache.httpcomponents.version>4.3.4</org.apache.httpcomponents.version>
-    <com.fasterxml.jackson.core.version>2.10.0.pr1</com.fasterxml.jackson.core.version>
-    <assertj.version>3.13.2</assertj.version>
+    <assertj.version>3.14.0</assertj.version>
     <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
@@ -80,6 +79,22 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.module</groupId>
+      <artifactId>jackson-module-parameter-names</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jdk8</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
     </dependency>
   </dependencies>
 

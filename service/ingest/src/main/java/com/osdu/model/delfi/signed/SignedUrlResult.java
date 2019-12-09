@@ -17,9 +17,15 @@
 package com.osdu.model.delfi.signed;
 
 import java.net.URL;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class SignedUrlResult {
 
   Integer responseCode;

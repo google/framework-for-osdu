@@ -42,24 +42,6 @@ public class JsonValidationService {
    * @param toValidate json string to validate against given schema
    * @return {@link Set} of validation messages
    */
-  public Set<ValidationMessage> validate(String schema, JsonNode toValidate) {
-    try {
-      return getFactory()
-          .getSchema(schema)
-          .validate(toValidate);
-    } catch (JsonSchemaException e) {
-      throw new IngestException(
-          String.format("Error creating json validation schema from json object: %s", schema), e);
-    }
-  }
-
-  /**
-   * Validates given json against given schema.
-   *
-   * @param schema     schema that will be used to validate json
-   * @param toValidate json string to validate against given schema
-   * @return {@link Set} of validation messages
-   */
   public Set<ValidationMessage> validate(JsonNode schema, JsonNode toValidate) {
     try {
       return getFactory()

@@ -22,6 +22,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Singular;
 
 @Data
 @Builder
@@ -32,9 +33,11 @@ public class LoadManifest {
   @JsonProperty(value = "WorkProduct")
   ManifestWp workProduct;
 
+  @Singular
   @JsonProperty(value = "WorkProductComponents")
   List<ManifestWpc> workProductComponents;
 
+  @Singular
   @JsonProperty(value = "Files")
   List<ManifestFile> files;
 

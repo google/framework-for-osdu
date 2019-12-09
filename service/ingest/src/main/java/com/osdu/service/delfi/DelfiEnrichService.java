@@ -18,6 +18,7 @@ package com.osdu.service.delfi;
 
 import static com.osdu.service.JsonUtils.deepCopy;
 
+import com.osdu.client.delfi.RecordDataFields;
 import com.osdu.model.IngestHeaders;
 import com.osdu.model.Record;
 import com.osdu.model.RequestContext;
@@ -52,8 +53,8 @@ public class DelfiEnrichService implements EnrichService {
         .getRecord(file.getRecordId(), requestContext.getAuthorizationToken(),
             requestContext.getPartition());
 
-    record.getData().put("wpc", reducedWpc);
-    record.getData().put("osdu", generateOsduFileRecord(file, srn, requestContext.getHeaders()));
+    record.getData().put(RecordDataFields.WPC_DATA, reducedWpc);
+    record.getData().put(RecordDataFields.OSDU_DATA, generateOsduFileRecord(file, srn, requestContext.getHeaders()));
 
     Record enrichedRecord = portalService.putRecord(record, requestContext.getAuthorizationToken(),
         requestContext.getPartition());

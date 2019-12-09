@@ -69,7 +69,7 @@ public class DelfiSubmitService implements SubmitService {
 
   @Override
   public JobPollingResult awaitSubmitJob(String jobId, RequestContext requestContext) {
-    JobStatusResponse submittedJob = null;
+    JobStatusResponse submittedJob;
     MasterJobStatus currentStatus;
 
     long attempts = 0;
@@ -130,21 +130,21 @@ public class DelfiSubmitService implements SubmitService {
   }
 
   @Override
-  public DelfiIngestedFile getIngestedFile(Map<String, SubmittedFile> jobIdToFile,
-      RequestContext requestContext, JobStatusResponse response) {
+  public DelfiIngestedFile getIngestedFile(SubmittedFile file, JobStatusResponse response,
+      RequestContext requestContext) {
     String location = GCS_PROTOCOL + response.getSummary().getOutputLocation()
         + SUCCESS_METADATA_JSON_PATH;
     log.debug("File location of ingestion job success metadata: {}", location);
-    DelfiFile file = portalService.getFile(location, requestContext.getAuthorizationToken(),
+    DelfiFile delfiFile = portalService.getFile(location, requestContext.getAuthorizationToken(),
         requestContext.getPartition());
-    String fileContent = restTemplate.getForObject(file.getSignedUrl(), String.class);
+    String fileContent = restTemplate.getForObject(delfiFile.getSignedUrl(), String.class);
     log.debug("Success metadata: {}", fileContent);
     SuccessMetadata metadata = toObject(fileContent, SuccessMetadata.class);
     SaveRecordsResult saveResult = toObject(metadata.getMessage(), SaveRecordsResult.class);
     log.debug("Save records result: {}", saveResult);
 
     return DelfiIngestedFile.builder()
-        .submittedFile(jobIdToFile.get(response.getJobInfo().getJobId()))
+        .submittedFile(file)
         .recordId(saveResult.getRecordIds().get(0))
         .build();
   }

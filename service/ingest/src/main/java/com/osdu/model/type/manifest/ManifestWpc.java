@@ -20,15 +20,19 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.osdu.model.type.wp.WorkProductComponent;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @Data
+@SuperBuilder
 @EqualsAndHashCode(callSuper = true, exclude = {"files"})
 @ToString(callSuper = true, exclude = {"files"})
 @NoArgsConstructor
+@AllArgsConstructor
 @JsonIgnoreProperties({ "files" })
 public class ManifestWpc extends WorkProductComponent {
 

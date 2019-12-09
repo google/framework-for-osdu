@@ -18,6 +18,7 @@ package com.osdu.service.processing.delfi;
 
 import static com.osdu.config.AsyncConfiguration.DATA_PROCESSING_EXECUTOR;
 
+import com.osdu.client.delfi.RecordDataFields;
 import com.osdu.model.Record;
 import com.osdu.model.SrnToRecord;
 import com.osdu.model.delfi.DelfiFile;
@@ -68,10 +69,10 @@ public class DelfiDataProcessingJob implements DataProcessingJob {
       DelfiFile file = portalService
           .getFile(record.getData().get(BUCKET_URL).toString(), authorizationToken, partition);
       result.setProcessingResultStatus(ProcessingResultStatus.FILE);
-      result.setData((Map<String, Object>) record.getData().get("osdu"));
+      result.setData((Map<String, Object>) record.getData().get(RecordDataFields.OSDU_DATA));
       result.setFileLocation(file.getSignedUrl());
     } else {
-      result.setData((Map<String, Object>) record.getData().get("osdu"));
+      result.setData((Map<String, Object>) record.getData().get(RecordDataFields.OSDU_DATA));
       result.setProcessingResultStatus(ProcessingResultStatus.DATA);
     }
     return CompletableFuture.completedFuture(result);

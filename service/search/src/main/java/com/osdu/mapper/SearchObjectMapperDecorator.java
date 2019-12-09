@@ -206,7 +206,7 @@ public abstract class SearchObjectMapperDecorator implements SearchObjectMapper 
                 DEFAULT_DISTANCE));
         break;
       default:
-        log.info("Not defined geo type for " + GeoType.lookup(geoLocation.getType()));
+        log.warn("Not defined geo type for " + GeoType.lookup(geoLocation.getType()));
     }
     if (geoLocation.getType().equals(BY_BOUNDING_BOX_GEOLOCATION_TYPE)) {
       spatialFilter
