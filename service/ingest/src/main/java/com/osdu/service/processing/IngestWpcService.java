@@ -23,6 +23,7 @@ import static java.lang.String.format;
 
 import com.google.common.collect.ImmutableMap;
 import com.networknt.schema.ValidationMessage;
+import com.osdu.client.delfi.RecordDataFields;
 import com.osdu.model.Record;
 import com.osdu.model.RequestContext;
 import com.osdu.model.ResourceTypeId;
@@ -164,7 +165,7 @@ public class IngestWpcService {
         .kind(schemaData.getKind())
         .acl(getAcl(requestContext.getUserGroupEmailByName()))
         .legal(requestContext.getHeaders().getLegalTagsObject().getLegal())
-        .data(ImmutableMap.of("osdu", newWpc))
+        .data(ImmutableMap.of(RecordDataFields.OSDU_DATA, newWpc))
         .build();
 
     Record record = delfiPortalService.putRecord(delfiRecord,
@@ -180,7 +181,7 @@ public class IngestWpcService {
 
   private Set<ValidationMessage> validateWpcRecord(Record wpcRecord, SchemaData schemaData) {
     return jsonValidationService.validate(schemaData.getSchema(),
-        JsonUtils.getJsonNode(wpcRecord.getData().get("osdu")));
+        JsonUtils.getJsonNode(wpcRecord.getData().get(RecordDataFields.OSDU_DATA)));
   }
 
 }

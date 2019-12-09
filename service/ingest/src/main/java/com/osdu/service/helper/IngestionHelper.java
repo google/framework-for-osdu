@@ -16,20 +16,10 @@
 
 package com.osdu.service.helper;
 
-import static java.lang.String.format;
-
-import com.osdu.exception.IngestException;
 import com.osdu.model.ResourceTypeId;
 import com.osdu.model.delfi.Acl;
-import com.osdu.model.type.manifest.ManifestFile;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Paths;
 import java.util.Map;
 import java.util.UUID;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -63,36 +53,6 @@ public class IngestionHelper {
         .owner(groupEmailByName.get("data.default.owners"))
         .viewer(groupEmailByName.get("data.default.viewers"))
         .build();
-  }
-
-  /**
-   * Creates URL from ManifestFile proper field.
-   */
-  public URL createUrlFromManifestFile(ManifestFile file) {
-    String preLoadFilePath = file.getData().getGroupTypeProperties().getPreLoadFilePath();
-    try {
-      return new URL(preLoadFilePath);
-    } catch (MalformedURLException e) {
-      throw new IngestException(
-          format("Could not create URL from staging link : %s", preLoadFilePath),
-          e);
-    }
-  }
-
-  /**
-   * Returns file name from URL. Is used to get file name from signed URL.
-   */
-  public String getFileNameFromUrl(URL fileUrl) {
-    try {
-      final String fileName = Paths.get(new URI(fileUrl.toString()).getPath()).getFileName()
-          .toString();
-      if (StringUtils.isEmpty(fileName)) {
-        throw new IngestException(format("File name obtained is empty, URL : %s", fileUrl));
-      }
-      return fileName;
-    } catch (URISyntaxException e) {
-      throw new IngestException(format("Can not get file name from URL: %s", fileUrl), e);
-    }
   }
 
 }

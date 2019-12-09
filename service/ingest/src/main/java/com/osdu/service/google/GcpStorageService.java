@@ -16,6 +16,8 @@
 
 package com.osdu.service.google;
 
+import static java.lang.String.format;
+
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.InputStreamContent;
@@ -36,6 +38,7 @@ import java.net.URL;
 import java.nio.channels.Channels;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -57,7 +60,7 @@ public class GcpStorageService implements StorageService {
       ByteStreams.copy(in, Channels.newOutputStream(writer));
 
     } catch (IOException e) {
-      throw new IngestException(String.format("Error during upload file (name: %s) from URL: %s "
+      throw new IngestException(format("Error during upload file (name: %s) from URL: %s "
           + "to cloud storage", fileName, fileUrl), e);
     }
 
@@ -73,25 +76,27 @@ public class GcpStorageService implements StorageService {
 
       HttpResponse response = uploader.resumableUpload(mediaContent, new GenericUrl(signedUrl));
       if (!response.isSuccessStatusCode()) {
-        throw new OsduException("Not success status of signed url file upload request. "
-            + "Status: " + response.getStatusCode() + "\n message: " + response.getStatusMessage());
+        throw new OsduException(format("Not success status of signed url file upload request."
+            + " Status: %s%n message: %s", response.getStatusCode(), response.getStatusMessage()));
       }
 
       return response;
     } catch (IOException e) {
-      throw new IngestException(String.format("Error during upload file: %s from cloud storage to "
+      throw new IngestException(format("Error during upload file: %s from cloud storage to "
           + "signed url location: %s", blob.getBlobId().getName(), signedUrl), e);
     }
   }
 
   private Blob createBlob(String bucketName, String blobName) {
     BlobId blobId = BlobId.of(bucketName, blobName);
-    BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("text/plain").build();
+    BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
+        .setContentType(MediaType.TEXT_PLAIN_VALUE)
+        .build();
 
     return googleCloudStorage.create(blobInfo);
   }
 
   private String generateUniqueObjectId(String fileName) {
-    return String.format("%s/%s", UUID.randomUUID().toString(), fileName);
+    return format("%s/%s", UUID.randomUUID().toString(), fileName);
   }
 }

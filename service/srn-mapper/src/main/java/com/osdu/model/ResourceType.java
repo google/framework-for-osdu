@@ -29,6 +29,9 @@ public enum ResourceType {
   WP_WELLBORE_PATH("work-product/WellborePath"),
   WPC_WELLBORE_PATH("work-product-component/WellborePath"),
 
+  WP_WELLBORE_TRAJECTORY("work-product/WellboreTrajectory"),
+  WPC_WELLBORE_TRAJECTORY("work-product-component/WellboreTrajectory"),
+
   FILE_LAS2("file/las2"),
   FILE_CSV("file/csv"),
   FILE_PDF("file/pdf"),

@@ -19,16 +19,12 @@ package com.osdu.service;
 import com.osdu.model.Record;
 import com.osdu.model.RequestContext;
 import com.osdu.model.delfi.signed.SignedFile;
-import com.osdu.model.delfi.signed.SignedUrlResult;
 import com.osdu.model.type.manifest.ManifestFile;
-import java.net.URL;
 import java.util.List;
 
 public interface IngestionService {
 
   SignedFile uploadFile(ManifestFile file, String authorizationToken, String partition);
-
-  SignedUrlResult transferFile(URL fileUrl, String authToken, String partition);
 
   List<Record> failRecords(List<Record> records, RequestContext requestContext);
 

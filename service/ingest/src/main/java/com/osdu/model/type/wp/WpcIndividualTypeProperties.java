@@ -18,10 +18,11 @@ package com.osdu.model.type.wp;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.osdu.model.type.base.IndividualTypeProperties;
+import com.osdu.model.type.reference.LineageAssertion;
 import com.osdu.model.type.reference.SpatialLocation;
 import java.time.LocalDateTime;
 import java.util.List;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -66,20 +67,22 @@ public class WpcIndividualTypeProperties extends IndividualTypeProperties {
   @JsonProperty("Annotations")
   List<String> annotations;
 
-  @Data
-  @NoArgsConstructor
-  @AllArgsConstructor
-  public static class LineageAssertion {
-
-    @JsonProperty("ID")
-    String id;
-
-    @JsonProperty("RelationshipType")
-    LineageAssertion.RelationshipType relationshipType;
-
-    public enum RelationshipType {
-      PREDECESSOR, SOURCE, REFERENCE
-    }
+  @Builder
+  public WpcIndividualTypeProperties(String name, String description,
+      LocalDateTime creationDateTime, List<String> tags,
+      SpatialLocation spatialPoint, SpatialLocation spatialArea, String submitterName,
+      List<String> businessActivites, List<String> authorIDs,
+      List<LineageAssertion> lineageAssertions, List<String> annotations) {
+    this.name = name;
+    this.description = description;
+    this.creationDateTime = creationDateTime;
+    this.tags = tags;
+    this.spatialPoint = spatialPoint;
+    this.spatialArea = spatialArea;
+    this.submitterName = submitterName;
+    this.businessActivites = businessActivites;
+    this.authorIDs = authorIDs;
+    this.lineageAssertions = lineageAssertions;
+    this.annotations = annotations;
   }
-
 }

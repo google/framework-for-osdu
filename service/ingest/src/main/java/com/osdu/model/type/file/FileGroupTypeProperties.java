@@ -18,15 +18,19 @@ package com.osdu.model.type.file;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.osdu.model.type.base.GroupTypeProperties;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Data
+@Builder
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @NoArgsConstructor
+@AllArgsConstructor
 public class FileGroupTypeProperties extends GroupTypeProperties {
 
   @JsonProperty("SchemaFormatTypeID")

@@ -49,12 +49,12 @@ public class IngestSenderConfiguration {
     adapter.setPublishCallback(new ListenableFutureCallback<String>() {
       @Override
       public void onFailure(Throwable ex) {
-        log.info("There was an error sending the message.", ex);
+        log.error("There was an error sending the message.", ex);
       }
 
       @Override
       public void onSuccess(String result) {
-        log.info("Message was sent successfully. {}", result);
+        log.debug("Message was sent successfully. {}", result);
       }
     });
 

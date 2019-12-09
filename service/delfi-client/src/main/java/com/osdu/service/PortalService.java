@@ -21,7 +21,7 @@ import com.osdu.model.delfi.DelfiFile;
 
 public interface PortalService {
 
-  Record getRecord(String id, String autorizationToken, String partition);
+  Record getRecord(String id, String authorizationToken, String partition);
 
   Record putRecord(Record record, String authorizationToken, String partition);
 

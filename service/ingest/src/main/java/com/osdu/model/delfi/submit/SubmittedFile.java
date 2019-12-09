@@ -25,7 +25,6 @@ import lombok.Data;
 public class SubmittedFile {
 
   SignedFile signedFile;
-  String srn;
   String jobId;
 
 }

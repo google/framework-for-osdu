@@ -22,6 +22,7 @@ import static com.osdu.service.helper.IngestionHelper.getAcl;
 
 import com.google.common.collect.ImmutableMap;
 import com.networknt.schema.ValidationMessage;
+import com.osdu.client.delfi.RecordDataFields;
 import com.osdu.model.Record;
 import com.osdu.model.RequestContext;
 import com.osdu.model.ResourceTypeId;
@@ -158,7 +159,7 @@ public class IngestWpService {
         .kind(schemaData.getKind())
         .acl(getAcl(requestContext.getUserGroupEmailByName()))
         .legal(requestContext.getHeaders().getLegalTagsObject().getLegal())
-        .data(ImmutableMap.of("osdu", newWp))
+        .data(ImmutableMap.of(RecordDataFields.OSDU_DATA, newWp))
         .build();
 
     Record record = delfiPortalService.putRecord(delfiRecord,
@@ -174,7 +175,7 @@ public class IngestWpService {
 
   private Set<ValidationMessage> validateWpRecord(Record wpRecord, SchemaData schemaData) {
     return jsonValidationService.validate(schemaData.getSchema(),
-        JsonUtils.getJsonNode(wpRecord.getData().get("osdu")));
+        JsonUtils.getJsonNode(wpRecord.getData().get(RecordDataFields.OSDU_DATA)));
   }
 
 }

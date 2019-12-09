@@ -17,12 +17,18 @@
 package com.osdu.model.property;
 
 import javax.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @ConfigurationProperties(prefix = "gcp.storage")
 @Validated
 @Component

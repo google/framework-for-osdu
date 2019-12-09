@@ -20,8 +20,8 @@ import static com.osdu.service.JsonUtils.getJsonNode;
 import static com.osdu.service.helper.IngestionHelper.generateSrn;
 import static java.lang.String.format;
 
-import com.google.common.collect.ImmutableMap;
 import com.networknt.schema.ValidationMessage;
+import com.osdu.client.delfi.RecordDataFields;
 import com.osdu.model.RequestContext;
 import com.osdu.model.ResourceTypeId;
 import com.osdu.model.SchemaData;
@@ -103,11 +103,11 @@ public class IngestFileService {
     SubmittedFile submittedFile = submitFile(signedFile, schemaData, requestContext);
 
     // await job
-    log.info("Waited for submitted ingestion job to be finished. JobId: {}",
+    log.debug("Waited for submitted ingestion job to be finished. JobId: {}",
         submittedFile.getJobId());
     JobPollingResult jobPollingResult = submitService
         .awaitSubmitJob(submittedFile.getJobId(), requestContext);
-    log.info("Job polling result: {}", jobPollingResult);
+    log.debug("Job polling result: {}", jobPollingResult);
 
     if (jobPollingResult.getStatus() != MasterJobStatus.COMPLETED) {
       JobInfo jobInfo = jobPollingResult.getJob().getJobInfo();
@@ -120,9 +120,8 @@ public class IngestFileService {
     } else {
 
       DelfiIngestedFile delfiIngestedFile = submitService
-          .getIngestedFile(ImmutableMap.of(submittedFile.getJobId(), submittedFile),
-              requestContext, jobPollingResult.getJob());
-      log.info("Delfi ingested files: {}", delfiIngestedFile);
+          .getIngestedFile(submittedFile, jobPollingResult.getJob(), requestContext);
+      log.debug("Delfi ingested files: {}", delfiIngestedFile);
 
       // generate srn
       String srn = generateSrn(new ResourceTypeId(file.getResourceTypeID()));
@@ -167,7 +166,8 @@ public class IngestFileService {
 
   private Set<ValidationMessage> validateFile(EnrichedFile file, SchemaData schemaData) {
     return jsonValidationService.validate(
-        schemaData.getSchema(), getJsonNode(file.getRecord().getData().get("osdu")));
+        schemaData.getSchema(), getJsonNode(
+            file.getRecord().getData().get(RecordDataFields.OSDU_DATA)));
   }
 
   private String getIngestSummary(Set<ValidationMessage> errors, String logicalPath) {

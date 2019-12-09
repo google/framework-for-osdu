@@ -31,7 +31,8 @@ public class JsonUtils {
 
   private static final ObjectMapper mapper = new ObjectMapper()
       .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-      .setSerializationInclusion(Include.NON_NULL);
+      .setSerializationInclusion(Include.NON_NULL)
+      .findAndRegisterModules();
 
   /**
    *  Returns JsonNode from input object.

@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.osdu.model.type.base.GroupTypeProperties;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -37,9 +38,17 @@ public class WpcGroupTypeProperties extends GroupTypeProperties {
   @JsonProperty("Artefacts")
   List<Artefact> artefacts;
 
+  @Builder
+  public WpcGroupTypeProperties(List<String> files, List<Artefact> artefacts) {
+    super();
+    this.files = files;
+    this.artefacts = artefacts;
+  }
+
   @Data
   @NoArgsConstructor
   @AllArgsConstructor
+  @Builder
   public static class Artefact {
 
     @JsonProperty("RoleID")

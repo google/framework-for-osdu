@@ -23,7 +23,6 @@ import com.osdu.model.delfi.status.JobStatusResponse;
 import com.osdu.model.delfi.submit.SubmitFileContext;
 import com.osdu.model.delfi.submit.SubmitJobResult;
 import com.osdu.model.delfi.submit.SubmittedFile;
-import java.util.Map;
 
 public interface SubmitService {
 
@@ -31,7 +30,7 @@ public interface SubmitService {
 
   SubmitJobResult submitFile(SubmitFileContext fileContext, RequestContext requestContext);
 
-  DelfiIngestedFile getIngestedFile(Map<String, SubmittedFile> jobIdToFile,
-      RequestContext requestContext, JobStatusResponse response);
+  DelfiIngestedFile getIngestedFile(SubmittedFile file, JobStatusResponse response,
+      RequestContext requestContext);
 
 }
