@@ -1,0 +1,8 @@
+osdu:
+  file-service:
+    url: https://os-file-s7iuxioqja-uc.a.run.app
+    get-file-location-endpoint: getFileLocationFunction
+  workflow-service:
+    url: https://os-workflow-s7iuxioqja-uc.a.run.app
+    start-workflow-endpoint: startWorkflowFunction
+

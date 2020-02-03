@@ -1,0 +1,7 @@
+osdu:
+  file-service:
+    url: http://test-file-service
+    get-file-location-endpoint: testLocationEndpoint
+  workflow-service:
+    url: http://test-workflow-service
+    start-workflow-endpoint: testStartWorkflowEndpoint
