@@ -17,7 +17,7 @@
 package org.opengroup.osdu.core.common.model.file;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.List;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,30 +27,21 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FilesListResponse {
+public class FileListRequest {
 
-  /**
-   * The page content.
-   */
-  @JsonProperty("Content")
-  List<FileLocation> content;
+  @JsonProperty("TimeFrom")
+  LocalDateTime timeFrom;
 
-  /**
-   * The number of current page.
-   */
-  @JsonProperty("Number")
-  int number;
+  @JsonProperty("TimeTo")
+  LocalDateTime timeTo;
 
-  /**
-   * The number of elements currently on this page.
-   */
-  @JsonProperty("NumberOfElements")
-  int numberOfElements;
+  @JsonProperty("PageNum")
+  int pageNum;
 
-  /**
-   * The size of the page.
-   */
-  @JsonProperty("Size")
-  int size;
+  @JsonProperty("Items")
+  short items;
+
+  @JsonProperty("UserID")
+  String userID;
 
 }

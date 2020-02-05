@@ -16,9 +16,9 @@
 
 package org.opengroup.osdu.file.repository;
 
+import org.opengroup.osdu.core.common.model.file.FileListRequest;
+import org.opengroup.osdu.core.common.model.file.FileListResponse;
 import org.opengroup.osdu.core.common.model.file.FileLocation;
-import org.opengroup.osdu.core.common.model.file.FilesListRequest;
-import org.opengroup.osdu.core.common.model.file.FilesListResponse;
 
 public interface FileLocationRepository {
 
@@ -39,11 +39,11 @@ public interface FileLocationRepository {
   FileLocation save(FileLocation fileLocation);
 
   /**
-   * Finds a files list page by request.
+   * Finds a file list page by request.
    *
    * @param request request
-   * @return files list page
+   * @return file list page
    */
-  FilesListResponse findAll(FilesListRequest request);
+  FileListResponse findAll(FileListRequest request);
 
 }

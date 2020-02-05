@@ -14,34 +14,13 @@
  * limitations under the License.
  */
 
-package org.opengroup.osdu.core.common.model.file;
+package org.opengroup.osdu.file.validation;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.time.LocalDateTime;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import javax.validation.ConstraintValidatorContext;
+import org.opengroup.osdu.core.common.model.file.FileListRequest;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class FilesListRequest {
+public interface FileListRequestValidator {
 
-  @JsonProperty("TimeFrom")
-  LocalDateTime timeFrom;
-
-  @JsonProperty("TimeTo")
-  LocalDateTime timeTo;
-
-  @JsonProperty("PageNum")
-  int pageNum;
-
-  @JsonProperty("Items")
-  short items;
-
-  @JsonProperty("UserID")
-  String userID;
+  boolean isValid(FileListRequest request, ConstraintValidatorContext context);
 
 }

@@ -44,9 +44,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.opengroup.osdu.core.common.model.file.DriverType;
+import org.opengroup.osdu.core.common.model.file.FileListRequest;
+import org.opengroup.osdu.core.common.model.file.FileListResponse;
 import org.opengroup.osdu.core.common.model.file.FileLocation;
-import org.opengroup.osdu.core.common.model.file.FilesListRequest;
-import org.opengroup.osdu.core.common.model.file.FilesListResponse;
 import org.opengroup.osdu.file.exception.FileLocationNotFoundException;
 import org.opengroup.osdu.file.exception.FileLocationQueryException;
 import org.opengroup.osdu.file.repository.FileLocationRepository;
@@ -105,7 +105,7 @@ public class FileLocationRepositoryImpl implements FileLocationRepository {
   }
 
   @Override
-  public FilesListResponse findAll(FilesListRequest request) {
+  public FileListResponse findAll(FileListRequest request) {
     int pageSize = request.getItems();
     int pageNum = request.getPageNum();
     int skips = pageSize * pageNum;
@@ -118,7 +118,7 @@ public class FileLocationRepositoryImpl implements FileLocationRepository {
         .offset(skips);
 
     QuerySnapshot page = getSafety(query.get(),
-        "Failed to find files list page: " + request);
+        "Failed to find file list page: " + request);
     if (page.isEmpty()) {
       throw new FileLocationNotFoundException(
           format("Nothing found for such filter and page(num: %s, size: %s).", pageNum, pageSize));
@@ -126,7 +126,7 @@ public class FileLocationRepositoryImpl implements FileLocationRepository {
     List<FileLocation> content = page.getDocuments().stream()
         .map(this::buildFileLocation)
         .collect(Collectors.toList());
-    return FilesListResponse.builder()
+    return FileListResponse.builder()
         .content(content)
         .size(pageSize)
         .number(pageNum)

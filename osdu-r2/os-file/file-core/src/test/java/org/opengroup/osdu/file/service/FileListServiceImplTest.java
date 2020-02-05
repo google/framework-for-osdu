@@ -41,9 +41,9 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opengroup.osdu.core.common.model.file.DriverType;
+import org.opengroup.osdu.core.common.model.file.FileListRequest;
+import org.opengroup.osdu.core.common.model.file.FileListResponse;
 import org.opengroup.osdu.core.common.model.file.FileLocation;
-import org.opengroup.osdu.core.common.model.file.FilesListRequest;
-import org.opengroup.osdu.core.common.model.file.FilesListResponse;
 import org.opengroup.osdu.file.exception.OsduUnauthorizedException;
 import org.opengroup.osdu.file.mapper.HeadersMapper;
 import org.opengroup.osdu.file.model.Headers;
@@ -52,7 +52,7 @@ import org.opengroup.osdu.file.validation.ValidationService;
 import org.springframework.messaging.MessageHeaders;
 
 @ExtendWith(MockitoExtension.class)
-class FilesListServiceImplTest {
+class FileListServiceImplTest {
 
   private static final String GCS_FOLDER = "gs://bucket/folder/";
   private static final String TEMP_USER = "temp-user";
@@ -66,19 +66,19 @@ class FilesListServiceImplTest {
   @Mock
   private FileLocationRepository fileLocationRepository;
 
-  private FilesListService filesListService;
+  private FileListService fileListService;
 
   @BeforeEach
   void setUp() {
-    filesListService = new FilesListServiceImpl(headersMapper, authenticationService,
+    fileListService = new FileListServiceImpl(headersMapper, authenticationService,
         validationService, fileLocationRepository);
   }
 
   @Test
-  void shouldReturnFilesListByRequest() {
+  void shouldReturnFileListByRequest() {
     // given
     LocalDateTime now = LocalDateTime.now();
-    FilesListRequest request = FilesListRequest.builder()
+    FileListRequest request = FileListRequest.builder()
         .timeFrom(now.minusHours(1))
         .timeTo(now)
         .pageNum(0)
@@ -87,7 +87,7 @@ class FilesListServiceImplTest {
         .build();
     MessageHeaders headers = getMessageHeaders();
 
-    given(fileLocationRepository.findAll(request)).willReturn(FilesListResponse.builder()
+    given(fileLocationRepository.findAll(request)).willReturn(FileListResponse.builder()
         .content(Arrays.asList(
             getFileLocation(toDate(now.minusMinutes(10))),
             getFileLocation(toDate(now.minusMinutes(20)))))
@@ -97,10 +97,10 @@ class FilesListServiceImplTest {
         .build());
 
     // when
-    FilesListResponse response = filesListService.getFilesList(request, headers);
+    FileListResponse response = fileListService.getFileList(request, headers);
 
     // then
-    then(response).isEqualToIgnoringGivenFields(FilesListResponse.builder()
+    then(response).isEqualToIgnoringGivenFields(FileListResponse.builder()
         .number(0)
         .numberOfElements(2)
         .size(5)
@@ -111,15 +111,15 @@ class FilesListServiceImplTest {
         fileLocationRepository);
     inOrder.verify(headersMapper).toHeaders(headers);
     inOrder.verify(authenticationService).checkAuthentication(AUTHORIZATION_TOKEN, PARTITION);
-    inOrder.verify(validationService).validateFilesListRequest(request);
+    inOrder.verify(validationService).validateFileListRequest(request);
     inOrder.verify(fileLocationRepository).findAll(request);
     inOrder.verifyNoMoreInteractions();
   }
 
   @Test
-  void shouldThrowExceptionForGetFilesListWhenCheckingAuthenticationIsFailed() {
+  void shouldThrowExceptionForGetFileListWhenCheckingAuthenticationIsFailed() {
     // given
-    FilesListRequest request = FilesListRequest.builder()
+    FileListRequest request = FileListRequest.builder()
         .build();
     MessageHeaders headers = getMessageHeaders();
 
@@ -127,7 +127,7 @@ class FilesListServiceImplTest {
         .checkAuthentication(AUTHORIZATION_TOKEN, PARTITION);
 
     // when
-    Throwable thrown = catchThrowable(() -> filesListService.getFilesList(request, headers));
+    Throwable thrown = catchThrowable(() -> fileListService.getFileList(request, headers));
 
     // then
     then(thrown).isInstanceOf(OsduUnauthorizedException.class);
@@ -140,17 +140,17 @@ class FilesListServiceImplTest {
   }
 
   @Test
-  void shouldThrowExceptionWhenGetFilesListRequestIsInvalid() {
+  void shouldThrowExceptionWhenGetFileListRequestIsInvalid() {
     // given
-    FilesListRequest request = FilesListRequest.builder()
+    FileListRequest request = FileListRequest.builder()
         .build();
     MessageHeaders headers = getMessageHeaders();
 
     willThrow(ConstraintViolationException.class).given(validationService)
-        .validateFilesListRequest(request);
+        .validateFileListRequest(request);
 
     // when
-    Throwable thrown = catchThrowable(() -> filesListService.getFilesList(request, headers));
+    Throwable thrown = catchThrowable(() -> fileListService.getFileList(request, headers));
 
     // then
     then(thrown).isInstanceOf(ConstraintViolationException.class);
@@ -159,7 +159,7 @@ class FilesListServiceImplTest {
         fileLocationRepository);
     inOrder.verify(headersMapper).toHeaders(headers);
     inOrder.verify(authenticationService).checkAuthentication(AUTHORIZATION_TOKEN, PARTITION);
-    inOrder.verify(validationService).validateFilesListRequest(request);
+    inOrder.verify(validationService).validateFileListRequest(request);
     inOrder.verifyNoMoreInteractions();
   }
 

@@ -18,11 +18,11 @@ package org.opengroup.osdu.file.config;
 
 import org.hibernate.validator.cfg.GenericConstraintDef;
 import org.hibernate.validator.spi.cfg.ConstraintMappingContributor;
+import org.opengroup.osdu.core.common.model.file.FileListRequest;
 import org.opengroup.osdu.core.common.model.file.FileLocationRequest;
-import org.opengroup.osdu.core.common.model.file.FilesListRequest;
 import org.opengroup.osdu.core.common.model.file.LocationRequest;
+import org.opengroup.osdu.file.validation.annotation.ValidFileListRequest;
 import org.opengroup.osdu.file.validation.annotation.ValidFileLocationRequest;
-import org.opengroup.osdu.file.validation.annotation.ValidFilesListRequest;
 import org.opengroup.osdu.file.validation.annotation.ValidLocationRequest;
 import org.opengroup.osdu.file.validation.group.Extended;
 import org.springframework.stereotype.Component;
@@ -47,8 +47,8 @@ public class RequestConstraintMappingContributor implements ConstraintMappingCon
             .groups(Extended.class));
 
     builder.addConstraintMapping()
-        .type(FilesListRequest.class)
-        .constraint(new GenericConstraintDef<>(ValidFilesListRequest.class)
+        .type(FileListRequest.class)
+        .constraint(new GenericConstraintDef<>(ValidFileListRequest.class)
             .groups(Extended.class));
   }
 }

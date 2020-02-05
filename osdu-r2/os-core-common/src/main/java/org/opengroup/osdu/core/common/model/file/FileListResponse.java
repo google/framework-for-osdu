@@ -14,19 +14,43 @@
  * limitations under the License.
  */
 
-package org.opengroup.osdu.core.common.model;
+package org.opengroup.osdu.core.common.model.file;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public enum DataType {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class FileListResponse {
 
-  @JsonProperty("opaque")
-  OPAQUE,
+  /**
+   * The page content.
+   */
+  @JsonProperty("Content")
+  List<FileLocation> content;
 
-  @JsonProperty("well_log")
-  WELL_LOG,
+  /**
+   * The number of current page.
+   */
+  @JsonProperty("Number")
+  int number;
 
-  @JsonProperty("osdu")
-  OSDU
+  /**
+   * The number of elements currently on this page.
+   */
+  @JsonProperty("NumberOfElements")
+  int numberOfElements;
+
+  /**
+   * The size of the page.
+   */
+  @JsonProperty("Size")
+  int size;
 
 }

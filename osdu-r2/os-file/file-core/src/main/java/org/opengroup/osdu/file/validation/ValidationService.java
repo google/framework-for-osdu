@@ -23,8 +23,8 @@ import javax.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.opengroup.osdu.core.common.model.file.FileListRequest;
 import org.opengroup.osdu.core.common.model.file.FileLocationRequest;
-import org.opengroup.osdu.core.common.model.file.FilesListRequest;
 import org.opengroup.osdu.core.common.model.file.LocationRequest;
 import org.opengroup.osdu.file.validation.group.ValidationSequence;
 import org.springframework.stereotype.Service;
@@ -57,13 +57,13 @@ public class ValidationService {
   }
 
   /**
-   * Validates files list request using Java Bean Validation.
+   * Validates file list request using Java Bean Validation.
    *
    * @param request location request
    * @throws ConstraintViolationException if request is invalid
    */
-  public void validateFilesListRequest(FilesListRequest request) {
-    validate(request, "Invalid FilesListRequest");
+  public void validateFileListRequest(FileListRequest request) {
+    validate(request, "Invalid FileListRequest");
   }
 
   private <T> void validate(T value, String errorMsg) {

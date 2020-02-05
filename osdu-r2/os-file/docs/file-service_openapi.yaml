@@ -4,18 +4,20 @@ info:
   version: "0.0.1"
   title: OpenDES File Service
   description: |
-    The File service provides internal and external APIs to request file location data, such as an individual signed URL per file.
+    The OpenDES File service provides internal and external APIs to request file location data, such as an individual signed URL per file.
 
 servers:
-  - url: os-file.a.run.app
+  - url: amer-demo28-test.apigee.net/os-file
+    description: Test server
 
 paths:
-  /getLocationFunction:
+  /getLocation:
     post:
       description: |
-        Creates a new location in the landing zone, such as a GCS bucket.
+        Create a new location in the landing zone, such as a GCS bucket.
+      security:
+        - bearerAuth: []
       parameters:
-        - $ref: '#/components/parameters/Authorization'
         - $ref: '#/components/parameters/Partition'
       requestBody:
         $ref: '#/components/requestBodies/LocationRequest'
@@ -33,12 +35,13 @@ paths:
           $ref: '#/components/responses/Bad-Request'
         '5XX':
           description: Unexpected error.
-  /getFileLocationFunction:
+  /getFileLocation:
     post:
       description: |
         Returns file `Location` and `Driver`.
+      security:
+        - bearerAuth: []
       parameters:
-        - $ref: '#/components/parameters/Authorization'
         - $ref: '#/components/parameters/Partition'
       requestBody:
         $ref: '#/components/requestBodies/FileLocationRequest'
@@ -56,23 +59,24 @@ paths:
           $ref: '#/components/responses/Bad-Request'
         '5XX':
           description: Unexpected error.
-  /getFilesListFunction:
+  /getFileList:
     post:
       description: |
         Allows the application to audit the attempted file uploads. The method is internal and isn't available for third-party applications.
+      security:
+        - bearerAuth: []
       parameters:
-        - $ref: '#/components/parameters/Authorization'
         - $ref: '#/components/parameters/Partition'
       requestBody:
-        $ref: '#/components/requestBodies/FilesListRequest'
+        $ref: '#/components/requestBodies/FileListRequest'
       responses:
         '200':
           description: |
-            Files list page
+            File list page
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FilesListResponse'
+                $ref: '#/components/schemas/FileListResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '400':
@@ -81,15 +85,12 @@ paths:
           description: Unexpected error.
 
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   parameters:
-    Authorization:
-      in: header
-      name: Authorization
-      description: |
-        Authorization token as `"Bearer: {token}"`
-      required: true
-      schema:
-        type: string
     Partition:
       in: header
       name: Partition-Id
@@ -153,7 +154,7 @@ components:
           $ref: '#/components/schemas/Driver'
         Location:
           type: string
-    FilesListResponse:
+    FileListResponse:
       type: object
       properties:
         content:
@@ -186,7 +187,7 @@ components:
                 $ref: '#/components/schemas/FileID'
             required:
               - FileID
-    FilesListRequest:
+    FileListRequest:
       content:
         application/json:
           schema:

@@ -20,12 +20,12 @@ import java.time.LocalDateTime;
 import javax.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.opengroup.osdu.core.common.model.file.FilesListRequest;
+import org.opengroup.osdu.core.common.model.file.FileListRequest;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class CommonFilesListRequestValidator implements FilesListRequestValidator {
+public class CommonFileListRequestValidator implements FileListRequestValidator {
 
   private static final String TIME_FROM_FIELD = "TimeFrom";
   private static final String TIME_TO_FIELD = "TimeTo";
@@ -40,7 +40,7 @@ public class CommonFilesListRequestValidator implements FilesListRequestValidato
   private static final String POSITIVE_MESSAGE = "{javax.validation.constraints.Positive.message}";
 
   @Override
-  public boolean isValid(FilesListRequest request,
+  public boolean isValid(FileListRequest request,
       ConstraintValidatorContext constraintValidatorContext) {
     boolean isValid = true;
 

@@ -19,8 +19,8 @@ package org.opengroup.osdu.file.service;
 import javax.inject.Named;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.opengroup.osdu.core.common.model.file.FilesListRequest;
-import org.opengroup.osdu.core.common.model.file.FilesListResponse;
+import org.opengroup.osdu.core.common.model.file.FileListRequest;
+import org.opengroup.osdu.core.common.model.file.FileListResponse;
 import org.opengroup.osdu.file.mapper.HeadersMapper;
 import org.opengroup.osdu.file.model.Headers;
 import org.opengroup.osdu.file.repository.FileLocationRepository;
@@ -31,7 +31,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class FilesListServiceImpl implements FilesListService {
+public class FileListServiceImpl implements FileListService {
 
   @Named
   final HeadersMapper headersMapper;
@@ -40,17 +40,17 @@ public class FilesListServiceImpl implements FilesListService {
   final FileLocationRepository fileLocationRepository;
 
   @Override
-  public FilesListResponse getFilesList(FilesListRequest request, MessageHeaders messageHeaders) {
-    log.debug("Request file location with parameters : {}, and headers, {}",
+  public FileListResponse getFileList(FileListRequest request, MessageHeaders messageHeaders) {
+    log.debug("Request file list with parameters : {}, and headers, {}",
         request, messageHeaders);
     Headers headers = headersMapper.toHeaders(messageHeaders);
 
     authenticationService.checkAuthentication(headers.getAuthorizationToken(),
         headers.getPartitionID());
-    validationService.validateFilesListRequest(request);
+    validationService.validateFileListRequest(request);
 
-    FilesListResponse response = fileLocationRepository.findAll(request);
-    log.debug("Files list result : {}", response);
+    FileListResponse response = fileLocationRepository.findAll(request);
+    log.debug("File list result : {}", response);
     return response;
   }
 

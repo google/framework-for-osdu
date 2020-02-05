@@ -8,7 +8,7 @@
 * [API](#api)
     * [POST /getLocation](#post-getlocation)
     * [POST /getFileLocation](#post-getfilelocation)
-    * [POST /getFilesList](#post-getfileslist)
+    * [POST /getFileList](#post-getfilelist)
 * [GCP implementation](#gcp-implementation)
 * [Firestore](#firestore)
 
@@ -27,10 +27,10 @@ and Google Cloud Storage (GCS).
 
 ## System interactions
 
-The File service defines three workflows &mdash; file upload, file location delivery, and files list
+The File service defines three workflows &mdash; file upload, file location delivery, and file list
 delivery.
 
-> The files list delivery workflow isn't implemented in ODES R2.
+> The file list delivery workflow isn't implemented in ODES R2.
 
 ### File upload
 
@@ -55,8 +55,8 @@ Upon a request to get a location for a file:
 access for that object.
     * By the signed URL, the user or application will upload their file for ingestion.
     * The generated signed URL has the maximum duration of 7 days.
-4. Query the Registry service to create a record with file data in the database. The record will
-contain a key-value pair with the file ID as the key and object as the value.
+4. Create a record with file data in the database. The record will contain a key-value pair with the
+file ID as the key and object as the value.
 5. Return the signed URL and file ID to the application or user.
 
 ### File location delivery
@@ -69,12 +69,12 @@ demonstrates the workflow.
 Upon request from an ODES R2 service:
 
 1. Get the `FileID` value from the incoming request.
-2. Query the Registry service by `FileID` to get the file record from the database.
+2. Query the database with `FileID` to get the file record.
 3. Return the `Location` and `Driver` from the record to the calling service.
 
-### Files list delivery
+### File list delivery
 
-The file location delivery workflow is defined for the `/getFilesList` API.
+The file location delivery workflow is defined for the `/getFileList` API.
 
 ## Database interactions
 
@@ -95,11 +95,11 @@ implementations, the File service will be able to check if file uploads did happ
 
 The File service's API includes the following three methods in the prototype:
 
-* `getLocation`, external
-* `getFileLocation`, internal
-* `getFilesList`, internal
+* `/getLocation`, external
+* `/getFileLocation`, internal
+* `/getFileList`, internal
 
-> `getFilesList` is currently not implemented.
+> `/getFileList` is not implemented in ODES R2.
 
 ### POST /getLocation
 
@@ -160,10 +160,10 @@ The File service returns the following data.
 
 ### POST /getFileLocation
 
-The `getFileLocation` API similar to `getLocation`, but is internal and returns the landing zone
+The `/getFileLocation` API similar to `/getLocation`, but is internal and returns the landing zone
 &mdash; `location` and `driver` &mdash; of a particular file.
 
-Once the ODES security model is formulated and approved, the `getFileLocation` API will not be
+Once the ODES security model is formulated and approved, the `/getFileLocation` API will not be
 returning files that belong to other users.
 
 #### Request
@@ -191,15 +191,15 @@ curl --location --request POST 'https://{path}/getFileLocation' \
 | Driver   | `String` | Description of the storage where the file is stored |
 | Location | `String` | Direct URI to the file in storage                   |
 
-### POST /getFilesList
+### POST /getFileList
 
 _Isn't implemented in the OSDU R2 Prototype. To be developed in future OSDU releases._
 
-The `getFilesList` API allows auditing the attempted file uploads. The method is unavailable for
+The `/getFileList` API allows auditing the attempted file uploads. The method is unavailable for
 third-party applications.
 
 The ingestion process depends on whether the client application uploaded a file or not. The
-`getFilesList` API is designed to let other ODES services to inspect which user uploaded a file,
+`/getFileList` API is designed to let other ODES services to inspect which user uploaded a file,
 whether the file was uploaded to the landing zone, and whether the user started ingestion after the
 file upload.
 
@@ -218,7 +218,7 @@ file upload.
 **Example**:
 
 ```sh
-curl --location --request POST 'https://{path}/getFilesList' \
+curl --location --request POST 'https://{path}/getFileList' \
 --header 'Authorization: {token}' \
 --header 'Partition-Id: {DELFI partition ID}' \
 --header 'Content-Type: application/json' \

@@ -44,8 +44,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.aggregator.ArgumentsAccessor;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.opengroup.osdu.core.common.model.file.FileListRequest;
 import org.opengroup.osdu.core.common.model.file.FileLocationRequest;
-import org.opengroup.osdu.core.common.model.file.FilesListRequest;
 import org.opengroup.osdu.core.common.model.file.LocationRequest;
 import org.opengroup.osdu.file.ReplaceCamelCase;
 import org.opengroup.osdu.file.config.RequestConstraintMappingContributor;
@@ -256,7 +256,7 @@ class ValidationServiceTest {
     void shouldSuccessfullyValidateFilledRequest() {
       // given
       LocalDateTime now = LocalDateTime.now();
-      FilesListRequest request = FilesListRequest.builder()
+      FileListRequest request = FileListRequest.builder()
           .timeFrom(now.minusHours(3))
           .timeTo(now)
           .pageNum(0)
@@ -265,25 +265,25 @@ class ValidationServiceTest {
           .build();
 
       // when
-      Throwable thrown = catchThrowable(() -> validationService.validateFilesListRequest(request));
+      Throwable thrown = catchThrowable(() -> validationService.validateFileListRequest(request));
 
       // then
       assertThat(thrown).isNull();
     }
 
     @ParameterizedTest(name = "{index} ==> Validation should fail when {0}")
-    @MethodSource("org.opengroup.osdu.file.validation.ValidationServiceTest#filesListRequestProvider")
+    @MethodSource("org.opengroup.osdu.file.validation.ValidationServiceTest#fileListRequestProvider")
     void shouldFailValidationWhenRequest(ArgumentsAccessor arguments) {
       // given
-      FilesListRequest request = arguments.get(1, FilesListRequest.class);
+      FileListRequest request = arguments.get(1, FileListRequest.class);
 
       // when
-      Throwable thrown = catchThrowable(() -> validationService.validateFilesListRequest(request));
+      Throwable thrown = catchThrowable(() -> validationService.validateFileListRequest(request));
 
       // then
       assertThat(thrown)
           .isInstanceOf(ConstraintViolationException.class)
-          .hasMessage("Invalid FilesListRequest");
+          .hasMessage("Invalid FileListRequest");
 
       ConstraintViolationException ex = (ConstraintViolationException) thrown;
       List<Tuple> expectedTuples = arguments.get(2, List.class);
@@ -294,48 +294,48 @@ class ValidationServiceTest {
 
   }
 
-  static Stream<Arguments> filesListRequestProvider() {
+  static Stream<Arguments> fileListRequestProvider() {
     LocalDateTime now = LocalDateTime.now();
-    FilesListRequest request1 = FilesListRequest.builder()
+    FileListRequest request1 = FileListRequest.builder()
         .timeTo(now)
         .pageNum(0)
         .items((short) 1)
         .userID("temp-user")
         .build();
-    FilesListRequest request2 = FilesListRequest.builder()
+    FileListRequest request2 = FileListRequest.builder()
         .timeFrom(now.minusHours(3))
         .pageNum(0)
         .items((short) 1)
         .userID("temp-user")
         .build();
-    FilesListRequest request3 = FilesListRequest.builder()
+    FileListRequest request3 = FileListRequest.builder()
         .timeFrom(now.minusHours(3))
         .timeTo(now)
         .pageNum(-2)
         .items((short) 1)
         .userID("temp-user")
         .build();
-    FilesListRequest request4 = FilesListRequest.builder()
+    FileListRequest request4 = FileListRequest.builder()
         .timeFrom(now.minusHours(3))
         .timeTo(now)
         .pageNum(0)
         .items((short) -1)
         .userID("temp-user")
         .build();
-    FilesListRequest request5 = FilesListRequest.builder()
+    FileListRequest request5 = FileListRequest.builder()
         .timeFrom(now.minusHours(3))
         .timeTo(now)
         .pageNum(0)
         .items((short) 1)
         .build();
-    FilesListRequest request6 = FilesListRequest.builder()
+    FileListRequest request6 = FileListRequest.builder()
         .timeFrom(now)
         .timeTo(now.minusHours(3))
         .pageNum(0)
         .items((short) 1)
         .userID("temp-user")
         .build();
-    FilesListRequest request7 = FilesListRequest.builder()
+    FileListRequest request7 = FileListRequest.builder()
         .build();
 
     return Stream.of(
@@ -373,8 +373,8 @@ class ValidationServiceTest {
         return (T) new FileLocationRequestValidatorWrapper(fileLocationRequestValidator);
       }
 
-      if (FilesListRequestValidatorWrapper.class.equals(key)) {
-        return (T) new FilesListRequestValidatorWrapper(new CommonFilesListRequestValidator());
+      if (FileListRequestValidatorWrapper.class.equals(key)) {
+        return (T) new FileListRequestValidatorWrapper(new CommonFileListRequestValidator());
       }
 
       return constraintValidatorFactory.getInstance(key);

@@ -18,23 +18,23 @@ package org.opengroup.osdu.file.functions;
 
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
-import org.opengroup.osdu.core.common.model.file.FilesListRequest;
-import org.opengroup.osdu.core.common.model.file.FilesListResponse;
-import org.opengroup.osdu.file.service.FilesListService;
+import org.opengroup.osdu.core.common.model.file.FileListRequest;
+import org.opengroup.osdu.core.common.model.file.FileListResponse;
+import org.opengroup.osdu.file.service.FileListService;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class GetFilesListFunction
-    implements Function<Message<FilesListRequest>, Message<FilesListResponse>> {
+public class GetFileListFunction
+    implements Function<Message<FileListRequest>, Message<FileListResponse>> {
 
-  final FilesListService filesListService;
+  final FileListService fileListService;
 
   @Override
-  public Message<FilesListResponse> apply(Message<FilesListRequest> message) {
+  public Message<FileListResponse> apply(Message<FileListRequest> message) {
     return new GenericMessage<>(
-        filesListService.getFilesList(message.getPayload(), message.getHeaders()));
+        fileListService.getFileList(message.getPayload(), message.getHeaders()));
   }
 }

@@ -26,10 +26,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.opengroup.osdu.file.ReplaceCamelCase;
+import org.opengroup.osdu.file.service.FileListService;
+import org.opengroup.osdu.file.service.FileListServiceImpl;
 import org.opengroup.osdu.file.service.FileService;
 import org.opengroup.osdu.file.service.FileServiceImpl;
-import org.opengroup.osdu.file.service.FilesListService;
-import org.opengroup.osdu.file.service.FilesListServiceImpl;
 import org.opengroup.osdu.file.service.LocationService;
 import org.opengroup.osdu.file.service.LocationServiceImpl;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -54,7 +54,7 @@ class FileGcpApplicationTest {
 
     // then
     assertThat(names).hasSize(5)
-        .containsExactlyInAnyOrder("getFilesListFunction", "getFileLocationFunction",
+        .containsExactlyInAnyOrder("getFileListFunction", "getFileLocationFunction",
             "getLocationFunction", "getFileFunction", RoutingFunction.FUNCTION_NAME);
   }
 
@@ -78,8 +78,8 @@ class FileGcpApplicationTest {
     }
 
     @Bean
-    FilesListService filesListService() {
-      return Mockito.mock(FilesListServiceImpl.class);
+    FileListService fileListService() {
+      return Mockito.mock(FileListServiceImpl.class);
     }
 
   }

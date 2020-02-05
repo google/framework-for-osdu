@@ -19,20 +19,20 @@ package org.opengroup.osdu.file.validation;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;
-import org.opengroup.osdu.core.common.model.file.FilesListRequest;
-import org.opengroup.osdu.file.validation.annotation.ValidFilesListRequest;
+import org.opengroup.osdu.core.common.model.file.FileListRequest;
+import org.opengroup.osdu.file.validation.annotation.ValidFileListRequest;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class FilesListRequestValidatorWrapper
-    implements ConstraintValidator<ValidFilesListRequest, FilesListRequest> {
+public class FileListRequestValidatorWrapper
+    implements ConstraintValidator<ValidFileListRequest, FileListRequest> {
 
-  final FilesListRequestValidator filesListRequestValidator;
+  final FileListRequestValidator fileListRequestValidator;
 
   @Override
-  public boolean isValid(FilesListRequest request, ConstraintValidatorContext context) {
-    return filesListRequestValidator.isValid(request, context);
+  public boolean isValid(FileListRequest request, ConstraintValidatorContext context) {
+    return fileListRequestValidator.isValid(request, context);
   }
 
 }

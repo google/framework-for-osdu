@@ -22,8 +22,8 @@ import java.util.Set;
 import javax.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.opengroup.osdu.file.service.FileListService;
 import org.opengroup.osdu.file.service.FileService;
-import org.opengroup.osdu.file.service.FilesListService;
 import org.opengroup.osdu.file.service.LocationService;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -46,7 +46,7 @@ class FileApplicationTest {
 
     // then
     assertThat(names).hasSize(5)
-        .containsExactlyInAnyOrder("getFilesListFunction", "getFileLocationFunction",
+        .containsExactlyInAnyOrder("getFileListFunction", "getFileLocationFunction",
             "getLocationFunction", "getFileFunction", RoutingFunction.FUNCTION_NAME);
   }
 
@@ -60,7 +60,7 @@ class FileApplicationTest {
     LocationService locationService;
 
     @MockBean
-    FilesListService filesListService;
+    FileListService fileListService;
 
   }
 

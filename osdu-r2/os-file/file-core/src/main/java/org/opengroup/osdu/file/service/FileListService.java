@@ -17,15 +17,15 @@
 package org.opengroup.osdu.file.service;
 
 import javax.validation.ConstraintViolationException;
-import org.opengroup.osdu.core.common.model.file.FilesListRequest;
-import org.opengroup.osdu.core.common.model.file.FilesListResponse;
+import org.opengroup.osdu.core.common.model.file.FileListRequest;
+import org.opengroup.osdu.core.common.model.file.FileListResponse;
 import org.opengroup.osdu.file.exception.OsduUnauthorizedException;
 import org.springframework.messaging.MessageHeaders;
 
-public interface FilesListService {
+public interface FileListService {
 
   /**
-   * GetFilesList will be used for audit purposes, since system relies on client to upload a file,
+   * GetFileList will be used for audit purposes, since system relies on client to upload a file,
    * we should have an option to identify whether actual upload happened or not;
    * and potentially cleanup database.
    *
@@ -35,6 +35,6 @@ public interface FilesListService {
    * @throws OsduUnauthorizedException if token and partitionID are missing or, invalid
    * @throws ConstraintViolationException if request is invalid
    */
-  FilesListResponse getFilesList(FilesListRequest request, MessageHeaders messageHeaders);
+  FileListResponse getFileList(FileListRequest request, MessageHeaders messageHeaders);
 
 }

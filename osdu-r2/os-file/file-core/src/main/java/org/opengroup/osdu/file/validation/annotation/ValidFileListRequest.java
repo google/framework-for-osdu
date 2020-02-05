@@ -23,15 +23,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
-import org.opengroup.osdu.file.validation.FilesListRequestValidatorWrapper;
+import org.opengroup.osdu.file.validation.FileListRequestValidatorWrapper;
 
 @Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = {FilesListRequestValidatorWrapper.class})
+@Constraint(validatedBy = {FileListRequestValidatorWrapper.class})
 @Documented
-public @interface ValidFilesListRequest {
+public @interface ValidFileListRequest {
 
-  String message() default "Invalid files list request";
+  String message() default "Invalid file list request";
 
   Class<?>[] groups() default {};
 

@@ -54,10 +54,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opengroup.osdu.core.common.model.file.DriverType;
+import org.opengroup.osdu.core.common.model.file.FileListRequest;
+import org.opengroup.osdu.core.common.model.file.FileListResponse;
 import org.opengroup.osdu.core.common.model.file.FileLocation;
 import org.opengroup.osdu.core.common.model.file.FileLocation.Fields;
-import org.opengroup.osdu.core.common.model.file.FilesListRequest;
-import org.opengroup.osdu.core.common.model.file.FilesListResponse;
 import org.opengroup.osdu.file.ReplaceCamelCase;
 import org.opengroup.osdu.file.exception.FileLocationNotFoundException;
 import org.opengroup.osdu.file.exception.FileLocationQueryException;
@@ -294,7 +294,7 @@ class FileLocationRepositoryImplTest {
   }
 
   @Nested
-  class FilesListPagination {
+  class FileListPagination {
 
     @Test
     void shouldReturnFirstPageWith2Element() {
@@ -304,7 +304,7 @@ class FileLocationRepositoryImplTest {
       QueryDocumentSnapshot qDocSnap2 = mock(QueryDocumentSnapshot.class);
 
       LocalDateTime now = LocalDateTime.now();
-      FilesListRequest request = FilesListRequest.builder()
+      FileListRequest request = FileListRequest.builder()
           .timeFrom(now.minusHours(1))
           .timeTo(now)
           .pageNum(0)
@@ -324,10 +324,10 @@ class FileLocationRepositoryImplTest {
       givenDocSnap(qDocSnap2, getFileLocation(toDate(now.minusMinutes(20))));
 
       // when
-      FilesListResponse response = fileLocationRepository.findAll(request);
+      FileListResponse response = fileLocationRepository.findAll(request);
 
       // then
-      then(response).isEqualToIgnoringGivenFields(FilesListResponse.builder()
+      then(response).isEqualToIgnoringGivenFields(FileListResponse.builder()
           .number(0)
           .numberOfElements(2)
           .size(5)
@@ -342,7 +342,7 @@ class FileLocationRepositoryImplTest {
       QueryDocumentSnapshot qDocSnap1 = mock(QueryDocumentSnapshot.class);
 
       LocalDateTime now = LocalDateTime.now();
-      FilesListRequest request = FilesListRequest.builder()
+      FileListRequest request = FileListRequest.builder()
           .timeFrom(now.minusHours(1))
           .timeTo(now)
           .pageNum(1)
@@ -361,10 +361,10 @@ class FileLocationRepositoryImplTest {
       givenDocSnap(qDocSnap1, getFileLocation(toDate(now.minusMinutes(10))));
 
       // when
-      FilesListResponse response = fileLocationRepository.findAll(request);
+      FileListResponse response = fileLocationRepository.findAll(request);
 
       // then
-      then(response).isEqualToIgnoringGivenFields(FilesListResponse.builder()
+      then(response).isEqualToIgnoringGivenFields(FileListResponse.builder()
           .number(1)
           .numberOfElements(1)
           .size(5)
@@ -378,7 +378,7 @@ class FileLocationRepositoryImplTest {
       Query query = mock(Query.class);
 
       LocalDateTime now = LocalDateTime.now();
-      FilesListRequest request = FilesListRequest.builder()
+      FileListRequest request = FileListRequest.builder()
           .timeFrom(now.minusHours(1))
           .timeTo(now)
           .pageNum(42)
@@ -409,7 +409,7 @@ class FileLocationRepositoryImplTest {
       Query query = mock(Query.class);
 
       LocalDateTime now = LocalDateTime.now();
-      FilesListRequest request = FilesListRequest.builder()
+      FileListRequest request = FileListRequest.builder()
           .timeFrom(now.minusHours(1))
           .timeTo(now)
           .pageNum(0)
@@ -429,7 +429,7 @@ class FileLocationRepositoryImplTest {
       // then
       then(thrown)
           .isInstanceOf(FileLocationQueryException.class)
-          .hasMessageContaining("Failed to find files list page:");
+          .hasMessageContaining("Failed to find file list page:");
     }
 
   }
