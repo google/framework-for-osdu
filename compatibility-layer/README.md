@@ -52,7 +52,7 @@ The compatibility layer also includes two helper services:
 
 The OSDU Compatibility Layer is built with [Java] and [Terraform].
 
-The project also uses the following Java libraries:
+The project uses the following Java libraries:
 
 * [Spring Cloud Greenwich Service Release 2]
 * [Spring Framework 2.1.7]
@@ -64,22 +64,29 @@ The project also uses the following Java libraries:
 * [Apache HttpClient 4.3.4]
 * [Jackson Databind 2.10.0.pr1]
 
-The project leverages the following Google Cloud Platform services:
+The framework leverages [Google Cloud Platform] functionality, specifically:
 
-* [Cloud Run]
-* [Cloud Storage]
-* [Cloud Firestore]
-* [Cloud Pub/Sub]
+* [Cloud Storage](https://cloud.google.com/storage/): object store
+* [Firestore](https://cloud.google.com/firestore/): key-value pair lookup for OSDU SRN to DELFI GUID mapping
+* [Cloud Pub/Sub](https://cloud.google.com/pubsub): asynchronous ingestion
+
+## Built With
+
+* [Knative]: middleware components for modern, source-centric, and container-based applications that can run anywhere.
+* [Java]
+* [Google Cloud Platform]
+* [Terraform]
 
 ## License
 
-This project is licensed under the Apache License. Consult the [LICENSE](./LICENSE.md) file for details.
+This project is licensed under the Apache License. Consult the [LICENSE](../LICENSE.md) file for details.
 
 [Open Subsurface Data Universe]: https://www.opengroup.org/osdu/forum-homepage
 [DELFI data ecosystem]: https://www.software.slb.com/delfi/openness/delfi-data-ecosystem
 [OSDU Release 1]: https://www.opengroup.org/membership/forums/open-subsurface-data-universe/achievement-and-plans
 [OpenDES]: https://www.slb.com/newsroom/press-release/2019/pr-2019-0822-osdu-data-ecosystem
-[Java]: https://docs.oracle.com/javase/8/docs/technotes/guides/language/index.html
+[Knative]: https://knative.dev/docs/
+[Java]: https://www.java.com/en/
 [Terraform]: https://www.terraform.io/
 [Google Cloud Platform]: https://cloud.google.com
 [Spring Cloud Greenwich Service Release 2]: https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies/Greenwich.SR2
@@ -93,5 +100,5 @@ This project is licensed under the Apache License. Consult the [LICENSE](./LICEN
 [Jackson Databind 2.10.0.pr1]: https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind/2.10.0.pr1
 [Cloud Run]: https://cloud.google.com/run/
 [Cloud Storage]: https://cloud.google.com/storage/
-[Cloud Firestore]: https://firebase.google.com/
+[Cloud Firestore]: https://firestore.google.com/
 [Cloud Pub/Sub]: https://cloud.google.com/pubsub
