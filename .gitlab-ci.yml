@@ -15,19 +15,23 @@ cache:
 
 verify:
   stage: test
+  before_script:
+    - cd compatibility-layer
   script:
     - mvn $MAVEN_CLI_OPTS verify sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.projectKey=osdu-gcp -Dsonar.login=$SONAR_TOKEN -Dsonar.coverage.jacoco.xmlReportsPath=target/site/jacoco/jacoco.xml
   artifacts:
     reports:
       junit:
-        - service/delivery/target/surefire-reports/TEST-*.xml
-        - service/ingest/target/surefire-reports/TEST-*.xml
-        - service/search/target/surefire-reports/TEST-*.xml
+        - compatibility-layer/service/delivery/target/surefire-reports/TEST-*.xml
+        - compatibility-layer/service/ingest/target/surefire-reports/TEST-*.xml
+        - compatibility-laye/rservice/search/target/surefire-reports/TEST-*.xml
 
 .deploy_template: &deploy_template
   stage: deploy
   image: google/cloud-sdk
   cache: {}
+  before_script:
+    - cd compatibility-layer
   script:
     - echo "$GCP_SVC_ACCT" > account.json
     - gcloud auth activate-service-account --key-file account.json
@@ -43,15 +47,15 @@ deploy_search:
     refs:
       - master
       - develop
-    changes:
-      - pom.xml
-      - service/pom.xml
-      - common/**/*
-      - service/search/**/*
-      - service/delfi-client/**/*
-      - service/srn-mapper/**/*
-      - Dockerfile
-      - cloudbuild.yaml
+    changes: 
+      - compatibility-layer/pom.xml
+      - compatibility-layer/service/pom.xml
+      - compatibility-layer/common/**/*
+      - compatibility-layer/service/search/**/*
+      - compatibility-layer/service/delfi-client/**/*
+      - compatibility-layer/service/srn-mapper/**/*
+      - compatibility-layer/Dockerfile
+      - compatibility-layer/cloudbuild.yaml
 
 deploy_delivery:
   <<: *deploy_template
@@ -62,14 +66,14 @@ deploy_delivery:
       - master
       - develop
     changes:
-      - pom.xml
-      - service/pom.xml
-      - common/**/*
-      - service/delivery/**/*
-      - service/delfi-client/**/*
-      - service/srn-mapper/**/*
-      - Dockerfile
-      - cloudbuild.yaml
+      - compatibility-layer/pom.xml
+      - compatibility-layer/service/pom.xml
+      - compatibility-layer/common/**/*
+      - compatibility-layer/service/delivery/**/*
+      - compatibility-layer/service/delfi-client/**/*
+      - compatibility-layer/service/srn-mapper/**/*
+      - compatibility-layer/Dockerfile
+      - compatibility-layer/cloudbuild.yaml
 
 deploy_ingest:
   <<: *deploy_template
@@ -80,11 +84,11 @@ deploy_ingest:
       - master
       - develop
     changes:
-      - pom.xml
-      - service/pom.xml
-      - common/**/*
-      - service/ingest/**/*
-      - service/delfi-client/**/*
-      - service/srn-mapper/**/*
-      - Dockerfile
-      - cloudbuild.yaml
+      - compatibility-layer/pom.xml
+      - compatibility-layer/service/pom.xml
+      - compatibility-layer/common/**/*
+      - compatibility-layer/service/ingest/**/*
+      - compatibility-layer/service/delfi-client/**/*
+      - compatibility-layer/service/srn-mapper/**/*
+      - compatibility-layer/Dockerfile
+      - compatibility-layer/cloudbuild.yaml
