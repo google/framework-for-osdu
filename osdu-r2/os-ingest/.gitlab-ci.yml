@@ -1,0 +1,60 @@
+# Copyright 2020 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+image: maven:3.3.9-jdk-8
+
+stages:
+  - test
+  - build
+  - deploy
+
+variables:
+  MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
+  MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
+
+cache:
+  paths:
+    - .m2/repository/
+
+verify:
+  stage: test
+  script:
+    - mvn $MAVEN_CLI_OPTS verify sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.projectKey=os-ingest -Dsonar.login=$SONAR_TOKEN -Dsonar.coverage.jacoco.xmlReportsPath=target/site/jacoco/jacoco.xml
+  artifacts:
+    reports:
+      junit:
+        - ingest-core/target/surefire-reports/TEST-*.xml
+        - provider/**/target/surefire-reports/TEST-*.xml
+
+.deploy_gcp_template:
+  stage: deploy
+  image: google/cloud-sdk
+  cache: {}
+  variables:
+    PROVIDER_NAME: gcp
+  script:
+    - echo "$GCP_SVC_ACCT" > account.json
+    - gcloud auth activate-service-account --key-file account.json
+    - gcloud config set project $GCP_PROJECT
+    - gcloud builds submit --substitutions=_PROVIDER_NAME=$PROVIDER_NAME,_SHORT_SHA=$CI_COMMIT_SHORT_SHA,_CACHE_BUCKET=$GCS_CACHE_BUCKET,_MAVEN_REPO_USER=$MAVEN_REPO_USER,_MAVEN_REPO_PASS=$MAVEN_REPO_PASS
+    - gcloud run deploy $SERVICE --image gcr.io/$GCP_PROJECT/os-ingest/ingest-$PROVIDER_NAME:$CI_COMMIT_SHORT_SHA --platform managed --region $CLOUDRUN_REGION --allow-unauthenticated --service-account $SERVICE_ACCOUNT --memory 512M
+
+deploy_os_ingest_gcp:
+  extends: .deploy_gcp_template
+  variables:
+    SERVICE: os-ingest
+  only:
+    refs:
+      - master
+      - develop
