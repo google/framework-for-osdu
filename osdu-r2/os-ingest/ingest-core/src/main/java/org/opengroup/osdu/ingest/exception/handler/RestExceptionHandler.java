@@ -58,7 +58,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
       errors.add(violation.getPropertyPath() + ": " + violation.getMessage());
     }
-
+    log.error("Constraint exception: {}", errors);
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
     ApiError apiError = ApiError.builder()

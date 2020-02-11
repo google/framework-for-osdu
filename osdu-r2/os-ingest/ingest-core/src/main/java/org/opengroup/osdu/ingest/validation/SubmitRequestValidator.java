@@ -16,12 +16,14 @@
 
 package org.opengroup.osdu.ingest.validation;
 
+import java.util.List;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.opengroup.osdu.core.common.model.DataType;
 import org.opengroup.osdu.ingest.model.SubmitRequest;
+import org.opengroup.osdu.ingest.property.DataTypeValidationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -31,6 +33,8 @@ public class SubmitRequestValidator
 
   private static final String DATA_TYPE_FIELD = "DataType";
   private static final String FILE_ID_FIELD = "FileID";
+  private static final String DATA_TYPE_ERROR_TEMPLATE = "DataType %s is not allowed for ingest. Allowed data types - %s";
+  final DataTypeValidationProperties dataTypeValidationProperties;
 
   @Override
   public boolean isValid(SubmitRequest request,
@@ -51,6 +55,17 @@ public class SubmitRequestValidator
       constraintValidatorContext.disableDefaultConstraintViolation();
       constraintValidatorContext
           .buildConstraintViolationWithTemplate("{javax.validation.constraints.NotNull.message}")
+          .addPropertyNode(DATA_TYPE_FIELD)
+          .addConstraintViolation();
+      return false;
+    }
+
+    List<DataType> allowedDataTypes = dataTypeValidationProperties.getAllowedDataTypes();
+    if (!allowedDataTypes.contains(dataType)) {
+      constraintValidatorContext.disableDefaultConstraintViolation();
+      constraintValidatorContext
+          .buildConstraintViolationWithTemplate(
+              String.format(DATA_TYPE_ERROR_TEMPLATE, dataType, allowedDataTypes))
           .addPropertyNode(DATA_TYPE_FIELD)
           .addConstraintViolation();
       return false;

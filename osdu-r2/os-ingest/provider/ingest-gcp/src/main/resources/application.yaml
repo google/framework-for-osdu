@@ -20,3 +20,5 @@ osdu:
     url: https://os-workflow-s7iuxioqja-uc.a.run.app
     start-workflow-endpoint: startWorkflowFunction
 
+validation:
+  allowed-datatypes: well_log, opaque

@@ -18,11 +18,17 @@ package org.opengroup.osdu.ingest.validation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
+import java.util.Collections;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorFactory;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import org.hibernate.validator.HibernateValidatorConfiguration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -30,6 +36,7 @@ import org.junit.jupiter.api.Test;
 import org.opengroup.osdu.core.common.model.DataType;
 import org.opengroup.osdu.file.ReplaceCamelCase;
 import org.opengroup.osdu.ingest.model.SubmitRequest;
+import org.opengroup.osdu.ingest.property.DataTypeValidationProperties;
 
 @DisplayNameGeneration(ReplaceCamelCase.class)
 class ValidationServiceTest {
@@ -38,11 +45,17 @@ class ValidationServiceTest {
 
   private static Validator validator;
   private ValidationService validationService;
+  private static DataTypeValidationProperties dataTypeValidationProperties = mock(
+      DataTypeValidationProperties.class);
 
   @BeforeAll
   static void initAll() {
-    ValidatorFactory factory = Validation.byDefaultProvider()
-        .configure()
+    HibernateValidatorConfiguration configuration = (HibernateValidatorConfiguration) Validation
+        .byDefaultProvider()
+        .configure();
+
+    ValidatorFactory factory = configuration
+        .constraintValidatorFactory(new TestConstraintValidatorFactory())
         .buildValidatorFactory();
     validator = factory.getValidator();
   }
@@ -50,6 +63,8 @@ class ValidationServiceTest {
   @BeforeEach
   void setUp() {
     validationService = new ValidationService(validator);
+    given(dataTypeValidationProperties.getAllowedDataTypes())
+        .willReturn(Collections.singletonList(DataType.WELL_LOG));
   }
 
 
@@ -85,6 +100,23 @@ class ValidationServiceTest {
   }
 
   @Test
+  void shouldFailValidationIfWrongDataType() {
+    // given
+    SubmitRequest request = SubmitRequest.builder()
+        .fileId(FILE_ID)
+        .dataType(DataType.OSDU)
+        .build();
+
+    // when
+    Throwable thrown = catchThrowable(() -> validationService.validateSubmitRequest(request));
+
+    // then
+    assertThat(thrown)
+        .isInstanceOf(ConstraintViolationException.class)
+        .hasMessage("Invalid Submit request");
+  }
+
+  @Test
   void shouldFailValidationIfNoFileId() {
     // given
     SubmitRequest request = SubmitRequest.builder()
@@ -98,6 +130,26 @@ class ValidationServiceTest {
     assertThat(thrown)
         .isInstanceOf(ConstraintViolationException.class)
         .hasMessage("Invalid Submit request");
+  }
+
+  static class TestConstraintValidatorFactory implements ConstraintValidatorFactory {
+
+    ConstraintValidatorFactory constraintValidatorFactory = Validation
+        .buildDefaultValidatorFactory().getConstraintValidatorFactory();
+
+    @Override
+    public <T extends ConstraintValidator<?, ?>> T getInstance(Class<T> key) {
+      if (SubmitRequestValidator.class.equals(key)) {
+        return (T) new SubmitRequestValidator(dataTypeValidationProperties);
+      }
+
+      return constraintValidatorFactory.getInstance(key);
+    }
+
+    @Override
+    public void releaseInstance(ConstraintValidator<?, ?> instance) {
+
+    }
   }
 
 }

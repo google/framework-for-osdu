@@ -17,7 +17,9 @@
 package org.opengroup.osdu.ingest.config;
 
 import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS;
+import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,7 +30,9 @@ public class ObjectMapperConfig {
   @Bean
   public ObjectMapper objectMapper() {
     return new ObjectMapper()
-        .enable(FAIL_ON_NUMBERS_FOR_ENUMS);
+        .enable(FAIL_ON_NUMBERS_FOR_ENUMS)
+        .disable(FAIL_ON_EMPTY_BEANS)
+        .setSerializationInclusion(Include.NON_NULL)
+        .findAndRegisterModules();
   }
-
 }
