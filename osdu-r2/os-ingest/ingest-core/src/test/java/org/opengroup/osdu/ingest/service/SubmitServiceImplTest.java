@@ -23,7 +23,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.opengroup.osdu.ingest.model.Headers.AUTHORIZATION;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,7 +37,6 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opengroup.osdu.core.common.model.DataType;
-import org.opengroup.osdu.core.common.model.file.FileLocationResponse;
 import org.opengroup.osdu.file.ReplaceCamelCase;
 import org.opengroup.osdu.ingest.mapper.HeadersMapper;
 import org.opengroup.osdu.ingest.model.Headers;
@@ -51,10 +50,8 @@ import org.springframework.messaging.MessageHeaders;
 class SubmitServiceImplTest {
 
   private static final String FILE_ID = "file-id";
-  private static final String GCP = "GCP";
   private static final String PARTITION = "partition";
   private static final String AUTH_TOKEN = "auth-token";
-  private static final String FILE_LOCATION = "file-location";
   private static final String WORKFLOW_ID = "workflow-id";
 
   @Spy
@@ -62,13 +59,11 @@ class SubmitServiceImplTest {
   @Mock
   private AuthenticationService authenticationService;
   @Mock
-  private FileIntegrationService fileIntegrationService;
-  @Mock
   private WorkflowIntegrationService workflowIntegrationService;
   @Mock
   private ValidationService validationService;
-
-  private ObjectMapper objectMapper = new ObjectMapper();
+  @Mock
+  private WorkflowPayloadService workflowPayloadService;
 
   @Captor
   ArgumentCaptor<Map<String, Object>> contextCaptor;
@@ -77,9 +72,11 @@ class SubmitServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    submitServiceImpl = new SubmitServiceImpl(headersMapper, authenticationService,
-        fileIntegrationService, workflowIntegrationService
-        , validationService, objectMapper);
+    submitServiceImpl = new SubmitServiceImpl(headersMapper,
+        authenticationService,
+        workflowIntegrationService,
+        validationService,
+        workflowPayloadService);
   }
 
   @Test
@@ -95,10 +92,8 @@ class SubmitServiceImplTest {
     headersMap.put(PARTITION, PARTITION);
     MessageHeaders messageHeaders = new MessageHeaders(headersMap);
 
-    FileLocationResponse fileLocation = FileLocationResponse.builder().driver(GCP)
-        .location(FILE_LOCATION).build();
-    given(fileIntegrationService.getFileInfo(eq(FILE_ID), any(Headers.class)))
-        .willReturn(fileLocation);
+    given(workflowPayloadService.getContext(eq(FILE_ID), any()))
+        .willReturn(Collections.singletonMap("key", "value"));
 
     given(workflowIntegrationService.submitIngestToWorkflowService(eq(DataType.WELL_LOG)
         , any(), any(Headers.class))).willReturn(WORKFLOW_ID);
@@ -111,7 +106,7 @@ class SubmitServiceImplTest {
 
     verify(workflowIntegrationService)
         .submitIngestToWorkflowService(any(), contextCaptor.capture(), any());
-    then(contextCaptor.getValue()).containsKeys("id", "kind", "legal", "acl", "data");
+    then(contextCaptor.getValue()).containsEntry("key", "value");
   }
 
 }

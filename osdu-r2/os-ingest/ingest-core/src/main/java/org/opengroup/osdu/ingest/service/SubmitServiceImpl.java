@@ -16,19 +16,11 @@
 
 package org.opengroup.osdu.ingest.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.time.Clock;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Named;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.opengroup.osdu.core.common.model.file.FileLocationResponse;
 import org.opengroup.osdu.ingest.mapper.HeadersMapper;
-import org.opengroup.osdu.ingest.model.CreateRecordPayload;
 import org.opengroup.osdu.ingest.model.Headers;
 import org.opengroup.osdu.ingest.model.SubmitRequest;
 import org.opengroup.osdu.ingest.model.SubmitResponse;
@@ -44,10 +36,9 @@ public class SubmitServiceImpl implements SubmitService {
   @Named
   final HeadersMapper headersMapper;
   final AuthenticationService authenticationService;
-  final FileIntegrationService fileIntegrationService;
   final WorkflowIntegrationService workflowIntegrationService;
   final ValidationService validationService;
-  final ObjectMapper objectMapper;
+  final WorkflowPayloadService workflowPayloadService;
 
   @Override
   public SubmitResponse submit(SubmitRequest request, MessageHeaders messageHeaders) {
@@ -59,11 +50,7 @@ public class SubmitServiceImpl implements SubmitService {
         headers.getPartitionID());
     validationService.validateSubmitRequest(request);
 
-    String fileId = request.getFileId();
-    FileLocationResponse fileLocation = fileIntegrationService.getFileInfo(fileId, headers);
-
-    Map<String, Object> osduRecord = populateOsduRecord(fileId, fileLocation.getLocation());
-    Map<String, Object> context = populateContext(fileId, headers, osduRecord);
+    Map<String, Object> context = workflowPayloadService.getContext(request.getFileId(), headers);
 
     String workflowId = workflowIntegrationService
         .submitIngestToWorkflowService(request.getDataType(), context, headers);
@@ -73,34 +60,4 @@ public class SubmitServiceImpl implements SubmitService {
     return response;
   }
 
-  private Map<String, Object> populateOsduRecord(String fileId, String fileLocation) {
-    //TODO construct object that matches osdu file record schema
-    Map<String, Object> record = new HashMap<>();
-    record.put("fileId", fileId);
-    record.put("fileLocation", fileLocation);
-
-    return record;
-  }
-
-
-  private Map<String, Object> populateContext(String fileId, Headers headers,
-      Map<String, Object> data) {
-
-    String kind = String.format("%s:ingestion-test:wellbore:1.0.1", headers.getPartitionID());
-    String suffix = LocalDateTime.now(Clock.systemUTC())
-        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss-SSSS"));
-    String recordId = String
-        .format("%s:ingestion-test:file-%s-%s", headers.getPartitionID(), fileId, suffix);
-
-    CreateRecordPayload createRecordPayload = CreateRecordPayload.builder()
-        .id(recordId)
-        .kind(kind)
-        .acl(headers.getAcl())
-        .legal(headers.getLegalTags())
-        .data(data).build();
-
-    return objectMapper
-        .convertValue(createRecordPayload, new TypeReference<HashMap<String, Object>>() {
-        });
-  }
 }
