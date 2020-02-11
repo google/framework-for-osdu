@@ -27,15 +27,15 @@ import lombok.SneakyThrows;
 
 public final class TestCredential {
 
-  private static final String SA_CLIENT_EMAIL = "test-user@test-project.iam.gserviceaccount.com";
-  private static final String SA_CLIENT_ID = "test-user";
-  private static final String SA_PRIVATE_KEY_ID = "d84a4fefcf50791d4a90f2d7af17469d6282df9d";
+  private static final String SA_CLIENT_EMAIL = "dummy-user@dummy-project.iam.gserviceaccount.com";
+  private static final String SA_CLIENT_ID = "dummy-user";
+  private static final String SA_PRIVATE_KEY_ID = "dummy-private-key-id";
   private static final String SA_PRIVATE_KEY_PKCS8;
   private static final Collection<String> EMPTY_SCOPES = Collections.emptyList();
 
-  private static final String CLIENT_SECRET = "jakuaL9YyieakhECKL2SwZcu";
-  private static final String CLIENT_ID = "ya29.1.AADtN_UtlxN3PuGAxrN2XQnZTVRvDyVWnYq4I6dws";
-  private static final String REFRESH_TOKEN = "1/Tl6awhpFjkMkSJoj1xsli0H2eL5YsMgU_NKPY2TyGWY";
+  private static final String CLIENT_SECRET = "dummy-client-secret";
+  private static final String CLIENT_ID = "dummy-client-id";
+  private static final String REFRESH_TOKEN = "dummy-refresh-token";
 
   static {
     PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(SecurityTestUtils.newEncodedRsaPrivateKeyBytes());
@@ -58,7 +58,6 @@ public final class TestCredential {
         .setClientId(CLIENT_ID)
         .setClientSecret(CLIENT_SECRET)
         .setRefreshToken(REFRESH_TOKEN)
-        //.setQuotaProjectId(QUOTA_PROJECT)
         .build();
   }
 
