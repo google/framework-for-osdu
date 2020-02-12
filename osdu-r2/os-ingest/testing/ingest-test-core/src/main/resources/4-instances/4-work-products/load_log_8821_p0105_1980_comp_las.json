@@ -1,0 +1,80 @@
+{
+    "WorkProduct": {
+        "ResourceTypeID": "srn:type:work-product/WellLog:",
+        "ResourceSecurityClassification": "srn:reference-data/ResourceSecurityClassification:RESTRICTED:",
+        "Data": {
+            "GroupTypeProperties": {
+                "Components": []
+            },
+            "IndividualTypeProperties": {
+                "Name": "P01-05 LOG",
+                "Description": "Well Log"
+            },
+            "ExtensionProperties": {}
+        },
+        "ComponentsAssociativeIDs": [
+            "wpc-1"
+        ]
+    },
+    "WorkProductComponents": [
+        {
+            "ResourceTypeID": "srn:type:work-product-component/WellLog:",
+            "ResourceSecurityClassification": "srn:reference-data/ResourceSecurityClassification:RESTRICTED:",
+            "Data": {
+                "GroupTypeProperties": {
+                    "Files": [],
+                    "Artefacts": []
+                },
+                "IndividualTypeProperties": {
+                    "Name": "P01-05 LOG",
+                    "Description": "Well Log",
+                    "WellboreID": "srn:master-data/Wellbore:8821:",
+                    "TopMeasuredDepth": {
+                        "Depth": 50.4,
+                        "UnitOfMeasure": "srn:reference-data/UnitOfMeasure:M:"
+                    },
+                    "BottomMeasuredDepth": {
+                        "Depth": 515.0,
+                        "UnitOfMeasure": "srn:reference-data/UnitOfMeasure:M:"
+                    },
+                    "Curves": [
+                        {
+                            "Mnemonic": "DEPT",
+                            "TopDepth": 50.4,
+                            "BaseDepth": 515.0,
+                            "DepthUnit": "srn:reference-data/UnitOfMeasure:M:",
+                            "CurveUnit": "srn:reference-data/UnitOfMeasure:M:"
+                        },
+                        {
+                            "Mnemonic": "GR",
+                            "TopDepth": 50.4,
+                            "BaseDepth": 515.0,
+                            "DepthUnit": "srn:reference-data/UnitOfMeasure:M:",
+                            "CurveUnit": "srn:reference-data/UnitOfMeasure:GAPI:"
+                        }
+                    ]
+                },
+                "ExtensionProperties": {}
+            },
+            "AssociativeID": "wpc-1",
+            "FileAssociativeIDs": [
+                "f-1"
+            ]
+        }
+    ],
+    "Files": [
+        {
+            "ResourceTypeID": "srn:type:file/las2:",
+            "ResourceSecurityClassification": "srn:reference-data/ResourceSecurityClassification:RESTRICTED:",
+            "Data": {
+                "GroupTypeProperties": {
+                    "FileSource": "",
+                    "PreLoadFilePath": "s3://aws-osdu-demo-r1/data/provided/tno/well-logs/8821_p0105_1980_comp.las"
+                },
+                "IndividualTypeProperties": {},
+                "ExtensionProperties": {}
+            },
+            "AssociativeID": "f-1"
+        }
+    ]
+}

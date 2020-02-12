@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,14 @@
 
 package org.opengroup.osdu.ingest;
 
-import static org.assertj.core.api.BDDAssertions.then;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
 import javax.inject.Inject;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.opengroup.osdu.ingest.repository.SchemaRepository;
+import org.opengroup.osdu.ingest.service.OsduSubmitService;
 import org.opengroup.osdu.ingest.service.SubmitService;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -44,9 +45,10 @@ class IngestApplicationTest {
     Set<String> names = catalog.getNames(null);
 
     // then
-    Assertions.assertTrue(true, "silly assertion to be compliant with Sonar");
-    then(names).hasSize(2)
-        .containsExactlyInAnyOrder("submitFunction", RoutingFunction.FUNCTION_NAME);
+    assertThat(names)
+        .hasSize(3)
+        .containsExactlyInAnyOrder("submitFunction", "submitWithManifestFunction",
+            RoutingFunction.FUNCTION_NAME);
   }
 
   @TestConfiguration
@@ -54,6 +56,12 @@ class IngestApplicationTest {
 
     @MockBean
     SubmitService submitService;
+
+    @MockBean
+    OsduSubmitService osduSubmitService;
+
+    @MockBean
+    SchemaRepository schemaRepository;
 
   }
 

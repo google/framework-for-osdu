@@ -19,3 +19,5 @@ osdu:
   workflow-service:
     url: http://test-workflow-service
     start-workflow-endpoint: testStartWorkflowEndpoint
+validation:
+  allowed-datatypes: well_log, opaque

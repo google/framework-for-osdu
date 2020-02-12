@@ -1,4 +1,4 @@
-# OSDU R2 Ingestion Service
+# OpenDES R2 Ingestion Service
 
 ## Contents
 

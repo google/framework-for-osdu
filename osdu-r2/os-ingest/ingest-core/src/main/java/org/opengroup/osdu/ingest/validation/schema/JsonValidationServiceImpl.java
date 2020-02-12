@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.opengroup.osdu.ingest.service;
+package org.opengroup.osdu.ingest.validation.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.JsonMetaSchema;
@@ -22,18 +22,24 @@ import com.networknt.schema.JsonSchemaException;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.ValidationMessage;
 import java.util.Set;
-import lombok.experimental.UtilityClass;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.opengroup.osdu.ingest.exception.OsduServerErrorException;
+import org.springframework.stereotype.Service;
 
-@UtilityClass
-public class JsonValidationService {
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class JsonValidationServiceImpl implements JsonValidationService {
 
+  @Override
   public Set<ValidationMessage> validate(JsonNode schema, JsonNode toValidate) {
     try {
       return getFactory()
           .getSchema(schema)
           .validate(toValidate);
     } catch (JsonSchemaException e) {
-      throw new RuntimeException(
+      throw new OsduServerErrorException(
           String.format("Error creating json validation schema from json object: %s", schema), e);
     }
   }
@@ -45,4 +51,5 @@ public class JsonValidationService {
             .build())
         .build();
   }
+
 }
