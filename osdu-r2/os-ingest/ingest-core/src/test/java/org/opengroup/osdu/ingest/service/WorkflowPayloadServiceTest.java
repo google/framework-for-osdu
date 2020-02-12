@@ -29,7 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opengroup.osdu.core.common.model.file.FileLocationResponse;
-import org.opengroup.osdu.file.ReplaceCamelCase;
+import org.opengroup.osdu.ingest.ReplaceCamelCase;
 import org.opengroup.osdu.ingest.config.ObjectMapperConfig;
 import org.opengroup.osdu.ingest.model.Headers;
 import org.opengroup.osdu.ingest.model.type.file.OsduFile;

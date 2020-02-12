@@ -16,7 +16,7 @@
 
 package org.opengroup.osdu.ingest.provider.gcp;
 
-import static org.assertj.core.api.BDDAssertions.then;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
 import javax.inject.Inject;
@@ -44,8 +44,10 @@ class IngestGcpApplicationTest {
     Set<String> names = catalog.getNames(null);
 
     // then
-    then(names).hasSize(2)
-        .containsExactlyInAnyOrder("submitFunction", RoutingFunction.FUNCTION_NAME);
+    assertThat(names)
+        .hasSize(3)
+        .containsExactlyInAnyOrder("submitFunction", "submitWithManifestFunction",
+            RoutingFunction.FUNCTION_NAME);
   }
 
   @Test

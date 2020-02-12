@@ -29,9 +29,11 @@ import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.opengroup.osdu.file.ReplaceCamelCase;
+import org.opengroup.osdu.ingest.ReplaceCamelCase;
 import org.opengroup.osdu.ingest.config.ObjectMapperConfig;
 import org.opengroup.osdu.ingest.model.type.file.OsduFile;
+import org.opengroup.osdu.ingest.validation.schema.JsonValidationService;
+import org.opengroup.osdu.ingest.validation.schema.JsonValidationServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)
@@ -41,6 +43,7 @@ class OsduRecordHelperTest {
 
   private static OsduRecordHelper osduRecordHelper;
   private static ObjectMapper mapper;
+  private JsonValidationService jsonValidationService = new JsonValidationServiceImpl();
 
   @BeforeAll
   static void initAll() {
@@ -60,7 +63,7 @@ class OsduRecordHelperTest {
     JsonNode schemaNode = mapper.readTree(fileRecordSchema);
     JsonNode recordNode = mapper.readTree(mapper.writeValueAsString(osduFile));
 
-    Set<ValidationMessage> errors = JsonValidationService.validate(schemaNode, recordNode);
+    Set<ValidationMessage> errors = jsonValidationService.validate(schemaNode, recordNode);
     then(errors).isEmpty();
   }
 

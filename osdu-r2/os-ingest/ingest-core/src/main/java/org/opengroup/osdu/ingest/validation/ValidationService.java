@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,22 +16,12 @@
 
 package org.opengroup.osdu.ingest.validation;
 
-import java.util.Set;
-import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import javax.validation.Validator;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
+import org.opengroup.osdu.core.common.exception.OsduBadRequestException;
 import org.opengroup.osdu.ingest.model.SubmitRequest;
-import org.springframework.stereotype.Service;
+import org.opengroup.osdu.ingest.model.WorkProductLoadManifest;
 
-@Service
-@Slf4j
-@RequiredArgsConstructor
-public class ValidationService {
-
-  final Validator validator;
+public interface ValidationService {
 
   /**
    * Validates submit request using Java Bean Validation.
@@ -39,11 +29,13 @@ public class ValidationService {
    * @param request location request
    * @throws ConstraintViolationException if request is invalid
    */
-  public void validateSubmitRequest(SubmitRequest request) {
-    Set<ConstraintViolation<SubmitRequest>> constraintViolations =
-        validator.validate(request, ValidationSequence.class);
-    if (CollectionUtils.isNotEmpty(constraintViolations)) {
-      throw new ConstraintViolationException("Invalid Submit request", constraintViolations);
-    }
-  }
+  void validateSubmitRequest(SubmitRequest request);
+
+  /**
+   * Validates work product load manifest using JSON schema.
+   * @param loadManifest load manifest
+   * @throws OsduBadRequestException if manifest is invalid
+   */
+  void validateManifest(WorkProductLoadManifest loadManifest);
+
 }

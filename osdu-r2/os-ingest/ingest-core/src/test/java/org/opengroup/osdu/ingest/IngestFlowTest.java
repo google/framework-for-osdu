@@ -21,6 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.opengroup.osdu.ingest.ResourceUtils.getResource;
 import static org.opengroup.osdu.ingest.TestUtils.getFeignRequest;
 import static org.opengroup.osdu.ingest.model.Headers.AUTHORIZATION;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -29,23 +30,26 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.Response;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
-import org.junit.Test;
 import org.junit.jupiter.api.DisplayNameGeneration;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.opengroup.osdu.core.common.exception.OsduBadRequestException;
 import org.opengroup.osdu.core.common.model.DataType;
 import org.opengroup.osdu.core.common.model.WorkflowType;
 import org.opengroup.osdu.core.common.model.file.FileLocationRequest;
 import org.opengroup.osdu.core.common.model.file.FileLocationResponse;
 import org.opengroup.osdu.core.common.model.workflow.StartWorkflowRequest;
 import org.opengroup.osdu.core.common.model.workflow.StartWorkflowResponse;
-import org.opengroup.osdu.file.ReplaceCamelCase;
 import org.opengroup.osdu.ingest.client.FileServiceClient;
 import org.opengroup.osdu.ingest.client.WorkflowServiceClient;
 import org.opengroup.osdu.ingest.model.Headers;
+import org.opengroup.osdu.ingest.model.SchemaData;
 import org.opengroup.osdu.ingest.model.SubmitRequest;
 import org.opengroup.osdu.ingest.model.SubmitResponse;
+import org.opengroup.osdu.ingest.model.WorkProductLoadManifest;
+import org.opengroup.osdu.ingest.repository.SchemaRepository;
 import org.opengroup.osdu.ingest.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -54,12 +58,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayNameGeneration(ReplaceCamelCase.class)
@@ -72,6 +76,10 @@ public class IngestFlowTest {
   private static final String FILE_ID = "file-id";
   private static final String GCP = "GCP";
 
+  private static final String LOAD_MANIFEST_SCHEMA_TITLE = "WorkProductLoadManifestStagedFiles";
+  private static final String LOAD_MANIFEST_SCHEMA_PATH = "3-schemas/WorkProductLoadManifestStagedFiles.json";
+  private static final String WELL_LOG_WP_PATH = "4-instances/4-work-products/load_log_8821_p0105_1980_comp_las.json";
+
   @Autowired
   private MockMvc mockMvc;
   private ObjectMapper mapper = new ObjectMapper();
@@ -82,6 +90,8 @@ public class IngestFlowTest {
   private FileServiceClient fileServiceClient;
   @MockBean
   private WorkflowServiceClient workflowServiceClient;
+  @MockBean
+  private SchemaRepository schemaRepository;
   @Captor
   private ArgumentCaptor<StartWorkflowRequest> startWorkflowRequestCaptor;
 
@@ -89,9 +99,7 @@ public class IngestFlowTest {
   public void shouldPassIngestionFlow() throws Exception {
 
     // given
-    HttpHeaders headers = new HttpHeaders();
-    headers.add(AUTHORIZATION, TEST_AUTH);
-    headers.add(Headers.PARTITION, PARTITION);
+    HttpHeaders headers = getHttpHeaders();
 
     SubmitRequest request = SubmitRequest.builder().dataType(DataType.WELL_LOG).fileId(FILE_ID)
         .build();
@@ -120,7 +128,7 @@ public class IngestFlowTest {
 
     // when
     ResponseEntity result = (ResponseEntity) mockMvc
-        .perform(MockMvcRequestBuilders.post("/")
+        .perform(MockMvcRequestBuilders.post("/submitFunction")
             .headers(headers)
             .content(mapper.writeValueAsString(request)))
         .andExpect(status().isOk())
@@ -139,13 +147,12 @@ public class IngestFlowTest {
 
   @Test
   public void shouldFailIngestionFlowInvalidJson() throws Exception {
-
     // given
     HttpHeaders headers = new HttpHeaders();
 
     // when
     MvcResult mvcResult = mockMvc
-        .perform(MockMvcRequestBuilders.post("/")
+        .perform(MockMvcRequestBuilders.post("/submitFunction")
             .headers(headers)
             .content("{\"test\";\"test\"}"))
         .andExpect(status().isBadRequest()).andReturn();
@@ -153,6 +160,82 @@ public class IngestFlowTest {
     // then
     then(Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
         .contains("Cannot convert JSON {\"test\";\"test\"}");
+  }
+
+  @Test
+  public void shouldSuccessfullySubmitOsduManifest() throws Exception {
+    // given
+    HttpHeaders headers = getHttpHeaders();
+
+    SchemaData schemaData = SchemaData.builder()
+        .title(LOAD_MANIFEST_SCHEMA_TITLE)
+        .schema(mapper.readTree(getResource(LOAD_MANIFEST_SCHEMA_PATH)))
+        .build();
+    given(schemaRepository.findByTitle(LOAD_MANIFEST_SCHEMA_TITLE)).willReturn(
+        schemaData);
+    StartWorkflowResponse startWorkflowResponse = StartWorkflowResponse.builder()
+        .workflowId(WORKFLOW_ID).build();
+
+    Response workflowResponse = Response.builder()
+        .body(mapper.writeValueAsString(startWorkflowResponse), StandardCharsets.UTF_8)
+        .request(getFeignRequest())
+        .status(HttpStatus.OK.value()).build();
+    given(workflowServiceClient.startWorkflow(eq(TEST_AUTH), eq(PARTITION), any()))
+        .willReturn(workflowResponse);
+
+    // when
+    String resource = getResource(WELL_LOG_WP_PATH);
+    WorkProductLoadManifest loadManifest1 = mapper
+        .readValue(resource, WorkProductLoadManifest.class);
+    ResponseEntity result = (ResponseEntity) mockMvc
+        .perform(MockMvcRequestBuilders.post("/submitWithManifestFunction")
+            .headers(headers)
+            .content(resource))
+        .andExpect(status().isOk())
+        .andReturn().getAsyncResult();
+
+    // then
+    SubmitResponse response = (SubmitResponse) result.getBody();
+    then(Objects.requireNonNull(response).getWorkflowId()).isEqualTo(WORKFLOW_ID);
+
+    verify(workflowServiceClient).startWorkflow(any(), any(), startWorkflowRequestCaptor.capture());
+    then(startWorkflowRequestCaptor.getValue()).satisfies(workflowRequest -> {
+      then(workflowRequest.getDataType()).isEqualTo(DataType.OSDU);
+      then(workflowRequest.getWorkflowType()).isEqualTo(WorkflowType.INGEST);
+    });
+  }
+
+  @Test
+  public void shouldFailSubmitOsduManifest() throws Exception {
+    // given
+    HttpHeaders headers = new HttpHeaders();
+
+    SchemaData schemaData = SchemaData.builder()
+        .title(LOAD_MANIFEST_SCHEMA_TITLE)
+        .schema(mapper.readTree(getResource(LOAD_MANIFEST_SCHEMA_PATH)))
+        .build();
+    given(schemaRepository.findByTitle(LOAD_MANIFEST_SCHEMA_TITLE)).willReturn(
+        schemaData);
+
+    // when
+    Throwable thrown = (Throwable) mockMvc
+        .perform(MockMvcRequestBuilders.post("/submitWithManifestFunction")
+            .headers(headers)
+            .content("{}"))
+        .andReturn().getAsyncResult();
+
+    // then
+    then(thrown)
+        .isInstanceOf(OsduBadRequestException.class)
+        .hasMessageMatching(
+            "Failed to validate json from manifest (.*), validation result is (.*)");
+  }
+
+  private HttpHeaders getHttpHeaders() {
+    HttpHeaders headers = new HttpHeaders();
+    headers.add(AUTHORIZATION, TEST_AUTH);
+    headers.add(Headers.PARTITION, PARTITION);
+    return headers;
   }
 
 }
