@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package org.opengroup.osdu.ingest.service;
+package org.opengroup.osdu.ingest.provider.interfaces;
 
-import org.opengroup.osdu.ingest.model.SubmitRequest;
-import org.opengroup.osdu.ingest.model.SubmitResponse;
-import org.springframework.messaging.MessageHeaders;
+import java.util.Map;
+import org.opengroup.osdu.ingest.model.Headers;
 
-public interface SubmitService {
+public interface WorkflowPayloadService {
 
   /**
-   * Main method of ingest service. Performs request validation and integration with File service
-   * and Workflow service.
+   * Constructs workflow context for ingest submission.
    *
-   * @param payload        Information about the file to ingest
-   * @param messageHeaders headers
-   * @return response
+   * @param fileId file ID
+   * @param headers headers
+   * @return constructed workflow context
    */
-  SubmitResponse submit(SubmitRequest payload, MessageHeaders messageHeaders);
+  Map<String, Object> getContext(String fileId, Headers headers);
+
 }

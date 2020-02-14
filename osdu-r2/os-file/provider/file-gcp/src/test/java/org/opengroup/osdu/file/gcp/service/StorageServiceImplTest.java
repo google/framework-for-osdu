@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     https://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -48,8 +48,8 @@ import org.opengroup.osdu.file.gcp.TestUtils;
 import org.opengroup.osdu.file.gcp.model.property.FileLocationProperties;
 import org.opengroup.osdu.file.model.SignedObject;
 import org.opengroup.osdu.file.model.SignedUrl;
-import org.opengroup.osdu.file.repository.StorageRepository;
-import org.opengroup.osdu.file.service.StorageService;
+import org.opengroup.osdu.file.provider.interfaces.StorageRepository;
+import org.opengroup.osdu.file.provider.interfaces.StorageService;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)

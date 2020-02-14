@@ -47,6 +47,7 @@ import org.opengroup.osdu.ingest.ReplaceCamelCase;
 import org.opengroup.osdu.ingest.client.WorkflowServiceClient;
 import org.opengroup.osdu.ingest.exception.OsduServerErrorException;
 import org.opengroup.osdu.ingest.model.Headers;
+import org.opengroup.osdu.ingest.provider.interfaces.WorkflowIntegrationService;
 import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
@@ -69,7 +70,7 @@ class WorkflowIntegrationServiceTest {
 
   @BeforeEach
   void setUp() {
-    workflowIntegrationService = new WorkflowIntegrationService(workflowServiceClient, mapper);
+    workflowIntegrationService = new WorkflowIntegrationServiceImpl(workflowServiceClient, mapper);
   }
 
   @Test
@@ -81,7 +82,8 @@ class WorkflowIntegrationServiceTest {
         .partitionID(TEST_PARTITION)
         .build();
 
-    StartWorkflowResponse startWorkflowResponse = StartWorkflowResponse.builder().workflowId(WORKFLOW_ID).build();
+    StartWorkflowResponse startWorkflowResponse = StartWorkflowResponse.builder()
+        .workflowId(WORKFLOW_ID).build();
 
     Response response = Response.builder()
         .body(mapper.writeValueAsString(startWorkflowResponse), StandardCharsets.UTF_8)
@@ -95,7 +97,8 @@ class WorkflowIntegrationServiceTest {
 
     // when
     String workflowId = workflowIntegrationService
-        .submitIngestToWorkflowService(DataType.WELL_LOG, context, requestHeaders);
+        .submitIngestToWorkflowService(WorkflowType.INGEST, DataType.WELL_LOG, context,
+            requestHeaders);
 
     // then
     then(workflowId).isEqualTo(WORKFLOW_ID);
@@ -117,7 +120,8 @@ class WorkflowIntegrationServiceTest {
         .partitionID(TEST_PARTITION)
         .build();
 
-    StartWorkflowResponse startWorkflowResponse = StartWorkflowResponse.builder().workflowId(null).build();
+    StartWorkflowResponse startWorkflowResponse = StartWorkflowResponse.builder().workflowId(null)
+        .build();
 
     Response response = Response.builder()
         .body(mapper.writeValueAsString(startWorkflowResponse), StandardCharsets.UTF_8)
@@ -130,8 +134,9 @@ class WorkflowIntegrationServiceTest {
         .willReturn(response);
 
     // when
-    Throwable thrown = catchThrowable(() ->  workflowIntegrationService
-        .submitIngestToWorkflowService(DataType.WELL_LOG, context, requestHeaders));
+    Throwable thrown = catchThrowable(() -> workflowIntegrationService
+        .submitIngestToWorkflowService(WorkflowType.INGEST, DataType.WELL_LOG, context,
+            requestHeaders));
 
     // then
     then(thrown).isInstanceOf(OsduServerErrorException.class);

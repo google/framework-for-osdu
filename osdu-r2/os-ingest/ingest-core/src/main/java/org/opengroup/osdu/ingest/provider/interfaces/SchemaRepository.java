@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     https://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-package org.opengroup.osdu.file.repository;
+package org.opengroup.osdu.ingest.provider.interfaces;
 
-import org.opengroup.osdu.file.model.SignedObject;
+import org.opengroup.osdu.ingest.model.SchemaData;
 
-public interface StorageRepository {
+public interface SchemaRepository {
 
-  /**
-   * Creates the empty object blob in bucket by filepath.
-   *
-   * @param bucketName bucket name
-   * @param filepath file path
-   * @return info created blob and signed URL
-   */
-  SignedObject createSignedObject(String bucketName, String filepath);
+  SchemaData findByTitle(String title);
 
 }

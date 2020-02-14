@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     https://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package org.opengroup.osdu.file.service;
+package org.opengroup.osdu.ingest.provider.interfaces;
 
-import org.opengroup.osdu.file.exception.OsduUnauthorizedException;
+import org.opengroup.osdu.core.common.exception.OsduUnauthorizedException;
 
 public interface AuthenticationService {
 
@@ -25,7 +25,7 @@ public interface AuthenticationService {
    * authentication properties not valid.
    *
    * @param authorizationToken Bearer token
-   * @param partitionID          partition
+   * @param partitionID        partition
    * @throws OsduUnauthorizedException if token and partition are missing, invalid or partition
    *                                   doesn't have assigned user groups
    */

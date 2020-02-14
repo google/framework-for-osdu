@@ -37,12 +37,16 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opengroup.osdu.core.common.model.DataType;
+import org.opengroup.osdu.core.common.model.WorkflowType;
 import org.opengroup.osdu.ingest.ReplaceCamelCase;
 import org.opengroup.osdu.ingest.mapper.HeadersMapper;
 import org.opengroup.osdu.ingest.model.Headers;
 import org.opengroup.osdu.ingest.model.SubmitRequest;
 import org.opengroup.osdu.ingest.model.SubmitResponse;
-import org.opengroup.osdu.ingest.validation.ValidationService;
+import org.opengroup.osdu.ingest.provider.interfaces.AuthenticationService;
+import org.opengroup.osdu.ingest.provider.interfaces.ValidationService;
+import org.opengroup.osdu.ingest.provider.interfaces.WorkflowIntegrationService;
+import org.opengroup.osdu.ingest.provider.interfaces.WorkflowPayloadService;
 import org.springframework.messaging.MessageHeaders;
 
 @ExtendWith(MockitoExtension.class)
@@ -95,8 +99,9 @@ class SubmitServiceImplTest {
     given(workflowPayloadService.getContext(eq(FILE_ID), any()))
         .willReturn(Collections.singletonMap("key", "value"));
 
-    given(workflowIntegrationService.submitIngestToWorkflowService(eq(DataType.WELL_LOG)
-        , any(), any(Headers.class))).willReturn(WORKFLOW_ID);
+    given(workflowIntegrationService
+        .submitIngestToWorkflowService(eq(WorkflowType.INGEST), eq(DataType.WELL_LOG)
+            , any(), any(Headers.class))).willReturn(WORKFLOW_ID);
 
     // when
     SubmitResponse submitResponse = submitServiceImpl.submit(request, messageHeaders);
@@ -105,7 +110,7 @@ class SubmitServiceImplTest {
     then(submitResponse.getWorkflowId()).isEqualTo(WORKFLOW_ID);
 
     verify(workflowIntegrationService)
-        .submitIngestToWorkflowService(any(), contextCaptor.capture(), any());
+        .submitIngestToWorkflowService(any(), any(), contextCaptor.capture(), any());
     then(contextCaptor.getValue()).containsEntry("key", "value");
   }
 

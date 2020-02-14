@@ -14,12 +14,19 @@
  * limitations under the License.
  */
 
-package org.opengroup.osdu.ingest.repository;
+package org.opengroup.osdu.file.provider.interfaces;
 
-import org.opengroup.osdu.ingest.model.SchemaData;
+import org.opengroup.osdu.file.model.SignedObject;
 
-public interface SchemaRepository {
+public interface StorageRepository {
 
-  SchemaData findByTitle(String title);
+  /**
+   * Creates the empty object blob in bucket by filepath.
+   *
+   * @param bucketName bucket name
+   * @param filepath file path
+   * @return info created blob and signed URL
+   */
+  SignedObject createSignedObject(String bucketName, String filepath);
 
 }

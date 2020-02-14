@@ -29,21 +29,24 @@ import org.opengroup.osdu.core.common.model.workflow.StartWorkflowResponse;
 import org.opengroup.osdu.ingest.client.WorkflowServiceClient;
 import org.opengroup.osdu.ingest.exception.OsduServerErrorException;
 import org.opengroup.osdu.ingest.model.Headers;
+import org.opengroup.osdu.ingest.provider.interfaces.WorkflowIntegrationService;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class WorkflowIntegrationService {
+public class WorkflowIntegrationServiceImpl implements WorkflowIntegrationService {
 
   final WorkflowServiceClient workflowServiceClient;
   final ObjectMapper objectMapper;
 
-  public String submitIngestToWorkflowService(DataType dataType, Map<String, Object> context,
+  @Override
+  public String submitIngestToWorkflowService(WorkflowType workflowType, DataType dataType,
+      Map<String, Object> context,
       Headers commonHeaders) {
 
     StartWorkflowRequest request = StartWorkflowRequest.builder()
-        .workflowType(WorkflowType.INGEST)
+        .workflowType(workflowType)
         .dataType(dataType)
         .context(context).build();
 

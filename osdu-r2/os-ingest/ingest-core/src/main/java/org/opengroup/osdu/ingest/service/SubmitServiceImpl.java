@@ -20,11 +20,16 @@ import java.util.Map;
 import javax.inject.Named;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.opengroup.osdu.core.common.model.WorkflowType;
 import org.opengroup.osdu.ingest.mapper.HeadersMapper;
 import org.opengroup.osdu.ingest.model.Headers;
 import org.opengroup.osdu.ingest.model.SubmitRequest;
 import org.opengroup.osdu.ingest.model.SubmitResponse;
-import org.opengroup.osdu.ingest.validation.ValidationService;
+import org.opengroup.osdu.ingest.provider.interfaces.AuthenticationService;
+import org.opengroup.osdu.ingest.provider.interfaces.SubmitService;
+import org.opengroup.osdu.ingest.provider.interfaces.ValidationService;
+import org.opengroup.osdu.ingest.provider.interfaces.WorkflowIntegrationService;
+import org.opengroup.osdu.ingest.provider.interfaces.WorkflowPayloadService;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
 
@@ -53,7 +58,8 @@ public class SubmitServiceImpl implements SubmitService {
     Map<String, Object> context = workflowPayloadService.getContext(request.getFileId(), headers);
 
     String workflowId = workflowIntegrationService
-        .submitIngestToWorkflowService(request.getDataType(), context, headers);
+        .submitIngestToWorkflowService(WorkflowType.INGEST, request.getDataType(), context,
+            headers);
 
     SubmitResponse response = SubmitResponse.builder().workflowId(workflowId).build();
     log.debug("Submit response - {}", response);

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     https://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,11 +32,14 @@ import org.opengroup.osdu.core.common.model.file.LocationResponse;
 import org.opengroup.osdu.file.exception.FileLocationNotFoundException;
 import org.opengroup.osdu.file.exception.LocationAlreadyExistsException;
 import org.opengroup.osdu.file.mapper.HeadersMapper;
-import org.opengroup.osdu.file.mapper.LocationMapper;
 import org.opengroup.osdu.file.model.Headers;
 import org.opengroup.osdu.file.model.SignedUrl;
-import org.opengroup.osdu.file.repository.FileLocationRepository;
-import org.opengroup.osdu.file.validation.ValidationService;
+import org.opengroup.osdu.file.provider.interfaces.AuthenticationService;
+import org.opengroup.osdu.file.provider.interfaces.FileLocationRepository;
+import org.opengroup.osdu.file.provider.interfaces.LocationMapper;
+import org.opengroup.osdu.file.provider.interfaces.LocationService;
+import org.opengroup.osdu.file.provider.interfaces.StorageService;
+import org.opengroup.osdu.file.provider.interfaces.ValidationService;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
 

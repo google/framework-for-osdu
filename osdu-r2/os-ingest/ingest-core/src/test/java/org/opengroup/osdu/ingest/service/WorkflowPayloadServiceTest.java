@@ -33,6 +33,8 @@ import org.opengroup.osdu.ingest.ReplaceCamelCase;
 import org.opengroup.osdu.ingest.config.ObjectMapperConfig;
 import org.opengroup.osdu.ingest.model.Headers;
 import org.opengroup.osdu.ingest.model.type.file.OsduFile;
+import org.opengroup.osdu.ingest.provider.interfaces.FileIntegrationService;
+import org.opengroup.osdu.ingest.provider.interfaces.WorkflowPayloadService;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)
@@ -53,7 +55,7 @@ class WorkflowPayloadServiceTest {
   void setUp() {
     ObjectMapperConfig objectMapperConfig = new ObjectMapperConfig();
     mapper = objectMapperConfig.objectMapper();
-    workflowPayloadService = new WorkflowPayloadService(mapper, osduRecordHelper,
+    workflowPayloadService = new WorkflowPayloadServiceImpl(mapper, osduRecordHelper,
         fileIntegrationService);
   }
 

@@ -14,28 +14,25 @@
  * limitations under the License.
  */
 
-package org.opengroup.osdu.ingest.validation;
+package org.opengroup.osdu.file.provider.interfaces;
 
 import javax.validation.ConstraintViolationException;
-import org.opengroup.osdu.core.common.exception.OsduBadRequestException;
-import org.opengroup.osdu.ingest.model.SubmitRequest;
-import org.opengroup.osdu.ingest.model.WorkProductLoadManifest;
+import org.opengroup.osdu.core.common.model.file.FileRequest;
+import org.opengroup.osdu.core.common.model.file.FileResponse;
+import org.opengroup.osdu.file.exception.OsduUnauthorizedException;
+import org.springframework.messaging.MessageHeaders;
 
-public interface ValidationService {
+public interface FileService {
 
   /**
-   * Validates submit request using Java Bean Validation.
+   * GetFile return URL for file downloading.
    *
    * @param request location request
+   * @param messageHeaders message headers
+   * @return a paginated file location result.
+   * @throws OsduUnauthorizedException if token and partitionID are missing or, invalid
    * @throws ConstraintViolationException if request is invalid
    */
-  void validateSubmitRequest(SubmitRequest request);
-
-  /**
-   * Validates work product load manifest using JSON schema.
-   * @param loadManifest load manifest
-   * @throws OsduBadRequestException if manifest is invalid
-   */
-  void validateManifest(WorkProductLoadManifest loadManifest);
+  FileResponse getFile(FileRequest request, MessageHeaders messageHeaders);
 
 }

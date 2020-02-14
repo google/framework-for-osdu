@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     https://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,25 +14,28 @@
  * limitations under the License.
  */
 
-package org.opengroup.osdu.file.service;
+package org.opengroup.osdu.ingest.provider.interfaces;
 
 import javax.validation.ConstraintViolationException;
-import org.opengroup.osdu.core.common.model.file.FileRequest;
-import org.opengroup.osdu.core.common.model.file.FileResponse;
-import org.opengroup.osdu.file.exception.OsduUnauthorizedException;
-import org.springframework.messaging.MessageHeaders;
+import org.opengroup.osdu.core.common.exception.OsduBadRequestException;
+import org.opengroup.osdu.ingest.model.SubmitRequest;
+import org.opengroup.osdu.ingest.model.WorkProductLoadManifest;
 
-public interface FileService {
+public interface ValidationService {
 
   /**
-   * GetFile return URL for file downloading.
+   * Validates submit request using Java Bean Validation.
    *
    * @param request location request
-   * @param messageHeaders message headers
-   * @return a paginated file location result.
-   * @throws OsduUnauthorizedException if token and partitionID are missing or, invalid
    * @throws ConstraintViolationException if request is invalid
    */
-  FileResponse getFile(FileRequest request, MessageHeaders messageHeaders);
+  void validateSubmitRequest(SubmitRequest request);
+
+  /**
+   * Validates work product load manifest using JSON schema.
+   * @param loadManifest load manifest
+   * @throws OsduBadRequestException if manifest is invalid
+   */
+  void validateManifest(WorkProductLoadManifest loadManifest);
 
 }

@@ -24,11 +24,15 @@ import javax.inject.Named;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.core.common.model.DataType;
+import org.opengroup.osdu.core.common.model.WorkflowType;
 import org.opengroup.osdu.ingest.mapper.HeadersMapper;
 import org.opengroup.osdu.ingest.model.Headers;
 import org.opengroup.osdu.ingest.model.SubmitResponse;
 import org.opengroup.osdu.ingest.model.WorkProductLoadManifest;
-import org.opengroup.osdu.ingest.validation.ValidationService;
+import org.opengroup.osdu.ingest.provider.interfaces.AuthenticationService;
+import org.opengroup.osdu.ingest.provider.interfaces.OsduSubmitService;
+import org.opengroup.osdu.ingest.provider.interfaces.ValidationService;
+import org.opengroup.osdu.ingest.provider.interfaces.WorkflowIntegrationService;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
 
@@ -57,7 +61,7 @@ public class OsduSubmitServiceImpl implements OsduSubmitService {
     Map<String, Object> context = populateContext(manifest);
 
     String workflowId = workflowIntegrationService
-        .submitIngestToWorkflowService(DataType.OSDU, context, headers);
+        .submitIngestToWorkflowService(WorkflowType.OSDU, DataType.OSDU, context, headers);
 
     SubmitResponse response = SubmitResponse.builder().workflowId(workflowId).build();
     log.debug("Submit manifest response - {}", response);
@@ -65,7 +69,8 @@ public class OsduSubmitServiceImpl implements OsduSubmitService {
   }
 
   private Map<String, Object> populateContext(WorkProductLoadManifest manifest) {
-    return objectMapper.convertValue(manifest, new TypeReference<HashMap<String, Object>>() {});
+    return objectMapper.convertValue(manifest, new TypeReference<HashMap<String, Object>>() {
+    });
   }
 
 }
