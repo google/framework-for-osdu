@@ -46,6 +46,7 @@ import org.opengroup.osdu.ingest.ReplaceCamelCase;
 import org.opengroup.osdu.ingest.model.SubmitRequest;
 import org.opengroup.osdu.ingest.model.WorkProductLoadManifest;
 import org.opengroup.osdu.ingest.property.DataTypeValidationProperties;
+import org.opengroup.osdu.ingest.provider.interfaces.ValidationService;
 import org.opengroup.osdu.ingest.validation.schema.LoadManifestValidationService;
 
 @ExtendWith(MockitoExtension.class)

@@ -29,17 +29,20 @@ import org.opengroup.osdu.core.common.model.file.FileLocationResponse;
 import org.opengroup.osdu.ingest.model.CreateRecordPayload;
 import org.opengroup.osdu.ingest.model.Headers;
 import org.opengroup.osdu.ingest.model.type.file.OsduFile;
+import org.opengroup.osdu.ingest.provider.interfaces.FileIntegrationService;
+import org.opengroup.osdu.ingest.provider.interfaces.WorkflowPayloadService;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class WorkflowPayloadService {
+public class WorkflowPayloadServiceImpl implements WorkflowPayloadService {
 
   final ObjectMapper objectMapper;
   final OsduRecordHelper osduRecordHelper;
   final FileIntegrationService fileIntegrationService;
 
-  public Map<String, Object> getContext(String fileId, Headers headers){
+  @Override
+  public Map<String, Object> getContext(String fileId, Headers headers) {
 
     FileLocationResponse fileLocation = fileIntegrationService.getFileInfo(fileId, headers);
 
@@ -49,7 +52,6 @@ public class WorkflowPayloadService {
   }
 
   private Map<String, Object> populateContext(String fileId, Headers headers, OsduFile osduFile) {
-
     String kind = String.format("%s:ingestion-test:wellbore:1.0.1", headers.getPartitionID());
     String suffix = LocalDateTime.now(Clock.systemUTC())
         .format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss-SSSS"));

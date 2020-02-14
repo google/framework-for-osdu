@@ -1,4 +1,4 @@
-# OSDU R2 File Service
+# OpenDES R2 File Service
 
 ## Table of contents
 
@@ -15,8 +15,8 @@
 
 ## Introduction
 
-The OSDU R2 File service provides internal and external APIs to request for file location
-data, such as a signed URL per file upload. Using the signed URL, OSDU R2 users will be able to
+The OpenDES (ODES) R2 File service provides internal and external APIs to request for file location
+data, such as a signed URL per file upload. Using the signed URL, ODES R2 users will be able to
 upload their files for ingestion to the system.
 
 The current implementation of the File service supports only cloud platform-specific locations. The
@@ -30,14 +30,14 @@ and Google Cloud Storage (GCS).
 The File service defines three workflows &mdash; file upload, file location delivery, and file list
 delivery.
 
-> The file list delivery workflow isn't implemented in OSDU R2.
+> The file list delivery workflow isn't implemented in ODES R2.
 
 ### File upload
 
 The file upload workflow is defined for the `/getLocation` API. The following diagram illustrates
 the workflow.
 
-![OSDU R2 File Service getLocation Flow](https://gitlab.osdu-gcp.dev/odes/os-file/uploads/d625c62ac567469667cd46e586a821f0/OSDUD_R2_File_Service_getLocation_Flow.png)
+![ODES R2 File Service getLocation Flow](https://gitlab.osdu-gcp.dev/odes/os-file/uploads/d625c62ac567469667cd46e586a821f0/OSDUD_R2_File_Service_getLocation_Flow.png)
 
 Upon a request to get a location for a file:
 
@@ -64,9 +64,9 @@ file ID as the key and object as the value.
 The file location delivery workflow is defined for the `/getFileLocation` API. The following diagram
 demonstrates the workflow.
 
-![OSDU R2 File Service getFileLocation Flow](https://gitlab.osdu-gcp.dev/odes/os-file/uploads/bea0627636b2d72e6598c79363d9798d/OSDU_R2_FileService_getFileLocation_Flow.png)
+![ODES R2 File Service getFileLocation Flow](https://gitlab.osdu-gcp.dev/odes/os-file/uploads/bea0627636b2d72e6598c79363d9798d/OSDU_R2_FileService_getFileLocation_Flow.png)
 
-Upon request from an OSDU R2 service:
+Upon request from an ODES R2 service:
 
 1. Get the `FileID` value from the incoming request.
 2. Query the database with `FileID` to get the file record.
@@ -87,8 +87,8 @@ a dedicated section [file-locations collection](#collections).
 The File service's current implementation performs a general check of the validity of the
 authorization token and DELFI partition ID before the service starts generation of a location.
 
-However, the File service in the OSDU R2 Prototype doesn't perform any verification whether a file
-upload happened or whether the user started ingestion after uploading a file. In future OSDU
+However, the File service in the ODES R2 Prototype doesn't perform any verification whether a file
+upload happened or whether the user started ingestion after uploading a file. In future ODES
 implementations, the File service will be able to check if file uploads did happen.
 
 ## API
@@ -99,7 +99,7 @@ The File service's API includes the following three methods in the prototype:
 * `/getFileLocation`, internal
 * `/getFileList`, internal
 
-> `/getFileList` is not implemented in OSDU R2.
+> `/getFileList` is not implemented in ODES R2.
 
 ### POST /getLocation
 
@@ -163,7 +163,7 @@ The File service returns the following data.
 The `/getFileLocation` API similar to `/getLocation`, but is internal and returns the landing zone
 &mdash; `location` and `driver` &mdash; of a particular file.
 
-Once the OSDU security model is formulated and approved, the `/getFileLocation` API will not be
+Once the ODES security model is formulated and approved, the `/getFileLocation` API will not be
 returning files that belong to other users.
 
 #### Request
@@ -199,7 +199,7 @@ The `/getFileList` API allows auditing the attempted file uploads. The method is
 third-party applications.
 
 The ingestion process depends on whether the client application uploaded a file or not. The
-`/getFileList` API is designed to let other OSDU services to inspect which user uploaded a file,
+`/getFileList` API is designed to let other ODES services to inspect which user uploaded a file,
 whether the file was uploaded to the landing zone, and whether the user started ingestion after the
 file upload.
 
@@ -213,7 +213,7 @@ file upload.
 | Items    | `short`    | Pagination of the result                    |
 | UserID   | `String`   | The ID of the user role or group            |
 
-> `UserID` is not supported in the OSDU R2 Prototype.
+> `UserID` is not supported in the ODES R2 Prototype.
 
 **Example**:
 
@@ -269,7 +269,7 @@ The GCP-based implementation of the File service uses Cloud Firestore with the f
 
 > **Note**: The `Location` value might be different from the signed URL returned to the user.
 
-> **Note**: The `CreatedBy` property isn't supported in the OSDU R2 Prototype.
+> **Note**: The `CreatedBy` property isn't supported in the ODES R2 Prototype.
 
 ### Indexes
 

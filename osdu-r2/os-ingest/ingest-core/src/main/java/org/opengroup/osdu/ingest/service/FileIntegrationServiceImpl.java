@@ -26,16 +26,18 @@ import org.opengroup.osdu.core.common.model.file.FileLocationResponse;
 import org.opengroup.osdu.ingest.client.FileServiceClient;
 import org.opengroup.osdu.ingest.exception.OsduServerErrorException;
 import org.opengroup.osdu.ingest.model.Headers;
+import org.opengroup.osdu.ingest.provider.interfaces.FileIntegrationService;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class FileIntegrationService {
+public class FileIntegrationServiceImpl implements FileIntegrationService {
 
   final FileServiceClient fileServiceClient;
   final ObjectMapper objectMapper;
 
+  @Override
   public FileLocationResponse getFileInfo(String fileId, Headers commonHeaders) {
 
     FileLocationRequest request = FileLocationRequest.builder()

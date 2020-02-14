@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package org.opengroup.osdu.ingest.service;
+package org.opengroup.osdu.ingest.provider.interfaces;
 
+import org.opengroup.osdu.ingest.model.SubmitResponse;
+import org.opengroup.osdu.ingest.model.WorkProductLoadManifest;
+import org.springframework.messaging.MessageHeaders;
 
-import org.opengroup.osdu.core.common.exception.OsduUnauthorizedException;
-
-public interface AuthenticationService {
+public interface OsduSubmitService {
 
   /**
-   * Check if authentication properties are valid. It throws Unauthorized exception if
-   * authentication properties not valid.
+   * Main method of ingest service. Performs request validation and integration with
+   * Workflow service.
    *
-   * @param authorizationToken Bearer token
-   * @param partitionID        partition
-   * @throws OsduUnauthorizedException if token and partition are missing, invalid or partition
-   *                                   doesn't have assigned user groups
+   * @param manifest       work product load manifest
+   * @param messageHeaders headers
+   * @return response
    */
-  void checkAuthentication(String authorizationToken, String partitionID);
+  SubmitResponse submit(WorkProductLoadManifest manifest, MessageHeaders messageHeaders);
 
 }

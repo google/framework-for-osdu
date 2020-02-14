@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     https://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,10 +37,11 @@ import org.junit.jupiter.api.Test;
 import org.opengroup.osdu.core.common.model.file.FileLocationRequest;
 import org.opengroup.osdu.file.ReplaceCamelCase;
 import org.opengroup.osdu.file.config.RequestConstraintMappingContributor;
+import org.opengroup.osdu.file.provider.interfaces.ValidationService;
 import org.opengroup.osdu.file.validation.CommonFileLocationRequestValidator;
 import org.opengroup.osdu.file.validation.FileIdValidator;
 import org.opengroup.osdu.file.validation.FileLocationRequestValidatorWrapper;
-import org.opengroup.osdu.file.validation.ValidationService;
+import org.opengroup.osdu.file.validation.ValidationServiceImpl;
 
 @DisplayNameGeneration(ReplaceCamelCase.class)
 class GcpValidationServiceTest {
@@ -75,7 +76,7 @@ class GcpValidationServiceTest {
 
   @BeforeEach
   void setUp() {
-    validationService = new ValidationService(validator);
+    validationService = new ValidationServiceImpl(validator);
   }
 
   @Nested

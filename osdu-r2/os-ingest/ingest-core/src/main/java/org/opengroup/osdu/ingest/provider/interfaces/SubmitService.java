@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package org.opengroup.osdu.ingest.service;
+package org.opengroup.osdu.ingest.provider.interfaces;
 
+import org.opengroup.osdu.ingest.model.SubmitRequest;
 import org.opengroup.osdu.ingest.model.SubmitResponse;
-import org.opengroup.osdu.ingest.model.WorkProductLoadManifest;
 import org.springframework.messaging.MessageHeaders;
 
-public interface OsduSubmitService {
+public interface SubmitService {
 
   /**
-   * Main method of ingest service. Performs request validation and integration with
-   * Workflow service.
+   * Main method of ingest service. Performs request validation and integration with File service
+   * and Workflow service.
    *
-   * @param manifest       work product load manifest
+   * @param payload        Information about the file to ingest
    * @param messageHeaders headers
    * @return response
    */
-  SubmitResponse submit(WorkProductLoadManifest manifest, MessageHeaders messageHeaders);
-
+  SubmitResponse submit(SubmitRequest payload, MessageHeaders messageHeaders);
 }

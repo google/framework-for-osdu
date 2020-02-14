@@ -49,8 +49,8 @@ import org.opengroup.osdu.ingest.model.SchemaData;
 import org.opengroup.osdu.ingest.model.SubmitRequest;
 import org.opengroup.osdu.ingest.model.SubmitResponse;
 import org.opengroup.osdu.ingest.model.WorkProductLoadManifest;
-import org.opengroup.osdu.ingest.repository.SchemaRepository;
-import org.opengroup.osdu.ingest.service.AuthenticationService;
+import org.opengroup.osdu.ingest.provider.interfaces.AuthenticationService;
+import org.opengroup.osdu.ingest.provider.interfaces.SchemaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -201,7 +201,7 @@ public class IngestFlowTest {
     verify(workflowServiceClient).startWorkflow(any(), any(), startWorkflowRequestCaptor.capture());
     then(startWorkflowRequestCaptor.getValue()).satisfies(workflowRequest -> {
       then(workflowRequest.getDataType()).isEqualTo(DataType.OSDU);
-      then(workflowRequest.getWorkflowType()).isEqualTo(WorkflowType.INGEST);
+      then(workflowRequest.getWorkflowType()).isEqualTo(WorkflowType.OSDU);
     });
   }
 

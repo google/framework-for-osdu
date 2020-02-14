@@ -42,6 +42,7 @@ import org.opengroup.osdu.ingest.ReplaceCamelCase;
 import org.opengroup.osdu.ingest.client.FileServiceClient;
 import org.opengroup.osdu.ingest.exception.OsduServerErrorException;
 import org.opengroup.osdu.ingest.model.Headers;
+import org.opengroup.osdu.ingest.provider.interfaces.FileIntegrationService;
 import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
@@ -65,7 +66,7 @@ class FileIntegrationServiceTest {
 
   @BeforeEach
   void setUp() {
-    fileIntegrationService = new FileIntegrationService(fileServiceClient, mapper);
+    fileIntegrationService = new FileIntegrationServiceImpl(fileServiceClient, mapper);
   }
 
   @Test

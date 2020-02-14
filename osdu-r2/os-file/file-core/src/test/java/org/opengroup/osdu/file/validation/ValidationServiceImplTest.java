@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     https://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -49,9 +49,10 @@ import org.opengroup.osdu.core.common.model.file.FileLocationRequest;
 import org.opengroup.osdu.core.common.model.file.LocationRequest;
 import org.opengroup.osdu.file.ReplaceCamelCase;
 import org.opengroup.osdu.file.config.RequestConstraintMappingContributor;
+import org.opengroup.osdu.file.provider.interfaces.ValidationService;
 
 @DisplayNameGeneration(ReplaceCamelCase.class)
-class ValidationServiceTest {
+class ValidationServiceImplTest {
 
   private static final String FILE_ID_FIELD = "FileID";
   private static final String TIME_FROM_FIELD = "TimeFrom";
@@ -91,7 +92,7 @@ class ValidationServiceTest {
 
   @BeforeEach
   void setUp() {
-    validationService = new ValidationService(validator);
+    validationService = new ValidationServiceImpl(validator);
   }
 
   @Nested

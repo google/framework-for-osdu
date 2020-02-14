@@ -47,7 +47,7 @@ import org.opengroup.osdu.ingest.exception.SchemaDataQueryException;
 import org.opengroup.osdu.ingest.model.SchemaData;
 import org.opengroup.osdu.ingest.provider.gcp.mapper.SchemaDataMapper;
 import org.opengroup.osdu.ingest.provider.gcp.model.dto.SchemaDataDto;
-import org.opengroup.osdu.ingest.repository.SchemaRepository;
+import org.opengroup.osdu.ingest.provider.interfaces.SchemaRepository;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     https://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,9 +22,9 @@ import java.util.Set;
 import javax.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.opengroup.osdu.file.service.FileListService;
-import org.opengroup.osdu.file.service.FileService;
-import org.opengroup.osdu.file.service.LocationService;
+import org.opengroup.osdu.file.provider.interfaces.FileListService;
+import org.opengroup.osdu.file.provider.interfaces.FileService;
+import org.opengroup.osdu.file.provider.interfaces.LocationService;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.function.context.FunctionCatalog;

@@ -27,6 +27,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.opengroup.osdu.core.common.exception.OsduBadRequestException;
 import org.opengroup.osdu.ingest.model.SubmitRequest;
 import org.opengroup.osdu.ingest.model.WorkProductLoadManifest;
+import org.opengroup.osdu.ingest.provider.interfaces.ValidationService;
 import org.opengroup.osdu.ingest.validation.schema.LoadManifestValidationService;
 import org.springframework.stereotype.Service;
 

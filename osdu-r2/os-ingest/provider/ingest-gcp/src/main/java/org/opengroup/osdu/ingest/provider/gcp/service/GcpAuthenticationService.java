@@ -19,7 +19,7 @@ package org.opengroup.osdu.ingest.provider.gcp.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.core.common.exception.OsduUnauthorizedException;
-import org.opengroup.osdu.ingest.service.AuthenticationService;
+import org.opengroup.osdu.ingest.provider.interfaces.AuthenticationService;
 import org.springframework.stereotype.Service;
 
 @Service

@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.ingest.model.SubmitResponse;
 import org.opengroup.osdu.ingest.model.WorkProductLoadManifest;
-import org.opengroup.osdu.ingest.service.OsduSubmitService;
+import org.opengroup.osdu.ingest.provider.interfaces.OsduSubmitService;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.stereotype.Component;
@@ -37,7 +37,8 @@ public class SubmitWithManifestFunction
   @Override
   public Message<SubmitResponse> apply(Message<WorkProductLoadManifest> message) {
     log.debug("Submit with load manifest request received, with following parameters: {}", message);
-    SubmitResponse submitResponse = osduSubmitService.submit(message.getPayload(), message.getHeaders());
+    SubmitResponse submitResponse = osduSubmitService
+        .submit(message.getPayload(), message.getHeaders());
     log.debug("Submit load manifest result ready : {}", submitResponse);
     return new GenericMessage<>(submitResponse);
   }
