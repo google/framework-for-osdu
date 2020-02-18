@@ -49,6 +49,7 @@
     <javax.inject.version>1</javax.inject.version>
     <org.mapstruct.version>1.3.1.Final</org.mapstruct.version>
     <maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
+    <os-core-common.version>0.0.5-SNAPSHOT</os-core-common.version>
   </properties>
 
   <dependencyManagement>
@@ -67,7 +68,7 @@
     <dependency>
       <groupId>org.opengroup.osdu</groupId>
       <artifactId>os-core-common</artifactId>
-      <version>0.0.2-SNAPSHOT</version>
+      <version>${os-core-common.version}</version>
     </dependency>
 
     <dependency>

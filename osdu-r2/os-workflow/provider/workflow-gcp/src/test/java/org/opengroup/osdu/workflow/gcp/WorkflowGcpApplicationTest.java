@@ -26,9 +26,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.opengroup.osdu.workflow.ReplaceCamelCase;
-import org.opengroup.osdu.workflow.service.WorkflowService;
+import org.opengroup.osdu.workflow.provider.interfaces.WorkflowService;
 import org.opengroup.osdu.workflow.service.WorkflowServiceImpl;
-import org.opengroup.osdu.workflow.service.WorkflowStatusService;
+import org.opengroup.osdu.workflow.provider.interfaces.WorkflowStatusService;
 import org.opengroup.osdu.workflow.service.WorkflowStatusServiceImpl;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.cloud.function.context.FunctionCatalog;
@@ -52,9 +52,9 @@ class WorkflowGcpApplicationTest {
 
     // then
     Assertions.assertTrue(true, "silly assertion to be compliant with Sonar");
-    then(names).hasSize(3)
+    then(names).hasSize(4)
         .containsExactlyInAnyOrder("startWorkflowFunction", "getStatusFunction",
-            RoutingFunction.FUNCTION_NAME);
+            "updateStatusFunction", RoutingFunction.FUNCTION_NAME);
   }
 
   @TestConfiguration

@@ -40,10 +40,13 @@ import org.opengroup.osdu.workflow.exception.WorkflowNotFoundException;
 import org.opengroup.osdu.workflow.mapper.HeadersMapper;
 import org.opengroup.osdu.workflow.model.GetStatusRequest;
 import org.opengroup.osdu.workflow.model.GetStatusResponse;
+import org.opengroup.osdu.workflow.model.UpdateStatusRequest;
+import org.opengroup.osdu.workflow.model.UpdateStatusResponse;
 import org.opengroup.osdu.workflow.model.WorkflowStatus;
 import org.opengroup.osdu.workflow.model.WorkflowStatusType;
-import org.opengroup.osdu.workflow.repository.WorkflowStatusRepository;
-import org.opengroup.osdu.workflow.validation.ValidationService;
+import org.opengroup.osdu.workflow.provider.interfaces.AuthenticationService;
+import org.opengroup.osdu.workflow.provider.interfaces.ValidationService;
+import org.opengroup.osdu.workflow.provider.interfaces.WorkflowStatusRepository;
 import org.springframework.messaging.MessageHeaders;
 
 @ExtendWith(MockitoExtension.class)
@@ -67,7 +70,8 @@ class WorkflowStatusServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    workflowStatusService = new WorkflowStatusServiceImpl(headersMapper, authenticationService, validationService, workflowStatusRepository);
+    workflowStatusService = new WorkflowStatusServiceImpl(headersMapper, authenticationService,
+        validationService, workflowStatusRepository);
   }
 
   @Test
@@ -77,7 +81,8 @@ class WorkflowStatusServiceImplTest {
     MessageHeaders headers = getMessageHeaders();
     GetStatusRequest request = GetStatusRequest.builder().workflowId(WORKFLOW_ID).build();
 
-    WorkflowStatus workflowStatus = WorkflowStatus.builder().workflowStatusType(WorkflowStatusType.SUBMITTED)
+    WorkflowStatus workflowStatus = WorkflowStatus.builder()
+        .workflowStatusType(WorkflowStatusType.SUBMITTED)
         .workflowId(WORKFLOW_ID)
         .submittedAt(new Date()).build();
 
@@ -109,10 +114,46 @@ class WorkflowStatusServiceImplTest {
     given(workflowStatusRepository.findWorkflowStatus(eq(WORKFLOW_ID))).willReturn(null);
 
     // when
-    Throwable thrown = catchThrowable(() -> workflowStatusService.getWorkflowStatus(request, headers));
+    Throwable thrown = catchThrowable(
+        () -> workflowStatusService.getWorkflowStatus(request, headers));
 
     // then
     then(thrown).isInstanceOf(WorkflowNotFoundException.class);
+  }
+
+  @Test
+  void shouldUpdateWorkflowStatus() {
+
+    // given
+    MessageHeaders headers = getMessageHeaders();
+
+    UpdateStatusRequest request = UpdateStatusRequest.builder()
+        .workflowId(WORKFLOW_ID)
+        .workflowStatusType(WorkflowStatusType.RUNNING).build();
+
+    WorkflowStatus workflowStatus = WorkflowStatus.builder()
+        .workflowStatusType(WorkflowStatusType.RUNNING)
+        .workflowId(WORKFLOW_ID)
+        .submittedAt(new Date()).build();
+
+    given(workflowStatusRepository
+        .updateWorkflowStatus(eq(WORKFLOW_ID), eq(WorkflowStatusType.RUNNING)))
+        .willReturn(workflowStatus);
+
+    // when
+    UpdateStatusResponse updateStatusResponse = workflowStatusService
+        .updateWorkflowStatus(request, headers);
+
+    // then
+    then(updateStatusResponse.getWorkflowStatusType()).isEqualTo(WorkflowStatusType.RUNNING);
+    InOrder inOrder = Mockito.inOrder(headersMapper, authenticationService, validationService,
+        workflowStatusRepository);
+    inOrder.verify(headersMapper).toHeaders(headers);
+    inOrder.verify(authenticationService).checkAuthentication(AUTHORIZATION_TOKEN, PARTITION);
+    inOrder.verify(validationService).validateUpdateStatusRequest(request);
+    inOrder.verify(workflowStatusRepository)
+        .updateWorkflowStatus(eq(WORKFLOW_ID), eq(WorkflowStatusType.RUNNING));
+    inOrder.verifyNoMoreInteractions();
   }
 
   private MessageHeaders getMessageHeaders() {

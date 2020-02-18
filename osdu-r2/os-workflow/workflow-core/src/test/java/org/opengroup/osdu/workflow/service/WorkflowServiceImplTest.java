@@ -50,8 +50,11 @@ import org.opengroup.osdu.workflow.ReplaceCamelCase;
 import org.opengroup.osdu.workflow.mapper.HeadersMapper;
 import org.opengroup.osdu.workflow.model.WorkflowStatus;
 import org.opengroup.osdu.workflow.model.WorkflowStatusType;
-import org.opengroup.osdu.workflow.repository.WorkflowStatusRepository;
-import org.opengroup.osdu.workflow.validation.ValidationService;
+import org.opengroup.osdu.workflow.provider.interfaces.AuthenticationService;
+import org.opengroup.osdu.workflow.provider.interfaces.IngestionStrategyService;
+import org.opengroup.osdu.workflow.provider.interfaces.SubmitIngestService;
+import org.opengroup.osdu.workflow.provider.interfaces.ValidationService;
+import org.opengroup.osdu.workflow.provider.interfaces.WorkflowStatusRepository;
 import org.springframework.messaging.MessageHeaders;
 
 @ExtendWith(MockitoExtension.class)
@@ -83,8 +86,8 @@ class WorkflowServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    workflowService = new WorkflowServiceImpl(headersMapper, authenticationService, validationService,
-        ingestionStrategyService, submitIngestService, workflowStatusRepository);
+    workflowService = new WorkflowServiceImpl(headersMapper, authenticationService,
+        validationService, ingestionStrategyService, submitIngestService, workflowStatusRepository);
   }
 
   @Test
@@ -116,7 +119,7 @@ class WorkflowServiceImplTest {
     inOrder.verify(ingestionStrategyService)
         .determineStrategy(eq(WorkflowType.INGEST), eq(DataType.WELL_LOG), isNull());
     inOrder.verify(submitIngestService).submitIngest(eq(DAG_NAME), eq(context));
-    inOrder.verify(workflowStatusRepository).save(workflowStatusCaptor.capture());
+    inOrder.verify(workflowStatusRepository).saveWorkflowStatus(workflowStatusCaptor.capture());
     inOrder.verifyNoMoreInteractions();
 
     then(workflowStatusCaptor.getValue()).satisfies(status -> {
@@ -140,9 +143,10 @@ class WorkflowServiceImplTest {
     given(ingestionStrategyService
         .determineStrategy(eq(WorkflowType.INGEST), eq(DataType.WELL_LOG), isNull()))
         .willReturn(DAG_NAME);
-    doThrow(new OsduUnauthorizedException(TEST_EXCEPTION)).when(submitIngestService).submitIngest(eq(
-        DAG_NAME),
-        eq(context));
+    doThrow(new OsduUnauthorizedException(TEST_EXCEPTION)).when(submitIngestService)
+        .submitIngest(eq(
+            DAG_NAME),
+            eq(context));
 
     // when
     Throwable thrown = catchThrowable(() -> workflowService
@@ -150,7 +154,7 @@ class WorkflowServiceImplTest {
 
     // then
     then(thrown).isInstanceOf(OsduUnauthorizedException.class);
-    verify(workflowStatusRepository, never()).save(any());
+    verify(workflowStatusRepository, never()).saveWorkflowStatus(any());
   }
 
   private MessageHeaders getMessageHeaders() {
@@ -160,5 +164,4 @@ class WorkflowServiceImplTest {
 
     return new MessageHeaders(headers);
   }
-
 }

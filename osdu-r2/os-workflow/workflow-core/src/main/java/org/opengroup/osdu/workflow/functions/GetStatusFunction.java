@@ -20,7 +20,7 @@ import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import org.opengroup.osdu.workflow.model.GetStatusRequest;
 import org.opengroup.osdu.workflow.model.GetStatusResponse;
-import org.opengroup.osdu.workflow.service.WorkflowStatusService;
+import org.opengroup.osdu.workflow.provider.interfaces.WorkflowStatusService;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.stereotype.Component;

@@ -29,6 +29,7 @@ import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
+import com.google.cloud.firestore.WriteResult;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,11 +38,13 @@ import java.util.concurrent.Future;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.opengroup.osdu.workflow.gcp.exception.WorkflowStatusNotFoundException;
+import org.opengroup.osdu.workflow.gcp.exception.WorkflowStatusNotUpdatedException;
 import org.opengroup.osdu.workflow.gcp.exception.WorkflowStatusQueryException;
 import org.opengroup.osdu.workflow.gcp.property.DatabaseProperties;
 import org.opengroup.osdu.workflow.model.WorkflowStatus;
 import org.opengroup.osdu.workflow.model.WorkflowStatusType;
-import org.opengroup.osdu.workflow.repository.WorkflowStatusRepository;
+import org.opengroup.osdu.workflow.provider.interfaces.WorkflowStatusRepository;
 import org.springframework.stereotype.Repository;
 
 // TODO Will be moved to registry service
@@ -83,7 +86,7 @@ public class WorkflowStatusRepositoryImpl implements WorkflowStatusRepository {
   }
 
   @Override
-  public WorkflowStatus save(WorkflowStatus workflowStatus) {
+  public WorkflowStatus saveWorkflowStatus(WorkflowStatus workflowStatus) {
 
     log.info("Saving workflow status  location : {}", workflowStatus);
     final String errorMsg = "Exceptions during saving  workflow status: " + workflowStatus;
@@ -99,6 +102,55 @@ public class WorkflowStatusRepositoryImpl implements WorkflowStatusRepository {
         "Saved Workflow status should exist");
     log.info("Fetch saved workflow status : {}", saved);
     return buildWorkflowStatus(saved);
+  }
+
+  @Override
+  public WorkflowStatus updateWorkflowStatus(String workflowId,
+      WorkflowStatusType workflowStatusType) {
+
+    log.info("Update workflow status  for workflow id: {}, new status: {}", workflowId,
+        workflowStatusType);
+
+    String collectionName = databaseProperties.getWorkflowStatus();
+    ApiFuture<QuerySnapshot> query = firestore.collection(collectionName)
+        .whereEqualTo(WORKFLOW_ID, workflowId)
+        .get();
+
+    QuerySnapshot querySnapshot = getSafety(query,
+        String.format("Failed to find a workflow status by Workflow id - %s", workflowId));
+
+    List<QueryDocumentSnapshot> documents = querySnapshot.getDocuments();
+
+    if (documents.size() > 1) {
+      throw new WorkflowStatusQueryException(
+          String.format(
+              "Found more than one (%s) workflow status documents, expected 1, query by Workflow id - %s",
+              documents.size(), workflowId));
+    }
+
+    if (documents.isEmpty()) {
+      throw new WorkflowStatusNotFoundException(
+          String.format("Workflow status for Workflow id: %s not found", workflowId));
+    }
+
+    String documentId = documents.get(0).getId();
+    WorkflowStatus workflowStatus = buildWorkflowStatus(documents.get(0));
+
+    if (workflowStatus.getWorkflowStatusType().equals(workflowStatusType)) {
+      throw new WorkflowStatusNotUpdatedException(String.format(
+          "Workflow status for workflow id: %s already has status:%s and can not be updated",
+          workflowId, workflowStatusType));
+    }
+
+    workflowStatus.setWorkflowStatusType(workflowStatusType);
+
+    ApiFuture<WriteResult> updateQuery = firestore.collection(collectionName).document(documentId)
+        .update(WORKFLOW_STATUS_TYPE, workflowStatusType.toString());
+
+    getSafety(updateQuery,
+        String.format("Failed to update workflow status document, workflow id: %s", workflowId));
+
+    return workflowStatus;
   }
 
   private <T> T getSafety(Future<T> future, String errorMsg) {

@@ -14,21 +14,26 @@
  * limitations under the License.
  */
 
-package org.opengroup.osdu.workflow.service;
+package org.opengroup.osdu.workflow.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.opengroup.osdu.workflow.validation.ValidUpdateStatusRequest;
 
-import org.opengroup.osdu.core.common.model.DataType;
-import org.opengroup.osdu.core.common.model.WorkflowType;
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ValidUpdateStatusRequest
+public class UpdateStatusRequest {
 
-public interface IngestionStrategyService {
+  @JsonProperty("WorkflowID")
+  String workflowId;
 
-  /**
-   * Determine which ingestion strategy to use based on input parameters
-   *
-   * @param workflowType workflow type
-   * @param dataType     data type
-   * @param userId       user id
-   * @return name of ingestion strategy
-   */
-  String determineStrategy(WorkflowType workflowType, DataType dataType, String userId);
+  @JsonProperty("Status")
+  WorkflowStatusType workflowStatusType;
+
 }

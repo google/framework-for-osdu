@@ -34,7 +34,8 @@ import org.opengroup.osdu.core.common.model.WorkflowType;
 import org.opengroup.osdu.workflow.ReplaceCamelCase;
 import org.opengroup.osdu.workflow.exception.IngestionStrategyNotFoundException;
 import org.opengroup.osdu.workflow.model.IngestionStrategy;
-import org.opengroup.osdu.workflow.repository.IngestionStrategyRepository;
+import org.opengroup.osdu.workflow.provider.interfaces.IngestionStrategyService;
+import org.opengroup.osdu.workflow.provider.interfaces.IngestionStrategyRepository;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)

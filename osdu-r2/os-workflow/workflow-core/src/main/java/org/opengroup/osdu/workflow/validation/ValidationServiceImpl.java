@@ -25,32 +25,29 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.opengroup.osdu.core.common.model.workflow.StartWorkflowRequest;
 import org.opengroup.osdu.workflow.model.GetStatusRequest;
+import org.opengroup.osdu.workflow.model.UpdateStatusRequest;
+import org.opengroup.osdu.workflow.provider.interfaces.ValidationService;
 import org.opengroup.osdu.workflow.validation.group.ValidationSequence;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ValidationService {
+public class ValidationServiceImpl implements ValidationService {
 
   final Validator validator;
 
-  /**
-   * Validates get status request using Java Bean Validation.
-   *
-   * @param request get status request
-   * @throws ConstraintViolationException if request is invalid
-   */
+  @Override
   public void validateGetStatusRequest(GetStatusRequest request) {
     validate(request, "Invalid GetStatus request");
   }
 
-  /**
-   * Validates start workflow request using Java Bean Validation.
-   *
-   * @param request start workflow request
-   * @throws ConstraintViolationException if request is invalid
-   */
+  @Override
+  public void validateUpdateStatusRequest(UpdateStatusRequest request) {
+    validate(request, "Invalid Update Workflow Status request");
+  }
+
+  @Override
   public void validateStartWorkflowRequest(StartWorkflowRequest request) {
     validate(request, "Invalid StartWorkflowRequest");
   }

@@ -38,7 +38,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.opengroup.osdu.workflow.ReplaceCamelCase;
 import org.opengroup.osdu.workflow.exception.OsduRuntimeException;
 import org.opengroup.osdu.workflow.gcp.property.AirflowProperties;
-import org.opengroup.osdu.workflow.service.SubmitIngestService;
+import org.opengroup.osdu.workflow.provider.interfaces.SubmitIngestService;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)
