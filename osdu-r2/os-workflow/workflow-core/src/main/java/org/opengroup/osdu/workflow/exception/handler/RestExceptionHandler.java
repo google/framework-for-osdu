@@ -54,6 +54,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler({ ConstraintViolationException.class })
   protected ResponseEntity<Object> handle(ConstraintViolationException ex, WebRequest request) {
     List<String> errors = new ArrayList<>();
+    log.error("Constraint exception: {}", errors);
     for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
       errors.add(violation.getPropertyPath() + ": " + violation.getMessage());
     }

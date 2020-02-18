@@ -49,7 +49,7 @@ import org.opengroup.osdu.workflow.ReplaceCamelCase;
 import org.opengroup.osdu.workflow.gcp.exception.IngestionStrategyQueryException;
 import org.opengroup.osdu.workflow.gcp.property.DatabaseProperties;
 import org.opengroup.osdu.workflow.model.IngestionStrategy;
-import org.opengroup.osdu.workflow.repository.IngestionStrategyRepository;
+import org.opengroup.osdu.workflow.provider.interfaces.IngestionStrategyRepository;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)

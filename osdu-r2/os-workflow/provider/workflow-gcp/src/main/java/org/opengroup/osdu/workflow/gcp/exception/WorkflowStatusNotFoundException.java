@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package org.opengroup.osdu.workflow.repository;
+package org.opengroup.osdu.workflow.gcp.exception;
 
-import org.opengroup.osdu.core.common.model.DataType;
-import org.opengroup.osdu.core.common.model.WorkflowType;
-import org.opengroup.osdu.workflow.model.IngestionStrategy;
+import org.opengroup.osdu.core.common.exception.OsduBadRequestException;
 
-public interface IngestionStrategyRepository {
+public class WorkflowStatusNotFoundException extends OsduBadRequestException {
 
-  /**
-   * Finds a dag based on parameters.
-   *
-   * @param workflowType type of workflow
-   * @param dataType data type
-   * @param userId user id
-   * @return
-   */
-  IngestionStrategy findByWorkflowTypeAndDataTypeAndUserId(WorkflowType workflowType, DataType dataType,
-      String userId);
+  public WorkflowStatusNotFoundException(String message) {
+    super(message);
+  }
 
+  public WorkflowStatusNotFoundException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

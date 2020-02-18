@@ -19,12 +19,18 @@ package org.opengroup.osdu.workflow.gcp.repository;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.opengroup.osdu.workflow.model.WorkflowStatus.Fields.*;
+import static org.opengroup.osdu.workflow.model.WorkflowStatus.Fields.AIRFLOW_RUN_ID;
+import static org.opengroup.osdu.workflow.model.WorkflowStatus.Fields.SUBMITTED_AT;
+import static org.opengroup.osdu.workflow.model.WorkflowStatus.Fields.SUBMITTED_BY;
+import static org.opengroup.osdu.workflow.model.WorkflowStatus.Fields.WORKFLOW_ID;
+import static org.opengroup.osdu.workflow.model.WorkflowStatus.Fields.WORKFLOW_STATUS_TYPE;
 
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
@@ -35,6 +41,7 @@ import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
+import com.google.cloud.firestore.WriteResult;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -48,13 +55,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.opengroup.osdu.core.common.model.file.FileLocation.Fields;
 import org.opengroup.osdu.workflow.ReplaceCamelCase;
+import org.opengroup.osdu.workflow.gcp.exception.WorkflowStatusNotFoundException;
+import org.opengroup.osdu.workflow.gcp.exception.WorkflowStatusNotUpdatedException;
 import org.opengroup.osdu.workflow.gcp.exception.WorkflowStatusQueryException;
 import org.opengroup.osdu.workflow.gcp.property.DatabaseProperties;
 import org.opengroup.osdu.workflow.model.WorkflowStatus;
 import org.opengroup.osdu.workflow.model.WorkflowStatusType;
-import org.opengroup.osdu.workflow.repository.WorkflowStatusRepository;
+import org.opengroup.osdu.workflow.provider.interfaces.WorkflowStatusRepository;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)
@@ -70,6 +78,7 @@ class WorkflowStatusRepositoryImplTest {
   private DocumentSnapshot docSnap = mock(DocumentSnapshot.class);
   private Firestore firestore = mock(Firestore.class, RETURNS_DEEP_STUBS);
   private DatabaseProperties databaseProperties = mock(DatabaseProperties.class);
+  private WriteResult writeResult = mock(WriteResult.class, RETURNS_DEEP_STUBS);
 
   private WorkflowStatusRepository workflowStatusRepository;
 
@@ -84,6 +93,7 @@ class WorkflowStatusRepositoryImplTest {
 
     @Test
     void shouldFindWorkflowStatusByWorkflowId() {
+
       // given
       Date createdDate = new Date();
       List<QueryDocumentSnapshot> documents = Collections.singletonList(qDocSnap);
@@ -107,6 +117,7 @@ class WorkflowStatusRepositoryImplTest {
 
     @Test
     void shouldThrowExceptionWhenQueryFailed() {
+
       // given
       ApiFuture<QuerySnapshot> queryFuture =
           ApiFutures.immediateFailedFuture(new IllegalArgumentException("Failed query"));
@@ -128,6 +139,7 @@ class WorkflowStatusRepositoryImplTest {
 
     @Test
     void shouldThrowExceptionWhenFutureFailed() throws Exception {
+
       // given
       ApiFuture queryFuture = mock(ApiFuture.class);
 
@@ -198,7 +210,7 @@ class WorkflowStatusRepositoryImplTest {
     ArgumentCaptor<Map<String, Object>> dataCaptor;
 
     @Test
-    void shouldSaveFileLocationAndReturnSavedEntity() {
+    void shouldSaveWorkflowStatusAndReturnSavedEntity() {
       // given
       Date createdDate = new Date();
       WorkflowStatus workflowStatus = getWorkflowStatus(createdDate);
@@ -218,7 +230,7 @@ class WorkflowStatusRepositoryImplTest {
       given(docSnap.getString(SUBMITTED_BY)).willReturn(USER);
 
       // when
-      WorkflowStatus saved = workflowStatusRepository.save(workflowStatus);
+      WorkflowStatus saved = workflowStatusRepository.saveWorkflowStatus(workflowStatus);
 
       // then
       then(saved).isEqualTo(workflowStatus);
@@ -243,10 +255,10 @@ class WorkflowStatusRepositoryImplTest {
       givenDocSnap(docSnap, workflowStatus);
 
       // when
-      WorkflowStatus saved = workflowStatusRepository.save(workflowStatus);
+      WorkflowStatus saved = workflowStatusRepository.saveWorkflowStatus(workflowStatus);
 
       // then
-      then(saved).isEqualToIgnoringGivenFields(saved, Fields.CREATED_AT);
+      then(saved).isEqualToIgnoringGivenFields(saved, SUBMITTED_AT);
 
       verify(firestore.collection(COLLECTION_NAME)).add(dataCaptor.capture());
 
@@ -268,7 +280,8 @@ class WorkflowStatusRepositoryImplTest {
       given(firestore.collection(COLLECTION_NAME).add(anyMap())).willReturn(query);
 
       // when
-      Throwable thrown = catchThrowable(() -> workflowStatusRepository.save(workflowStatus));
+      Throwable thrown = catchThrowable(
+          () -> workflowStatusRepository.saveWorkflowStatus(workflowStatus));
 
       // then
       then(thrown)
@@ -291,7 +304,8 @@ class WorkflowStatusRepositoryImplTest {
       given(docRef.get()).willReturn(savedDoc);
 
       // when
-      Throwable thrown = catchThrowable(() -> workflowStatusRepository.save(workflowStatus));
+      Throwable thrown = catchThrowable(
+          () -> workflowStatusRepository.saveWorkflowStatus(workflowStatus));
 
       // then
       then(thrown)
@@ -299,7 +313,136 @@ class WorkflowStatusRepositoryImplTest {
           .hasRootCauseInstanceOf(IllegalArgumentException.class)
           .hasMessage("Saved Workflow status should exist");
     }
+  }
 
+  @Nested
+  class UpdateWorkflowStatus {
+
+    @Test
+    void shouldUpdateWorkflowStatusAndReturnSavedEntity() {
+
+      // given
+      Date createdDate = new Date();
+      List<QueryDocumentSnapshot> documents = Collections.singletonList(qDocSnap);
+      QuerySnapshot querySnapshot = QuerySnapshot
+          .withDocuments(null, Timestamp.now(), documents);
+      ApiFuture<QuerySnapshot> queryFuture = ApiFutures.immediateFuture(querySnapshot);
+
+      lenient().when(firestore.collection(COLLECTION_NAME)
+          .whereEqualTo(WORKFLOW_ID, TEST_WORKFLOW_ID).get())
+          .thenReturn(queryFuture);
+
+      givenDocSnap(qDocSnap, getWorkflowStatus(createdDate));
+
+      ApiFuture<WriteResult> queryWriteFuture = ApiFutures.immediateFuture(writeResult);
+
+      lenient().when(firestore.collection(COLLECTION_NAME).document(eq("doc-id"))
+          .update(eq(WORKFLOW_STATUS_TYPE), eq("running"))).thenReturn(queryWriteFuture);
+
+      // when
+      WorkflowStatus saved = workflowStatusRepository
+          .updateWorkflowStatus(TEST_WORKFLOW_ID, WorkflowStatusType.RUNNING);
+
+      // then
+      then(saved.getWorkflowStatusType()).isEqualTo(WorkflowStatusType.RUNNING);
+      then(saved.getWorkflowId()).isEqualTo(TEST_WORKFLOW_ID);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUpdateQueryFailed() {
+
+      // given
+      ApiFuture<QuerySnapshot> queryFuture =
+          ApiFutures.immediateFailedFuture(new IllegalArgumentException("Failed query"));
+
+      given(firestore.collection(COLLECTION_NAME)
+          .whereEqualTo(WORKFLOW_ID, TEST_WORKFLOW_ID).get())
+          .willReturn(queryFuture);
+
+      // when
+      Throwable thrown = catchThrowable(() -> workflowStatusRepository.updateWorkflowStatus(
+          TEST_WORKFLOW_ID, WorkflowStatusType.RUNNING));
+
+      // then
+      then(thrown)
+          .isInstanceOf(WorkflowStatusQueryException.class)
+          .hasRootCauseInstanceOf(IllegalArgumentException.class)
+          .hasMessage("Failed to find a workflow status by Workflow id - test-workflow-id");
+    }
+
+    @Test
+    void shouldThrowExceptionWhenItFindsFewDocuments() {
+
+      // given
+      List<QueryDocumentSnapshot> documents = Arrays.asList(qDocSnap, qDocSnap);
+      QuerySnapshot querySnapshot = QuerySnapshot
+          .withDocuments(null, Timestamp.now(), documents);
+      ApiFuture<QuerySnapshot> queryFuture = ApiFutures.immediateFuture(querySnapshot);
+
+      given(firestore.collection(COLLECTION_NAME)
+          .whereEqualTo(WORKFLOW_ID, TEST_WORKFLOW_ID).get())
+          .willReturn(queryFuture);
+
+      // when
+      Throwable thrown = catchThrowable(() -> workflowStatusRepository.updateWorkflowStatus(
+          TEST_WORKFLOW_ID, WorkflowStatusType.RUNNING));
+
+      // then
+      then(thrown)
+          .isInstanceOf(WorkflowStatusQueryException.class)
+          .hasMessage(
+              "Found more than one (2) workflow status documents, expected 1, query by Workflow id - test-workflow-id");
+    }
+
+    @Test
+    void shouldThrowExceptionWhenNothingWasFound() {
+      // given
+      List<QueryDocumentSnapshot> documents = Collections.emptyList();
+      QuerySnapshot querySnapshot = QuerySnapshot
+          .withDocuments(null, Timestamp.now(), documents);
+      ApiFuture<QuerySnapshot> queryFuture = ApiFutures.immediateFuture(querySnapshot);
+
+      given(firestore.collection(COLLECTION_NAME)
+          .whereEqualTo(WORKFLOW_ID, TEST_WORKFLOW_ID).get())
+          .willReturn(queryFuture);
+
+      // when
+      Throwable thrown = catchThrowable(() -> workflowStatusRepository
+          .updateWorkflowStatus(TEST_WORKFLOW_ID, WorkflowStatusType.RUNNING));
+
+      // then
+      // then
+      then(thrown)
+          .isInstanceOf(WorkflowStatusNotFoundException.class)
+          .hasMessage("Workflow status for Workflow id: test-workflow-id not found");
+    }
+
+    @Test
+    void shouldThrowExceptionIfWorkflowHasAlreadyDefinedStatus() {
+
+      // given
+      Date createdDate = new Date();
+      List<QueryDocumentSnapshot> documents = Collections.singletonList(qDocSnap);
+      QuerySnapshot querySnapshot = QuerySnapshot
+          .withDocuments(null, Timestamp.now(), documents);
+      ApiFuture<QuerySnapshot> queryFuture = ApiFutures.immediateFuture(querySnapshot);
+
+      lenient().when(firestore.collection(COLLECTION_NAME)
+          .whereEqualTo(WORKFLOW_ID, TEST_WORKFLOW_ID).get())
+          .thenReturn(queryFuture);
+
+      givenDocSnap(qDocSnap, getWorkflowStatus(createdDate));
+
+      // when
+      Throwable thrown = catchThrowable(() -> workflowStatusRepository.updateWorkflowStatus(
+          TEST_WORKFLOW_ID, WorkflowStatusType.SUBMITTED));
+
+      // then
+      then(thrown)
+          .isInstanceOf(WorkflowStatusNotUpdatedException.class)
+          .hasMessage(
+              "Workflow status for workflow id: test-workflow-id already has status:SUBMITTED and can not be updated");
+    }
   }
 
   private WorkflowStatus getWorkflowStatus(Date createdDate) {
@@ -315,7 +458,8 @@ class WorkflowStatusRepositoryImplTest {
   private void givenDocSnap(DocumentSnapshot qDocSnap, WorkflowStatus workflowStatus) {
     given(qDocSnap.getString(WORKFLOW_ID)).willReturn(workflowStatus.getWorkflowId());
     given(qDocSnap.getString(AIRFLOW_RUN_ID)).willReturn(workflowStatus.getAirflowRunId());
-    given(qDocSnap.getString(WORKFLOW_STATUS_TYPE)).willReturn(workflowStatus.getWorkflowStatusType().name());
+    given(qDocSnap.getString(WORKFLOW_STATUS_TYPE))
+        .willReturn(workflowStatus.getWorkflowStatusType().name());
     given(qDocSnap.getDate(SUBMITTED_AT)).willReturn(workflowStatus.getSubmittedAt());
     given(qDocSnap.getString(SUBMITTED_BY)).willReturn(workflowStatus.getSubmittedBy());
   }

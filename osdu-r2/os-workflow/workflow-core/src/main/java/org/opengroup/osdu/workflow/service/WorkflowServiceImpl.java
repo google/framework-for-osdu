@@ -28,8 +28,12 @@ import org.opengroup.osdu.core.common.model.workflow.StartWorkflowResponse;
 import org.opengroup.osdu.workflow.mapper.HeadersMapper;
 import org.opengroup.osdu.workflow.model.WorkflowStatus;
 import org.opengroup.osdu.workflow.model.WorkflowStatusType;
-import org.opengroup.osdu.workflow.repository.WorkflowStatusRepository;
-import org.opengroup.osdu.workflow.validation.ValidationService;
+import org.opengroup.osdu.workflow.provider.interfaces.AuthenticationService;
+import org.opengroup.osdu.workflow.provider.interfaces.IngestionStrategyService;
+import org.opengroup.osdu.workflow.provider.interfaces.SubmitIngestService;
+import org.opengroup.osdu.workflow.provider.interfaces.ValidationService;
+import org.opengroup.osdu.workflow.provider.interfaces.WorkflowService;
+import org.opengroup.osdu.workflow.provider.interfaces.WorkflowStatusRepository;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
 
@@ -68,7 +72,7 @@ public class WorkflowServiceImpl implements WorkflowService {
 
     submitIngestService.submitIngest(strategyName, context);
 
-    workflowStatusRepository.save(WorkflowStatus.builder()
+    workflowStatusRepository.saveWorkflowStatus(WorkflowStatus.builder()
         .workflowId(workflowId)
         .airflowRunId(airflowRunId)
         .workflowStatusType(WorkflowStatusType.SUBMITTED)

@@ -23,10 +23,10 @@ import javax.inject.Inject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.opengroup.osdu.workflow.repository.IngestionStrategyRepository;
-import org.opengroup.osdu.workflow.repository.WorkflowStatusRepository;
-import org.opengroup.osdu.workflow.service.AuthenticationService;
-import org.opengroup.osdu.workflow.service.SubmitIngestService;
+import org.opengroup.osdu.workflow.provider.interfaces.IngestionStrategyRepository;
+import org.opengroup.osdu.workflow.provider.interfaces.WorkflowStatusRepository;
+import org.opengroup.osdu.workflow.provider.interfaces.AuthenticationService;
+import org.opengroup.osdu.workflow.provider.interfaces.SubmitIngestService;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.function.context.FunctionCatalog;
@@ -48,9 +48,9 @@ class WorkflowApplicationTest {
 
     // then
     Assertions.assertTrue(true, "silly assertion to be compliant with Sonar");
-    then(names).hasSize(3)
+    then(names).hasSize(4)
         .containsExactlyInAnyOrder("getStatusFunction", "startWorkflowFunction",
-            RoutingFunction.FUNCTION_NAME);
+            "updateStatusFunction", RoutingFunction.FUNCTION_NAME);
   }
 
   @TestConfiguration

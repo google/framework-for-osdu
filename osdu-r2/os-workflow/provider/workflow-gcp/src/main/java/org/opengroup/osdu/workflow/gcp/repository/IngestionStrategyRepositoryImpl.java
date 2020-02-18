@@ -37,7 +37,7 @@ import org.opengroup.osdu.core.common.model.WorkflowType;
 import org.opengroup.osdu.workflow.gcp.exception.IngestionStrategyQueryException;
 import org.opengroup.osdu.workflow.gcp.property.DatabaseProperties;
 import org.opengroup.osdu.workflow.model.IngestionStrategy;
-import org.opengroup.osdu.workflow.repository.IngestionStrategyRepository;
+import org.opengroup.osdu.workflow.provider.interfaces.IngestionStrategyRepository;
 import org.springframework.stereotype.Repository;
 
 // TODO Will be moved to registry service

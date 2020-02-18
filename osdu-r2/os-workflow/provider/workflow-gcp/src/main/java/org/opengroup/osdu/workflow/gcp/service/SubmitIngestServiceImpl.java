@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.opengroup.osdu.workflow.exception.OsduRuntimeException;
 import org.opengroup.osdu.workflow.gcp.property.AirflowProperties;
-import org.opengroup.osdu.workflow.service.SubmitIngestService;
+import org.opengroup.osdu.workflow.provider.interfaces.SubmitIngestService;
 import org.springframework.stereotype.Service;
 
 @Service

@@ -18,23 +18,23 @@ package org.opengroup.osdu.workflow.functions;
 
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
-import org.opengroup.osdu.core.common.model.workflow.StartWorkflowRequest;
-import org.opengroup.osdu.core.common.model.workflow.StartWorkflowResponse;
-import org.opengroup.osdu.workflow.provider.interfaces.WorkflowService;
+import org.opengroup.osdu.workflow.model.UpdateStatusRequest;
+import org.opengroup.osdu.workflow.model.UpdateStatusResponse;
+import org.opengroup.osdu.workflow.provider.interfaces.WorkflowStatusService;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class StartWorkflowFunction implements
-    Function<Message<StartWorkflowRequest>, Message<StartWorkflowResponse>> {
+public class UpdateStatusFunction
+    implements Function<Message<UpdateStatusRequest>, Message<UpdateStatusResponse>> {
 
-  final WorkflowService workflowService;
+  final WorkflowStatusService workflowStatusService;
 
   @Override
-  public Message<StartWorkflowResponse> apply(Message<StartWorkflowRequest> message) {
-    StartWorkflowResponse response = workflowService.startWorkflow(message.getPayload(),
+  public Message<UpdateStatusResponse> apply(Message<UpdateStatusRequest> message) {
+    UpdateStatusResponse response = workflowStatusService.updateWorkflowStatus(message.getPayload(),
         message.getHeaders());
     return new GenericMessage<>(response);
   }

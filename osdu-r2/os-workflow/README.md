@@ -1,35 +1,39 @@
-# OSDU Workflow Service
+# ODES Workflow Service
 
 ## Table of contents
 
 * [Introduction](#introduction)
 * [System interactions](#system-interactions)
 * [API](#api)
+    * [POST /startWorkflow](#post-startworkflow)
+    * [POST /getStatus](#post-getstatus)
+    * [POST /updateWorkflowStatus](#post-updateworkflowstatus)
 * [GCP implementation](#gcp-implementation)
 
 ## Introduction
 
-The OpenDES (OSDU) Workflow service starts any business process in the system, such as ingestion of
+The OpenDES (ODES) Workflow service starts any business process in the system, such as ingestion of
 OSDU data. The Workflow service provides a wrapper functionality around the Apache Airflow functions
 and is designed to carry out a preliminary work with files before running the Airflow Directed
 Acyclic Graphs (DAGs).
 
-In OSDU R2, depending on the types of data, workflow, and user, the Workflow service starts the
+In ODES R2, depending on the types of data, workflow, and user, the Workflow service starts the
 necessary workflow such as well log LAS files ingestion or opaque ingestion.
 
 ## System interactions
 
-The Workflow service in the OSDU R2 Prototype defines two workflows:
+The Workflow service in the ODES R2 Prototype defines the following workflows:
 
 * Starting ingestion of new files
 * Delivering the current status of an ingestion job
+* Update the workflow status
 
 ### Ingestion
 
 The ingestion workflow starts by a call to the `/startWorkflow` API. The following diagram shows the
 workflow.
 
-![OSDU Workflow Service startWorkflow API](https://gitlab.osdu-gcp.dev/OSDU/os-workflow/uploads/d2122ae7e53a234d92b87552e5d6b5b1/OSDU_R2_Workflow_Service_startWorkflow_API.png)
+![ODES Workflow Service startWorkflow API](https://gitlab.osdu-gcp.dev/odes/os-workflow/uploads/d2122ae7e53a234d92b87552e5d6b5b1/OSDU_R2_Workflow_Service_startWorkflow_API.png)
 
 Upon the `/startWorkflow` request:
 
@@ -51,6 +55,26 @@ decides which DAG to run by the following three parameters:
     * Respond with the `404 Not Found` status if the requested workflow ID isn't found.
 2. Return the workflow job status to the user or application.
 
+### Update workflow status
+
+In terms of OSDU R2 Prototype, Apache Airflow DAGs start this workflow in the service. Once an
+ingestion workflow is started and a file is ingested, the Opaque Ingestion DAG or the OSDU Ingestion
+DAG query the Workflow service with the new status. The ingestion workflow can be set to RUNNING,
+FINISHED, or FAILED.
+
+Upon an `/updateWorkflowStatus` request:
+
+1. Validate the incoming request.
+    * Validate the authentication token and the DELFI partition ID. Fail workflow status update if
+    the token or the partition ID is not provided.
+    * Fail the request if the workflow ID or the workflow status is not provided.
+    * Fail the request if the workflow status is not one of the RUNNING, FINISHED, or FAILED
+2. Update the workflow status in the database.
+    * Fail the update if the workflow ID is not found in the database.
+    * Fail the update if there are more than one status for the workflow in the database.
+    * Fail the update if the stored status and the incoming status are the same.
+3. Return the workflow ID and the workflow status to the requester.
+
 ## API
 
 ### POST /startWorkflow
@@ -61,7 +85,7 @@ The `/startWorkflow` endpoint is a wrapper around the Airflow invocation, and it
 default workflows. For each combination of user, data, and workflow types, the API identifies a
 suitable DAG and then calls Airflow.
 
-For the OSDU R2 implementation, the API doesn't reconfigure the workflows and only queries the
+For the ODES R2 implementation, the API doesn't reconfigure the workflows and only queries the
 database to determine which DAG to run.
 
 #### Request
@@ -86,7 +110,8 @@ provided in the request body.
 
 ### POST /getStatus
 
-Returns the current status of a workflow job.
+Returns the current status of a workflow job. This endpoint is available for third-party
+applications.
 
 #### Request
 
@@ -105,6 +130,47 @@ If the workflow ID is found in the database, the following response is returned 
 | Status   | `String` | Current status of the workflow job &mdash; SUBMITTED, RUNNING, FINISHED, or FAILED |
 
 If the workflow ID isn't found in the database, the `404 Not Found` response is returned.
+
+### POST /updateWorkflowStatus
+
+Updates the status of a workflow to the latest status. This API endpoint is not available for
+third-party applications.
+
+#### Request
+
+The incoming request contains the following properties in the request body.
+
+| Property   | Type     | Description                                      |
+| ---------- | -------- | ------------------------------------------------ |
+| WorkflowID | `String` | Unique ID of a workflow that needs to be updated |
+| Status     | `String` | The new status of the workflow                   |
+
+Request body example:
+
+```sh
+{
+    "WorkflowID": "2b905e77-7e04-4c04-8581-7b4c224164dd",
+    "Status": "finished"
+}
+```
+
+#### Response
+
+The response body contains the following properties.
+
+| Property   | Type     | Description                              |
+| ---------- | -------- | ---------------------------------------- |
+| WorkflowID | `String` | Unique ID of a workflow that was updated |
+| Status     | `String` | The updated status of the workflow       |
+
+Response body example:
+
+```sh
+{
+    "WorkflowID": "2b905e77-7e04-4c04-8581-7b4c224164dd",
+    "Status": "finished"
+}
+```
 
 ## GCP implementation
 
@@ -135,7 +201,7 @@ The database needs to store the following information to help determine a DAG.
 | UserID       | `String` | A unique identifier of the user group or role                  |
 | DAGName      | `String` | The name of the DAG                                            |
 
-> **Note**: The current implementation of OSDU doesn't support the UserID property. When the
+> **Note**: The current implementation of ODES doesn't support the UserID property. When the
 > security system is fully defined, the UserID field will store the ID of the user group or role.
 
 ### `workflow-status`
@@ -148,6 +214,6 @@ After a workflow starts, the Workflow service stores the following information i
 | AirflowRunID | `String` | Unique Airflow process ID generated by the Workflow service                      |
 | Status       | `String` | Current status of a workflow job &mdash; SUBMITTED, RUNNING, FINISHED, or FAILED |
 | SubmittedAt  | `String` | Timestamp when the workflow job was submitted to Workflow Engine                 |
-| SubmittedBy  | `String` | ID of the user role or group. Not supported in OSDU R2                           |
+| SubmittedBy  | `String` | ID of the user role or group. Not supported in ODES R2                           |
 
 [application-default-credentials]: https://developers.google.com/identity/protocols/application-default-credentials#calling

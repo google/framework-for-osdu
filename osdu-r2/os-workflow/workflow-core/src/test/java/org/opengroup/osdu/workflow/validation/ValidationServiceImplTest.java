@@ -40,9 +40,10 @@ import org.opengroup.osdu.core.common.model.workflow.StartWorkflowRequest;
 import org.opengroup.osdu.workflow.ReplaceCamelCase;
 import org.opengroup.osdu.workflow.config.RequestConstraintMappingContributor;
 import org.opengroup.osdu.workflow.model.GetStatusRequest;
+import org.opengroup.osdu.workflow.provider.interfaces.ValidationService;
 
 @DisplayNameGeneration(ReplaceCamelCase.class)
-class ValidationServiceTest {
+class ValidationServiceImplTest {
 
   private static final String WORKFLOW_ID = "WorkflowID";
   private static final String NOT_BLANK_MESSAGE = "must not be blank";
@@ -76,7 +77,7 @@ class ValidationServiceTest {
 
   @BeforeEach
   void setUp() {
-    validationService = new ValidationService(validator);
+    validationService = new ValidationServiceImpl(validator);
   }
 
   @Nested
