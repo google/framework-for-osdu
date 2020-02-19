@@ -35,7 +35,10 @@ REGION=$3
 [[ -z $REGION ]] && REGION=us-central1
 [[ -z $SERVICE ]] && SERVICE=$APP
 
-GOOGLE_CLOUD_PROJECT=a2ba07aca58-energy-osdu
+if [[ -z $GOOGLE_CLOUD_PROJECT ]]; then
+  echo "Enter your GCP project ID:"
+  read -r GOOGLE_CLOUD_PROJECT
+fi
 
 gcloud config set project "$GOOGLE_CLOUD_PROJECT"
 
