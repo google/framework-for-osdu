@@ -20,7 +20,6 @@ import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -30,9 +29,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opengroup.osdu.core.common.model.file.FileLocationResponse;
 import org.opengroup.osdu.ingest.ReplaceCamelCase;
-import org.opengroup.osdu.ingest.config.ObjectMapperConfig;
 import org.opengroup.osdu.ingest.model.Headers;
-import org.opengroup.osdu.ingest.model.type.file.OsduFile;
 import org.opengroup.osdu.ingest.provider.interfaces.FileIntegrationService;
 import org.opengroup.osdu.ingest.provider.interfaces.WorkflowPayloadService;
 
@@ -42,10 +39,6 @@ class WorkflowPayloadServiceTest {
 
   private static final String FILE_ID = "file-id";
 
-  private ObjectMapper mapper;
-
-  @Mock
-  private OsduRecordHelper osduRecordHelper;
   @Mock
   private FileIntegrationService fileIntegrationService;
 
@@ -53,10 +46,7 @@ class WorkflowPayloadServiceTest {
 
   @BeforeEach
   void setUp() {
-    ObjectMapperConfig objectMapperConfig = new ObjectMapperConfig();
-    mapper = objectMapperConfig.objectMapper();
-    workflowPayloadService = new WorkflowPayloadServiceImpl(mapper, osduRecordHelper,
-        fileIntegrationService);
+    workflowPayloadService = new WorkflowPayloadServiceImpl(fileIntegrationService);
   }
 
   @Test
@@ -71,26 +61,11 @@ class WorkflowPayloadServiceTest {
     FileLocationResponse fileLocation = FileLocationResponse.builder().location("location").build();
     given(fileIntegrationService.getFileInfo(eq(FILE_ID), eq(headers))).willReturn(fileLocation);
 
-    OsduFile osduFile = OsduFile.builder()
-        .resourceTypeID("resource-type-id")
-        .resourceID("resource-id").build();
-    given(osduRecordHelper.populateOsduRecord(eq("location"))).willReturn(osduFile);
-
     // when
     Map<String, Object> context = workflowPayloadService.getContext(FILE_ID, headers);
 
     // then
-    then(context.get("kind")).isEqualTo("partition-id:ingestion-test:wellbore:1.0.1");
-    then(context.get("legal")).isEqualTo("legal");
-    then((String) context.get("id")).contains("partition-id:ingestion-test:file-file-id");
-    then(context.get("acl")).isEqualTo("acl");
-
-    then((Map<String, Object>) context.get("data")).satisfies(data -> {
-      then((Map<String, Object>) data.get("osdu")).satisfies(osdu -> {
-        then(osdu.get("ResourceID")).isEqualTo("resource-id");
-        then(osdu.get("ResourceTypeID")).isEqualTo("resource-type-id");
-      });
-    });
+    then(context.get("FileID")).isEqualTo(FILE_ID);
   }
 
 }
