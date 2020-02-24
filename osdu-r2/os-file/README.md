@@ -1,4 +1,4 @@
-# OpenDES R2 File Service
+# OSDU R2 Prototype File Service
 
 ## Table of contents
 
@@ -9,14 +9,15 @@
     * [POST /getLocation](#post-getlocation)
     * [POST /getFileLocation](#post-getfilelocation)
     * [POST /getFileList](#post-getfilelist)
+* [Service Provider Interfaces](#service-provider-interfaces)
 * [GCP implementation](#gcp-implementation)
 * [Firestore](#firestore)
 
 
 ## Introduction
 
-The OpenDES (ODES) R2 File service provides internal and external APIs to request for file location
-data, such as a signed URL per file upload. Using the signed URL, ODES R2 users will be able to
+The OSDU R2 Prototype File service provides internal and external APIs to request for file location
+data, such as a signed URL per file upload. Using the signed URL, OSDU R2 users will be able to
 upload their files for ingestion to the system.
 
 The current implementation of the File service supports only cloud platform-specific locations. The
@@ -30,14 +31,12 @@ and Google Cloud Storage (GCS).
 The File service defines three workflows &mdash; file upload, file location delivery, and file list
 delivery.
 
-> The file list delivery workflow isn't implemented in ODES R2.
-
 ### File upload
 
-The file upload workflow is defined for the `/getLocation` API. The following diagram illustrates
-the workflow.
+The file upload workflow is defined for the `/getLocation` API endpoint. The following diagram
+illustrates the workflow.
 
-![ODES R2 File Service getLocation Flow](https://gitlab.osdu-gcp.dev/odes/os-file/uploads/d625c62ac567469667cd46e586a821f0/OSDUD_R2_File_Service_getLocation_Flow.png)
+![OSDUD_R2_File_Service_getLocation_Flow](uploads/6c6506bd03177ed3e2b193debcca588b/OSDUD_R2_File_Service_getLocation_Flow.png)
 
 Upon a request to get a location for a file:
 
@@ -45,8 +44,7 @@ Upon a request to get a location for a file:
     * **Verify the authentication token**. Fail signed URL generation if the token is missing or
     invalid, and then respond with the HTTP error `401 Unauthorized`.
     * **Verify the partition ID**. Fail signed URL generation if the partition ID is missing or
-    invalid or doesn't have assigned user groups. Respond with the HTTP error `400 Bad Request` and
-    an error message `Invalid fileID {file ID}`.
+    invalid or doesn't have assigned user groups. Respond with the HTTP error `400 Bad Request`.
     * **Verify the file ID** (only if it's passed in the request). Fail signed URL generation if the
     file ID is invalid or if this ID was already created. Respond with the error `Location for
     fileID {ID} already exists` and `400 Bad Request` status.
@@ -64,9 +62,9 @@ file ID as the key and object as the value.
 The file location delivery workflow is defined for the `/getFileLocation` API. The following diagram
 demonstrates the workflow.
 
-![ODES R2 File Service getFileLocation Flow](https://gitlab.osdu-gcp.dev/odes/os-file/uploads/bea0627636b2d72e6598c79363d9798d/OSDU_R2_FileService_getFileLocation_Flow.png)
+![OSDU_R2_FileService_getFileLocation](uploads/921fa213e47e1ebf92d1ef3fa9a4cc86/OSDU_R2_FileService_getFileLocation.png)
 
-Upon request from an ODES R2 service:
+Upon request from an OSDU R2 service:
 
 1. Get the `FileID` value from the incoming request.
 2. Query the database with `FileID` to get the file record.
@@ -74,32 +72,40 @@ Upon request from an ODES R2 service:
 
 ### File list delivery
 
-The file location delivery workflow is defined for the `/getFileList` API.
+The file list delivery workflow is defined for the `/getFileList` API.
+
+Upon request from an OSDU R2 service:
+1. Verify the incoming request.
+    * Verify the authentication token. Fail signed URL generation if the token is missing or
+    invalid, and then respond with the HTTP error "401 Unauthorized".
+    * Verify the partition ID. Fail signed URL generation if the partition ID is missing, invalid or
+    doesn't have assigned user groups, and then respond with the HTTP error "400 Bad Request".
+    * Validate the file list request.
+3. Obtain the requested files from the database.
+4. Return the result to the caller.
 
 ## Database interactions
 
 During each workflow, the File service queries the database to create a record with file data or
-obtain file data depending on the workflow. For more information about the created records, consult
-a dedicated section [file-locations collection](#collections).
+obtain file data depending on the workflow. For more information about the file records, consult a
+dedicated section [file-locations collection](#collections) in this document.
 
 ## Validations
 
 The File service's current implementation performs a general check of the validity of the
 authorization token and DELFI partition ID before the service starts generation of a location.
 
-However, the File service in the ODES R2 Prototype doesn't perform any verification whether a file
-upload happened or whether the user started ingestion after uploading a file. In future ODES
+However, the File service in the OSDU R2 Prototype doesn't perform any verification whether a file
+upload happened or whether the user started ingestion after uploading a file. In future OSDU
 implementations, the File service will be able to check if file uploads did happen.
 
 ## API
 
-The File service's API includes the following three methods in the prototype:
+The File service's API includes the following three methods in the OSDU R2 Prototype:
 
 * `/getLocation`, external
 * `/getFileLocation`, internal
 * `/getFileList`, internal
-
-> `/getFileList` is not implemented in ODES R2.
 
 ### POST /getLocation
 
@@ -163,7 +169,7 @@ The File service returns the following data.
 The `/getFileLocation` API similar to `/getLocation`, but is internal and returns the landing zone
 &mdash; `location` and `driver` &mdash; of a particular file.
 
-Once the ODES security model is formulated and approved, the `/getFileLocation` API will not be
+Once the OSDU security model is formulated and approved, the `/getFileLocation` API will not be
 returning files that belong to other users.
 
 #### Request
@@ -193,13 +199,11 @@ curl --location --request POST 'https://{path}/getFileLocation' \
 
 ### POST /getFileList
 
-_Isn't implemented in the OSDU R2 Prototype. To be developed in future OSDU releases._
-
 The `/getFileList` API allows auditing the attempted file uploads. The method is unavailable for
 third-party applications.
 
 The ingestion process depends on whether the client application uploaded a file or not. The
-`/getFileList` API is designed to let other ODES services to inspect which user uploaded a file,
+`/getFileList` API is designed to let other OSDU services to inspect which user uploaded a file,
 whether the file was uploaded to the landing zone, and whether the user started ingestion after the
 file upload.
 
@@ -213,7 +217,7 @@ file upload.
 | Items    | `short`    | Pagination of the result                    |
 | UserID   | `String`   | The ID of the user role or group            |
 
-> `UserID` is not supported in the ODES R2 Prototype.
+> `UserID` is not supported in the OSDU R2 Prototype.
 
 **Example**:
 
@@ -226,14 +230,67 @@ curl --location --request POST 'https://{path}/getFileList' \
     "PageNum": 0,
     "TimeFrom": "2020-01-01T16:21:00.552Z",
     "UserID": "common-user",
-    "TimeTo": "2020-01-15T16:28:44.220Z",
-    "Items": 1
+    "TimeTo": "2020-02-15T16:28:44.220Z",
+    "Items": 2
 }'
 ```
 
 ### Response
 
 A paginated result of the records stored in the database.
+
+| Property         | Type       | Description                                      |
+| ---------------- | ---------- | ------------------------------------------------ |
+| Content          | `List`     | List of file records retrieved from the database |
+| Number           | `datetime` | Some number                                      |
+| NumberOfElements | `integer`  | The amount of the returned records               |
+| Size             | `short`    | The size of the `Content`                        |
+
+Each file record contains the following properties: `FileID`, `Driver`, `Location`, `CreatedAt`,
+`CreatedBy`. For more information the returned properties, consult the [Firestore
+collections](#collections) section.
+
+Response example:
+
+```json
+{
+    "Content": [
+        {
+            "FileID": "30a1ace6-1c8f-4f08-9982-2e9c5df8e878",
+            "Driver": "GCS",
+            "Location": "gs://osdu-temporary-files/common-user/1580461525198-2020-02-12-05-23-25-198/30a1ace6-1c8f-4f08-9982-2e9c5df8e878",
+            "CreatedAt": "2020-02-12T05:24:25.198+0000",
+            "CreatedBy": "common-user"
+        },
+        {
+            "FileID": "da057da3-0fdb-41e4-afdc-3b63b812d484",
+            "Driver": "GCS",
+            "Location": "gs://osdu-temporary-files/common-user/1580461525198-2020-02-13-12-19-14-205/da057da3-0fdb-41e4-afdc-3b63b812d484",
+            "CreatedAt": "2020-02-13T12:19:14.205+0000",
+            "CreatedBy": "common-user"
+        }
+    ],
+    "Number": 0,
+    "NumberOfElements": 2,
+    "Size": 2
+}
+```
+
+## Service Provider Interfaces
+
+The File service has several Service Provider Interfaces that the classes need to implement.
+
+| Interface              | Implementation          | Path                                                                     |
+| ---------------------- | ----------------------- | ------------------------------------------------------------------------ |
+| AuthenticationService  | Optional to implement   | `file-core/src/main/java/.../provider/interfaces/AuthenticationService`  |
+| FileListService        | Optional to implement   | `file-core/src/main/java/.../provider/interfaces/FileListService`        |
+| FileLocationRepository | Optional to implement   | `file-core/src/main/java/.../provider/interfaces/FileLocationRepository` |
+| FileService            | Optional to implement   | `file-core/src/main/java/.../provider/interfaces/FileService`            |
+| LocationMapper         | Obligatory to implement | `file-core/src/main/java/.../provider/interfaces/LocationMapper`         |
+| LocationService        | Optional to implement   | `file-core/src/main/java/.../provider/interfaces/LocationService`        |
+| StorageRepository      | Obligatory to implement | `file-core/src/main/java/.../provider/interfaces/StorageRepository`      |
+| StorageService         | Obligatory to implement | `file-core/src/main/java/.../provider/interfaces/StorageService`         |
+| ValidationService      | Optional to implement   | `file-core/src/main/java/.../provider/interfaces/ValidationService`      |
 
 ## GCP implementation
 
@@ -269,7 +326,7 @@ The GCP-based implementation of the File service uses Cloud Firestore with the f
 
 > **Note**: The `Location` value might be different from the signed URL returned to the user.
 
-> **Note**: The `CreatedBy` property isn't supported in the ODES R2 Prototype.
+> **Note**: The `CreatedBy` property isn't supported in the OSDU R2 Prototype.
 
 ### Indexes
 

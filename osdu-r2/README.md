@@ -2,7 +2,7 @@
 
 ## Contents
 
-* [Overview](#overview)
+* [Introduction](#introduction)
 * [Terms and definitions](#terms-and-definitions)
 * [Intention](#intention)
     * [Apache Airflow](#apache-airflow)
@@ -20,7 +20,7 @@
 * [Google Cloud Platform implementation](#google-cloud-platform-implementation)
     * [Cloud Firestore collections](#cloud-firestore-collections)
 
-## Overview
+## Introduction
 
 The OSDU Release 2 Prototype is an implementation of the OSDU standard and focuses on the ingestion of oil and gas data.
 
@@ -92,6 +92,8 @@ The following sections discuss the implementation details of the services develo
 
 The general preconditions of OSDU R2 services implementation are:
 
+* Most services provide both external and internal API endpoints. The external API endpoints are implemented to let
+third-party applications to query the API, while the internal API endpoints can only be queried by the OSDU services.
 * Each service's external APIs need to receive a JSON Web Token (JWT). The future implementations of the services might
 be based on the token exchange as part of the security model.
 * Each service's external APIs need to receive the ID of a DELFI partition that the user has access to.
@@ -116,8 +118,8 @@ The Ingestion service provides two endpoints for submitting files for ingestion.
 
 **POST /submit**
 
-The `/submit` endpoint starts ingestion of a file, and then returns the workflow job ID to the user.
-Available for external requests
+The `/submit` endpoint starts ingestion of a file, and then returns the workflow job ID to the user. Available for
+external requests.
 
 **POST /submitWithManifest**
 
@@ -188,7 +190,7 @@ the file records in the database.
 **POST /CreateRecord**
 
 The `/CreateRecord` endpoint creates a record in the database for each uploaded file. This is an existing API and is
-updated to store extra non-indexing metadata fields with the records. Unavailable for third-party applications.
+updated to store extra non-indexing metadata fields with the records. Unavailable for external requests.
 
 **POST /listRecords**
 
