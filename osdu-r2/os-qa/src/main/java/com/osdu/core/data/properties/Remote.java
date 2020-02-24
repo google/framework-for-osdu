@@ -1,0 +1,40 @@
+/*
+ * Copyright  2019 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.osdu.core.data.properties;
+
+import org.aeonbits.owner.Config;
+
+@Config.Sources("classpath:services/remote.properties")
+public interface Remote extends Config {
+    @Key("ingest.gcp")
+    String getIngestGcpUrl();
+
+    @Key("ingest.apigee")
+    String getIngestApigeeUrl();
+
+    @Key("file.service")
+    String getFileServiceHost();
+
+    @Key("workflow.service")
+    String getWorkflowServiceHost();
+
+    @Key("airflow.main.path")
+    String getAirflowApi();
+
+    @Key("airflow.last.run")
+    String getAirflowDagsList();
+}

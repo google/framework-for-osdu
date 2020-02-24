@@ -1,0 +1,108 @@
+{
+  "WorkProduct": {
+    "ResourceTypeID": "srn:type:work-product/WellLog:",
+    "ResourceSecurityClassification": "srn:reference-data/ResourceSecurityClassification:RESTRICTED:",
+    "Data": {
+      "GroupTypeProperties": {
+        "Components": []
+      },
+      "IndividualTypeProperties": {
+        "Name": "AKM-11 LOG",
+        "Description": "Well Log"
+      },
+      "ExtensionProperties": {}
+    },
+    "ComponentsAssociativeIDs": [
+      "wpc-1"
+    ]
+  },
+  "WorkProductComponents": [
+    {
+      "ResourceTypeID": "srn:type:work-product-component/WellLog:",
+      "ResourceSecurityClassification": "srn:reference-data/ResourceSecurityClassification:RESTRICTED:",
+      "Data": {
+        "GroupTypeProperties": {
+          "Files": [],
+          "Artefacts": []
+        },
+        "IndividualTypeProperties": {
+          "Name": "AKM-11 LOG",
+          "Description": "Well Log",
+          "WellboreID": "srn:master-data/Wellbore:1013:",
+          "TopMeasuredDepth": {
+            "Depth": 2182.0004,
+            "UnitOfMeasure": "srn:reference-data/UnitOfMeasure:M:"
+          },
+          "BottomMeasuredDepth": {
+            "Depth": 2481.0,
+            "UnitOfMeasure": "srn:reference-data/UnitOfMeasure:M:"
+          },
+          "Curves": [
+            {
+              "Mnemonic": "DEPT",
+              "TopDepth": 2182.0,
+              "BaseDepth": 2481.0,
+              "DepthUnit": "srn:reference-data/UnitOfMeasure:M:",
+              "CurveUnit": "srn:reference-data/UnitOfMeasure:M:"
+            },
+            {
+              "Mnemonic": "GR",
+              "TopDepth": 2182.0,
+              "BaseDepth": 2481.0,
+              "DepthUnit": "srn:reference-data/UnitOfMeasure:M:",
+              "CurveUnit": "srn:reference-data/UnitOfMeasure:GAPI:"
+            },
+            {
+              "Mnemonic": "DT",
+              "TopDepth": 2182.0,
+              "BaseDepth": 2481.0,
+              "DepthUnit": "srn:reference-data/UnitOfMeasure:M:",
+              "CurveUnit": "srn:reference-data/UnitOfMeasure:US/F:"
+            },
+            {
+              "Mnemonic": "RHOB",
+              "TopDepth": 2182.0,
+              "BaseDepth": 2481.0,
+              "DepthUnit": "srn:reference-data/UnitOfMeasure:M:",
+              "CurveUnit": "srn:reference-data/UnitOfMeasure:G/C3:"
+            },
+            {
+              "Mnemonic": "DRHO",
+              "TopDepth": 2182.0,
+              "BaseDepth": 2481.0,
+              "DepthUnit": "srn:reference-data/UnitOfMeasure:M:",
+              "CurveUnit": "srn:reference-data/UnitOfMeasure:G/C3:"
+            },
+            {
+              "Mnemonic": "NPHI",
+              "TopDepth": 2182.0,
+              "BaseDepth": 2481.0,
+              "DepthUnit": "srn:reference-data/UnitOfMeasure:M:",
+              "CurveUnit": "srn:reference-data/UnitOfMeasure:V/V:"
+            }
+          ]
+        },
+        "ExtensionProperties": {}
+      },
+      "AssociativeID": "wpc-1",
+      "FileAssociativeIDs": [
+        "f-1"
+      ]
+    }
+  ],
+  "Files": [
+    {
+      "ResourceTypeID": "srn:type:file/las2:",
+      "ResourceSecurityClassification": "srn:reference-data/ResourceSecurityClassification:RESTRICTED:",
+      "Data": {
+        "GroupTypeProperties": {
+          "FileSource": "",
+          "PreLoadFilePath": "https://storage.googleapis.com/test-bucket/test-file.tmp"
+        },
+        "IndividualTypeProperties": {},
+        "ExtensionProperties": {}
+      },
+      "AssociativeID": "f-1"
+    }
+  ]
+}

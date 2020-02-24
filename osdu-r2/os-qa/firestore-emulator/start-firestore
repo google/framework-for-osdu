@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# based on https://github.com/maximelebastard/firestore-emulator-docker/blob/master/start-firestore
+
+# Check user environment variable
+if [[ -z "${FIRESTORE_PROJECT_ID}" ]]; then
+  echo "Missing FIRESTORE_PROJECT_ID environment variable" >&2
+  exit 1
+elif [[ -z "$FIRESTORE_PORT" ]]; then
+  FIRESTORE_PORT=8080
+fi
+
+# Config gcloud project
+gcloud config set project "${FIRESTORE_PROJECT_ID}"
+
+# Start emulator
+gcloud beta emulators firestore start --host-port=0.0.0.0:"${FIRESTORE_PORT}"

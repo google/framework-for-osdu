@@ -1,0 +1,79 @@
+{
+  "WorkProductComponents": [
+    {
+      "ResourceTypeID": "srn:type:work-product-component/WellLog:",
+      "ResourceSecurityClassification": "srn:reference-data/ResourceSecurityClassification:RESTRICTED:",
+      "Data": {
+        "GroupTypeProperties": {
+          "Files": [],
+          "Artefacts": []
+        },
+        "IndividualTypeProperties": {
+          "Name": "APS-01 LOG",
+          "Description": "Well Log",
+          "WellboreID": "srn:master-data/Wellbore:1067:",
+          "TopMeasuredDepth": {
+            "Depth": "6.2002",
+            "UnitsOfMeasure": "srn:reference-data/UnitOfMeasure:M:"
+          },
+          "BottomMeasuredDepth": {
+            "Depth": "2989.9004",
+            "UnitsOfMeasure": "srn:reference-data/UnitOfMeasure:M:"
+          },
+          "Curves": [
+            {
+              "Mnemonic": "DEPT",
+              "TopDepth": "6.2002",
+              "BaseDepth": "2989.9004",
+              "DepthUnit": "srn:reference-data/UnitOfMeasure:M:",
+              "CurveUnit": "srn:reference-data/UnitOfMeasure:M:"
+            },
+            {
+              "Mnemonic": "GR",
+              "TopDepth": "6.3002",
+              "BaseDepth": "2989.8004",
+              "DepthUnit": "srn:reference-data/UnitOfMeasure:M:",
+              "CurveUnit": "srn:reference-data/UnitOfMeasure:GAPI:"
+            },
+            {
+              "Mnemonic": "DT",
+              "TopDepth": "497.2003",
+              "BaseDepth": "2989.6004",
+              "DepthUnit": "srn:reference-data/UnitOfMeasure:M:",
+              "CurveUnit": "srn:reference-data/UnitOfMeasure:US-F:"
+            },
+            {
+              "Mnemonic": "RHOB",
+              "TopDepth": "2550.4003",
+              "BaseDepth": "2989.8004",
+              "DepthUnit": "srn:reference-data/UnitOfMeasure:M:",
+              "CurveUnit": "srn:reference-data/UnitOfMeasure:G-C3:"
+            }
+          ]
+        },
+        "ExtensionProperties": {}
+      },
+      "AssociativeID": "wpc-1",
+      "FileAssociativeIDs": [
+        "f-1"
+      ]
+    }
+  ],
+  "Files": [
+    {
+      "ResourceTypeID": "srn:type:file/las2:",
+      "ResourceSecurityClassification": "srn:reference-data/ResourceSecurityClassification:RESTRICTED:",
+      "Data": {
+        "GroupTypeProperties": {
+          "FileSource": "",
+
+          "OriginalFilePath": "http://gitlab.opengroup.org/osdu/open-test-data/tree/master/1-data/3-provided/tno/well-logs/1067_aps01_1971_comp.las",
+          "StagingFilePath": "https://storage.googleapis.com/test-bucket/test-file.tmp"
+        },
+        "IndividualTypeProperties": {},
+        "ExtensionProperties": {}
+      },
+      "AssociativeID": "f-1"
+    }
+  ]
+}
