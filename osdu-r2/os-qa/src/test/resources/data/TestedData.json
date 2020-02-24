@@ -1,0 +1,30 @@
+{
+  "TestedData": [
+    {
+      "contentType": "application/json",
+      "emptyRequest": "{}",
+      "Status": "submitted",
+      "status_running": "running",
+      "status_finished": "finished",
+      "status_failed": "failed",
+      "Driver": "GCS",
+      "Location": "Location",
+      "UserID": "common-user",
+      "dataTypeLog": "well_log",
+      "dataTypeOpaque": "opaque",
+      "dataTypeOsdu": "osdu",
+      "dataTypeInvalid": "%j14",
+      "workflowTypeIngest": "ingest",
+      "workflowTypeOsdu": "osdu",
+      "errorMismatch": "MismatchedInputException",
+      "errorTimeParsing": "DateTimeParseException",
+      "errorJsonParsing": "JsonParseException",
+      "errorViolation": "ConstraintViolationException",
+      "errorInvalidFormat": "InvalidFormatException",
+      "exception": "Exception",
+      "dag_id": "Well_log_ingest",
+      "dag_id_default": "Default_ingest",
+      "dag_id_osdu": "Osdu_ingest"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "WorkProductComponents": [
+    {
+      "ResourceTypeID": "srn:type:work-product-component/WellLog:",
+      "ResourceSecurityClassification": "srn:reference-data/ResourceSecurityClassification:RESTRICTED:",
+      "Data": {
+        "GroupTypeProperties": {
+          "Files": [],
+          "Artefacts": []
+        },
+        "IndividualTypeProperties": {
+          "Name": "APS-01 LOG",
+          "Description": "Well Log",
+          "WellboreID": "srn:master-data/Wellbore:1067:",
+          "TopMeasuredDepth": {
+            "Depth": "6.2002",
+            "UnitsOfMeasure": "srn:reference-data/UnitOfMeasure:M:"
+          },
+          "BottomMeasuredDepth": {
+            "Depth": "2989.9004",
+            "UnitsOfMeasure": "srn:reference-data/UnitOfMeasure:M:"
+          },
+          "Curves": [
+            {
+              "Mnemonic": "DEPT",
+              "TopDepth": "6.2002",
+              "BaseDepth": "2989.9004",
+              "DepthUnit": "srn:reference-data/UnitOfMeasure:M:",
+              "CurveUnit": "srn:reference-data/UnitOfMeasure:M:"
+            },
+            {
+              "Mnemonic": "GR",
+              "TopDepth": "6.3002",
+              "BaseDepth": "2989.8004",
+              "DepthUnit": "srn:reference-data/UnitOfMeasure:M:",
+              "CurveUnit": "srn:reference-data/UnitOfMeasure:GAPI:"
+            },
+            {
+              "Mnemonic": "DT",
+              "TopDepth": "497.2003",
+              "BaseDepth": "2989.6004",
+              "DepthUnit": "srn:reference-data/UnitOfMeasure:M:",
+              "CurveUnit": "srn:reference-data/UnitOfMeasure:US-F:"
+            },
+            {
+              "Mnemonic": "RHOB",
+              "TopDepth": "2550.4003",
+              "BaseDepth": "2989.8004",
+              "DepthUnit": "srn:reference-data/UnitOfMeasure:M:",
+              "CurveUnit": "srn:reference-data/UnitOfMeasure:G-C3:"
+            }
+          ]
+        },
+        "ExtensionProperties": {}
+      },
+      "AssociativeID": "wpc-1",
+      "FileAssociativeIDs": [
+        "f-1"
+      ]
+    }
+  ],
+  "Files": [
+    {
+      "ResourceTypeID": "srn:type:file/las2:",
+      "ResourceSecurityClassification": "srn:reference-data/ResourceSecurityClassification:RESTRICTED:",
+      "Data": {
+        "GroupTypeProperties": {
+          "FileSource": "",
+
+          "OriginalFilePath": "http://gitlab.opengroup.org/osdu/open-test-data/tree/master/1-data/3-provided/tno/well-logs/1067_aps01_1971_comp.las",
+          "StagingFilePath": "https://storage.googleapis.com/osdu-gcp-temp-location/1067_aps01_1971_comp.las?x-goog-signature=62fa48fd0ec902bc34d2411370a0ad4fed3c93ddc1bc6ebca91fc0de858686eedb595f6837166ff922a5e67bf5f54856e443fdf520ccda69e17a3646cf8c14faf5fe809bccdb53ea2a5d3bbd272e78464b6a003b3fc8054eda9d00f817b5d25a5ac8b0e4e2dc61f2a5491d6c9d01e1f0d151ca97a1597cf372fb55982e6baeddc0f97c03f8f2aa67390ea1332d55ef799bcc843a60a85e214e06afdb87c1c552ded5e7d6623a0581be1e49fc97bcf172396bd8e31f65f8d6d2d6eca2a9db499ce5090ea4b56cbb8c33002a699c5f090ee7f16c081bedc777874d221844839dab663d69ffb680a56b04b77d4e354b7b34c1422552ceb58ebb55cf63185cbb8ed5&x-goog-algorithm=GOOG4-RSA-SHA256&x-goog-credential=opendes-storage-full%40a2ba07aca58-energy-osdu.iam.gserviceaccount.com%2F20191104%2Fus%2Fstorage%2Fgoog4_request&x-goog-date=20191104T131151Z&x-goog-expires=604800&x-goog-signedheaders=host"
+        },
+        "IndividualTypeProperties": {},
+        "ExtensionProperties": {}
+      },
+      "AssociativeID": "f-1"
+    }
+  ]
+}

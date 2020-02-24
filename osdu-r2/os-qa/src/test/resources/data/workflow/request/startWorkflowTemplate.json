@@ -1,0 +1,7 @@
+{
+  "WorkflowType": "%s",
+  "DataType": "%s",
+  "Context": {
+    "key": "value"
+  }
+}
