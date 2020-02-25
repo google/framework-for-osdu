@@ -27,6 +27,8 @@ The OSDU Release 2 Prototype is an implementation of the OSDU standard and focus
 The OSDU R2 is cloud-agnostic &mdash; it provides common implementations that can be deployed and orchestrated on any
 cloud provider platform.
 
+The high-level design of the OSDU R2 Prototype is available in the [Open Group Community Wiki].
+
 ## Terms and definitions
 
 The following table defines the terms or clarifies the meaning of the words in this document.
@@ -316,3 +318,5 @@ The `workflow-status` collection stores the current status and some additional p
 | Status       | `String` | Current status of a workflow &mdash; SUBMITTED, RUNNING,  FINISHED, or FAILED |
 | SubmittedAt  | `String` | Timestamp when the workflow was submitted to Airflow                          |
 | SubmittedBy  | `String` | User ID. The SubmittedBy property isn't supported in the ODES R2 Prototype    |
+
+[Open Group Community Wiki]: [Open Group Community Wiki]: https://community.opengroup.org/osdu/documentation/-/wikis/OSDU-(C)/Design-and-Implementation/Ingestion-and-Enrichment-Detail/R2-Ingestion-Workflow-Orchestration-Spike
