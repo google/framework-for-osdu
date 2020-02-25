@@ -26,6 +26,9 @@ future implementations might allow the use of on premises locations.
 The File service's dependencies include the Google Cloud Platform services such as Cloud Firestore
 and Google Cloud Storage (GCS).
 
+The high-level design of the OSDU R2 Prototype File service is located in the [Open Group
+Community Wiki].
+
 ## System interactions
 
 The File service defines three workflows &mdash; file upload, file location delivery, and file list
@@ -36,7 +39,7 @@ delivery.
 The file upload workflow is defined for the `/getLocation` API endpoint. The following diagram
 illustrates the workflow.
 
-![OSDUD_R2_File_Service_getLocation_Flow](uploads/6c6506bd03177ed3e2b193debcca588b/OSDUD_R2_File_Service_getLocation_Flow.png)
+![OSDU_R2_File_Service_getLocation_Flow](/uploads/e3730bc6a11ef1a0916b385797924612/OSDU_R2_File_Service_getLocation_Flow.png)
 
 Upon a request to get a location for a file:
 
@@ -62,7 +65,7 @@ file ID as the key and object as the value.
 The file location delivery workflow is defined for the `/getFileLocation` API. The following diagram
 demonstrates the workflow.
 
-![OSDU_R2_FileService_getFileLocation](uploads/921fa213e47e1ebf92d1ef3fa9a4cc86/OSDU_R2_FileService_getFileLocation.png)
+![OSDU_R2_FileService_getFileLocation](/uploads/49bfe58b13f45fd9c59124843a6c7433/OSDU_R2_FileService_getFileLocation.png)
 
 Upon request from an OSDU R2 service:
 
@@ -343,3 +346,4 @@ The GCP-based implementation of the File service uses Cloud Firestore with the f
 | file-locations | `CreatedBy: ASC`, `CreatedAt: ASC` | Collection  |
 
 [application-default-credentials]: https://developers.google.com/identity/protocols/application-default-credentials#calling
+[Open Group Community Wiki]: https://community.opengroup.org/osdu/documentation/-/wikis/OSDU-(C)/Design-and-Implementation/Ingestion-and-Enrichment-Detail/R2-Ingestion-Workflow-Orchestration-Spike#file-service

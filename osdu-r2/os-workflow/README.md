@@ -21,6 +21,9 @@ Acyclic Graphs (DAGs).
 In OSDU R2, depending on the types of data, workflow, and user, the Workflow service starts the
 necessary workflow such as well log LAS files ingestion or opaque ingestion.
 
+The high-level design of the OSDU R2 Prototype Workflow service is located in the [Open Group
+Community Wiki].
+
 ## System interactions
 
 The Workflow service in the OSDU R2 Prototype defines the following workflows:
@@ -34,7 +37,7 @@ The Workflow service in the OSDU R2 Prototype defines the following workflows:
 The ingestion workflow starts by a call to the `/startWorkflow` API. The following diagram shows the
 workflow.
 
-![OSDU_R2_WorkflowService_startWorkflow](uploads/869d2a479c1d56e997ef44a3bc17bf1a/OSDU_R2_WorkflowService_startWorkflow.png)
+![OSDU_R2_WorkflowService_startWorkflow](/uploads/a96bbc9d1b01a20d295dc3840ad5a58e/OSDU_R2_WorkflowService_startWorkflow.png)
 
 Upon the `/startWorkflow` request:
 
@@ -233,3 +236,4 @@ After a workflow starts, the Workflow service stores the following information i
 | SubmittedBy  | `String` | ID of the user role or group. Not supported in OSDU R2                           |
 
 [application-default-credentials]: https://developers.google.com/identity/protocols/application-default-credentials#calling
+[Open Group Community Wiki]: https://community.opengroup.org/osdu/documentation/-/wikis/OSDU-(C)/Design-and-Implementation/Ingestion-and-Enrichment-Detail/R2-Ingestion-Workflow-Orchestration-Spike#workflow-service
