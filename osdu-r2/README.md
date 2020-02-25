@@ -319,4 +319,4 @@ The `workflow-status` collection stores the current status and some additional p
 | SubmittedAt  | `String` | Timestamp when the workflow was submitted to Airflow                          |
 | SubmittedBy  | `String` | User ID. The SubmittedBy property isn't supported in the ODES R2 Prototype    |
 
-[Open Group Community Wiki]: [Open Group Community Wiki]: https://community.opengroup.org/osdu/documentation/-/wikis/OSDU-(C)/Design-and-Implementation/Ingestion-and-Enrichment-Detail/R2-Ingestion-Workflow-Orchestration-Spike
+[Open Group Community Wiki]: https://community.opengroup.org/osdu/documentation/-/wikis/OSDU-(C)/Design-and-Implementation/Ingestion-and-Enrichment-Detail/R2-Ingestion-Workflow-Orchestration-Spike
