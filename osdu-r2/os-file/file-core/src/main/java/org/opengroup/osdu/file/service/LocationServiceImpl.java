@@ -133,7 +133,8 @@ public class LocationServiceImpl implements LocationService {
   private void checkExisting(LocationRequest request) {
     String fileID = request.getFileID();
     if (exists(fileID)) {
-      throw new LocationAlreadyExistsException(format("Location for fileID = %s already exists", fileID));
+      throw new LocationAlreadyExistsException(
+          format("Location for fileID = %s already exists", fileID));
     }
   }
 
