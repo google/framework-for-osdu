@@ -286,7 +286,7 @@ service to communicate with Firestore.
 The srn-mapper service is designed to get the stored SRN to DELFI record mappings and to store new mappings in case of 
 ingestion.
 
-[Ingestion API]: https://gitlab.osdu-gcp.dev/osdu/osdu/tree/develop/docs/API/Ingestion%20API.md
-[Delivery API]: https://gitlab.osdu-gcp.dev/osdu/osdu/tree/develop/docs/API/Delivery%20API.md
-[Search API]: https://gitlab.osdu-gcp.dev/osdu/osdu/tree/develop/docs/API/Search%20API.md
+[Ingestion API]: ./API/Ingestion%20API.md
+[Delivery API]: ./API/Delivery%20API.md
+[Search API]: ./API/Search%20API.md
 [OpenDES Contribution Wiki]: https://gitlab.opengroup.org/osdu/opendes-contribution-wiki/wikis/OSDU-(C)/Design-and-Implementation/Entity-and-Schemas/Comparing-OSDU-&-OpenDES-Schema-Semantics
