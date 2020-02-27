@@ -30,18 +30,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.ingest.exception.SchemaDataQueryException;
 import org.opengroup.osdu.ingest.model.SchemaData;
+import org.opengroup.osdu.ingest.model.SchemaData.Fields;
 import org.opengroup.osdu.ingest.provider.gcp.mapper.SchemaDataMapper;
 import org.opengroup.osdu.ingest.provider.gcp.model.dto.SchemaDataDto;
-import org.opengroup.osdu.ingest.provider.gcp.model.dto.SchemaDataDto.Fields;
 import org.opengroup.osdu.ingest.provider.interfaces.SchemaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @Slf4j
 @RequiredArgsConstructor
-public class GcpSchemaRepository implements SchemaRepository {
+public class FirestoreSchemaRepository implements SchemaRepository {
 
-  private static final String COLLECTION_NAME = "schemaData";
+  private static final String COLLECTION_NAME = "schema-data";
 
   final Firestore firestore;
   @Named
@@ -84,7 +84,12 @@ public class GcpSchemaRepository implements SchemaRepository {
   }
 
   private SchemaData buildSchemaData(QueryDocumentSnapshot snapshot) {
-    return schemaDataMapper.schemaDataDtoToSchemaData(snapshot.toObject(SchemaDataDto.class));
+    SchemaDataDto dto = SchemaDataDto.builder()
+        .title(snapshot.getString(Fields.TITLE))
+        .schema(snapshot.getString(Fields.SCHEMA))
+        .createdAt(snapshot.getDate(Fields.CREATED_AT))
+        .build();
+    return schemaDataMapper.schemaDataDtoToSchemaData(dto);
   }
 
 }

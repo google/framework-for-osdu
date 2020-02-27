@@ -14,11 +14,11 @@
 
 osdu:
   file-service:
-    url: ${OSDU_FILE_SERVICE_URL}
-    get-file-location-endpoint: getFileLocationFunction
+    url: https://test-file-service
+    #get-file-location-endpoint: getFileLocationFunction
   workflow-service:
-    url: ${OSDU_WORKFLOW_SERVICE_URL}
-    start-workflow-endpoint: startWorkflowFunction
+    url: https//test-worflow-service
+    #start-workflow-endpoint: startWorkflowFunction
 
-validation:
-  allowed-datatypes: well_log, opaque
+#validation:
+  #allowed-datatypes: well_log, opaque

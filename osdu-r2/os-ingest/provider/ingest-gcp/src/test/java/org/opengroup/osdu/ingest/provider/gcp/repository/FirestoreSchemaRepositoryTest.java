@@ -45,15 +45,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.opengroup.osdu.ingest.ReplaceCamelCase;
 import org.opengroup.osdu.ingest.exception.SchemaDataQueryException;
 import org.opengroup.osdu.ingest.model.SchemaData;
+import org.opengroup.osdu.ingest.model.SchemaData.Fields;
 import org.opengroup.osdu.ingest.provider.gcp.mapper.SchemaDataMapper;
 import org.opengroup.osdu.ingest.provider.gcp.model.dto.SchemaDataDto;
 import org.opengroup.osdu.ingest.provider.interfaces.SchemaRepository;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)
-class GcpSchemaRepositoryTest {
+class FirestoreSchemaRepositoryTest {
 
-  private static final String COLLECTION_NAME = "schemaData";
+  private static final String COLLECTION_NAME = "schema-data";
   private static final String SCHEMA_TITLE = "test-schema-title";
   private static final String DRAFT_07_SCHEMA_PATH = "3-schemas/TinySchemaDraft7.json";
 
@@ -70,7 +71,7 @@ class GcpSchemaRepositoryTest {
 
   @BeforeEach
   void setUp() {
-    schemaRepository = new GcpSchemaRepository(firestore, schemaDataMapper);
+    schemaRepository = new FirestoreSchemaRepository(firestore, schemaDataMapper);
   }
 
   @Test
@@ -83,13 +84,11 @@ class GcpSchemaRepositoryTest {
         .withDocuments(null, Timestamp.now(), documents);
     ApiFuture<QuerySnapshot> queryFuture = ApiFutures.immediateFuture(querySnapshot);
 
-    given(firestore.collection(COLLECTION_NAME).whereEqualTo("title", SCHEMA_TITLE).get())
+    given(firestore.collection(COLLECTION_NAME).whereEqualTo("Title", SCHEMA_TITLE).get())
         .willReturn(queryFuture);
-    given(qDocSnap.toObject(SchemaDataDto.class)).willReturn(SchemaDataDto.builder()
-        .title(SCHEMA_TITLE)
-        .schema(getResource(DRAFT_07_SCHEMA_PATH))
-        .createdAt(now)
-        .build());
+    given(qDocSnap.getString(Fields.TITLE)).willReturn(SCHEMA_TITLE);
+    given(qDocSnap.getString(Fields.SCHEMA)).willReturn(getResource(DRAFT_07_SCHEMA_PATH));
+    given(qDocSnap.getDate(Fields.CREATED_AT)).willReturn(now);
     given(schemaDataMapper.schemaDataDtoToSchemaData(any())).willAnswer(invocation -> {
       SchemaDataDto dto = invocation.getArgument(0);
       return SchemaData.builder()
@@ -116,7 +115,7 @@ class GcpSchemaRepositoryTest {
     ApiFuture<QuerySnapshot> queryFuture =
         ApiFutures.immediateFailedFuture(new IllegalArgumentException("Failed query"));
 
-    given(firestore.collection(COLLECTION_NAME).whereEqualTo("title", "failed").get())
+    given(firestore.collection(COLLECTION_NAME).whereEqualTo("Title", "failed").get())
         .willReturn(queryFuture);
 
     // when
@@ -134,7 +133,7 @@ class GcpSchemaRepositoryTest {
     // given
     ApiFuture queryFuture = mock(ApiFuture.class);
 
-    given(firestore.collection(COLLECTION_NAME).whereEqualTo("title", "failed").get())
+    given(firestore.collection(COLLECTION_NAME).whereEqualTo("Title", "failed").get())
         .willReturn(queryFuture);
     willThrow(new InterruptedException("Failed future")).given(queryFuture).get();
 
@@ -156,7 +155,7 @@ class GcpSchemaRepositoryTest {
         .withDocuments(null, Timestamp.now(), documents);
     ApiFuture<QuerySnapshot> queryFuture = ApiFutures.immediateFuture(querySnapshot);
 
-    given(firestore.collection(COLLECTION_NAME).whereEqualTo("title", "double-title").get())
+    given(firestore.collection(COLLECTION_NAME).whereEqualTo("Title", "double-title").get())
         .willReturn(queryFuture);
 
     // when
@@ -176,7 +175,7 @@ class GcpSchemaRepositoryTest {
         .withDocuments(null, Timestamp.now(), documents);
     ApiFuture<QuerySnapshot> queryFuture = ApiFutures.immediateFuture(querySnapshot);
 
-    given(firestore.collection(COLLECTION_NAME).whereEqualTo("title", "nothing").get())
+    given(firestore.collection(COLLECTION_NAME).whereEqualTo("Title", "nothing").get())
         .willReturn(queryFuture);
 
     // when

@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-package org.opengroup.osdu.ingest.provider.gcp.model.dto;
+package org.opengroup.osdu.ingest.provider.gcp.exception;
 
-import java.util.Date;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.opengroup.osdu.core.common.exception.OsduException;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class SchemaDataDto {
+public class SchemaMappingException extends OsduException {
 
-  String title;
-  String schema;
-  Date createdAt;
+  public SchemaMappingException(String message) {
+    super(message);
+  }
+
+  public SchemaMappingException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
 }

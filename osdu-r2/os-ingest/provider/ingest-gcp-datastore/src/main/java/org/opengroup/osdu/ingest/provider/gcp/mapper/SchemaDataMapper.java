@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package org.opengroup.osdu.ingest.provider.gcp.model.dto;
+package org.opengroup.osdu.ingest.provider.gcp.mapper;
 
-import java.util.Date;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.mapstruct.DecoratedWith;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.opengroup.osdu.ingest.model.SchemaData;
+import org.opengroup.osdu.ingest.provider.gcp.model.entity.SchemaDataEntity;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class SchemaDataDto {
+@Mapper
+@DecoratedWith(SchemaDataMapperDecorator.class)
+public interface SchemaDataMapper {
 
-  String title;
-  String schema;
-  Date createdAt;
+  @Mapping(target = "schema", ignore = true)
+  SchemaData schemaDataDtoToSchemaData(SchemaDataEntity entity);
 
 }

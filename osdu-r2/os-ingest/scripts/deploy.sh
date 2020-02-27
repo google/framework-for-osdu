@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2019 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,22 +18,25 @@ cd "$WORKDIR" || exit 0
 
 if [[ -z $1 ]]; then
   cat << EOF
-Usage: $0 app [service [gcp-region]]
+Usage: $0 provider mvn-user mvn-password cache-bucket [gcp-region]
 Build and deploy a container to Cloud Run
 
-  app       name of the microservice to build
-  service   Cloud Run service name (default: same as app)
-  region    Google Cloud region (default: us-central1)
+  provider      provider name
+  mvn-user      Maven repository user
+  mvn-password  Maven repository password
+  cache-bucket  GCS bucket for caching Cloud Build results
+  region        Google Cloud region (default: us-central1)
 
 EOF
   exit 1
 fi
 
-APP=$1
-SERVICE=$2
-REGION=$3
+PROVIDER=$1
+MAVEN_REPO_USER=$2
+MAVEN_REPO_PASS=$3
+CACHE_BUCKET=$4
+REGION=$5
 [[ -z $REGION ]] && REGION=us-central1
-[[ -z $SERVICE ]] && SERVICE=$APP
 
 if [[ -z $GOOGLE_CLOUD_PROJECT ]]; then
   echo "Enter your GCP project ID:"
@@ -42,15 +45,23 @@ fi
 
 gcloud config set project "$GOOGLE_CLOUD_PROJECT"
 
+if [[ -z $MAVEN_REPO_USER ]]; then
+  echo "Enter Maven user name:"
+  read -r MAVEN_REPO_USER
+fi
+
+if [[ -z $MAVEN_REPO_PASS ]]; then
+  echo "Enter Maven user passwrod:"
+  read -r MAVEN_REPO_PASS
+fi
+
 if [[ -z $CACHE_BUCKET ]]; then
   echo "Enter the GCS bucket for caching Cloud Build results"
   read -r CACHE_BUCKET
 fi
 
-COMMIT_SHA=latest
+COMMIT_SHA=$(git rev-parse --short HEAD 2>/dev/null)
+[[ -z $COMMIT_SHA ]] && COMMIT_SHA=latest
+gcloud builds submit --config "${WORKDIR}"/cloudbuild.yaml --substitutions=_PROVIDER_NAME="$PROVIDER",_SHORT_SHA="$COMMIT_SHA",_CACHE_BUCKET="$CACHE_BUCKET",_MAVEN_REPO_USER="$MAVEN_REPO_USER",_MAVEN_REPO_PASS="$MAVEN_REPO_PASS"
 
-PROVIDER_NAME=gcp
-
-gcloud builds submit --config "${WORKDIR}"/cloudbuild.yaml --substitutions=_SHORT_SHA="$COMMIT_SHA",_CACHE_BUCKET="$CACHE_BUCKET",_PROVIDER_NAME="$PROVIDER_NAME"
-
-gcloud beta run deploy "$SERVICE" --image gcr.io/"${GOOGLE_CLOUD_PROJECT}"/"${APP}":"${COMMIT_SHA}" --platform managed --region "$REGION"
+gcloud run deploy os-ingest --image gcr.io/"${GOOGLE_CLOUD_PROJECT}"/os-ingest/ingest-"${PROVIDER}":"${COMMIT_SHA}" --platform managed --region "$REGION"

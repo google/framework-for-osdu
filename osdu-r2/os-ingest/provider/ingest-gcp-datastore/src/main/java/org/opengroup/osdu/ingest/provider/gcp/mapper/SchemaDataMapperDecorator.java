@@ -23,7 +23,7 @@ import javax.inject.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.ingest.model.SchemaData;
 import org.opengroup.osdu.ingest.provider.gcp.exception.SchemaMappingException;
-import org.opengroup.osdu.ingest.provider.gcp.model.dto.SchemaDataDto;
+import org.opengroup.osdu.ingest.provider.gcp.model.entity.SchemaDataEntity;
 
 @Slf4j
 public abstract class SchemaDataMapperDecorator implements SchemaDataMapper {
@@ -35,16 +35,16 @@ public abstract class SchemaDataMapperDecorator implements SchemaDataMapper {
   ObjectMapper objectMapper;
 
   @Override
-  public SchemaData schemaDataDtoToSchemaData(SchemaDataDto schemaDataDto) {
-    log.debug("Request to map schemaDataDto to schemaData : {} ", schemaDataDto);
-    if (schemaDataDto == null) {
+  public SchemaData schemaDataDtoToSchemaData(SchemaDataEntity entity) {
+    log.debug("Request to map schemaDataDto to schemaData : {} ", entity);
+    if (entity == null) {
       return null;
     }
 
-    SchemaData schemaData = schemaDataMapper.schemaDataDtoToSchemaData(schemaDataDto);
+    SchemaData schemaData = schemaDataMapper.schemaDataDtoToSchemaData(entity);
 
     try {
-      schemaData.setSchema(objectMapper.readTree(schemaDataDto.getSchema()));
+      schemaData.setSchema(objectMapper.readTree(entity.getSchema()));
       log.debug("Result of mapping: {} ", schemaData);
       return schemaData;
     } catch (JsonProcessingException e) {

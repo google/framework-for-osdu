@@ -14,22 +14,13 @@
  * limitations under the License.
  */
 
-package org.opengroup.osdu.ingest.provider.gcp.model.dto;
+package org.opengroup.osdu.ingest.provider.gcp.config;
 
-import java.util.Date;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.opengroup.osdu.ingest.provider.gcp.GcpPackageMarker;
+import org.springframework.cloud.gcp.data.datastore.repository.config.EnableDatastoreRepositories;
+import org.springframework.context.annotation.Configuration;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class SchemaDataDto {
-
-  String title;
-  String schema;
-  Date createdAt;
-
+@Configuration
+@EnableDatastoreRepositories(basePackageClasses = GcpPackageMarker.class)
+public class GcsConfiguration {
 }

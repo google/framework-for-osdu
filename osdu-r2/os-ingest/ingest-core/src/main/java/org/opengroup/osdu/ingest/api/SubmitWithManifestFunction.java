@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.opengroup.osdu.ingest.function;
+package org.opengroup.osdu.ingest.api;
 
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.opengroup.osdu.ingest.model.SubmitRequest;
 import org.opengroup.osdu.ingest.model.SubmitResponse;
-import org.opengroup.osdu.ingest.provider.interfaces.SubmitService;
+import org.opengroup.osdu.ingest.model.WorkProductLoadManifest;
+import org.opengroup.osdu.ingest.provider.interfaces.OsduSubmitService;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.stereotype.Component;
@@ -29,15 +29,17 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class SubmitFunction implements Function<Message<SubmitRequest>, Message<SubmitResponse>> {
+public class SubmitWithManifestFunction
+    implements Function<Message<WorkProductLoadManifest>, Message<SubmitResponse>> {
 
-  final SubmitService submitService;
+  final OsduSubmitService osduSubmitService;
 
   @Override
-  public Message<SubmitResponse> apply(Message<SubmitRequest> message) {
-    log.debug("Submit request received, with following parameters: {}", message);
-    SubmitResponse response = submitService.submit(message.getPayload(), message.getHeaders());
-    log.debug("Submit result ready : {}", response);
-    return new GenericMessage<>(response);
+  public Message<SubmitResponse> apply(Message<WorkProductLoadManifest> message) {
+    log.debug("Submit with load manifest request received, with following parameters: {}", message);
+    SubmitResponse submitResponse = osduSubmitService
+        .submit(message.getPayload(), message.getHeaders());
+    log.debug("Submit load manifest result ready : {}", submitResponse);
+    return new GenericMessage<>(submitResponse);
   }
 }
