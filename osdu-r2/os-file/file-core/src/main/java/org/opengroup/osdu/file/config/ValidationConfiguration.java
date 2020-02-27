@@ -30,6 +30,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 public class ValidationConfiguration {
 
   private final List<ConstraintMappingContributor> contributors;
+
   public ValidationConfiguration(Optional<List<ConstraintMappingContributor>> contributors) {
     this.contributors = contributors.orElseGet(ArrayList::new);
   }

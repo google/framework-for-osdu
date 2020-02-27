@@ -27,12 +27,12 @@
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
-  <artifactId>file-gcp</artifactId>
+  <artifactId>file-gcp-datastore</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>file-gcp</name>
-  <description>Google Cloud implementation of File service APIs</description>
+  <name>file-gcp-datastore</name>
+  <description>Google Cloud implementation of File service APIs for Datastore</description>
 
   <properties>
     <spring-boot.repackage.skip>true</spring-boot.repackage.skip>
@@ -46,16 +46,16 @@
     </dependency>
 
     <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-gcp-starter-data-datastore</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>google-cloud-storage</artifactId>
     </dependency>
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>google-cloud-nio</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.google.cloud</groupId>
-      <artifactId>google-cloud-firestore</artifactId>
     </dependency>
   </dependencies>
 

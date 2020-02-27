@@ -11,6 +11,7 @@
     * [POST /getFileList](#post-getfilelist)
 * [Service Provider Interfaces](#service-provider-interfaces)
 * [GCP implementation](#gcp-implementation)
+    * [Persistence layer](#persistence-layer)
 * [Firestore](#firestore)
 
 
@@ -26,9 +27,6 @@ future implementations might allow the use of on premises locations.
 The File service's dependencies include the Google Cloud Platform services such as Cloud Firestore
 and Google Cloud Storage (GCS).
 
-The high-level design of the OSDU R2 Prototype File service is located in the [Open Group
-Community Wiki].
-
 ## System interactions
 
 The File service defines three workflows &mdash; file upload, file location delivery, and file list
@@ -39,7 +37,7 @@ delivery.
 The file upload workflow is defined for the `/getLocation` API endpoint. The following diagram
 illustrates the workflow.
 
-![OSDU_R2_File_Service_getLocation_Flow](/uploads/e3730bc6a11ef1a0916b385797924612/OSDU_R2_File_Service_getLocation_Flow.png)
+![OSDU R2 File Service getLocation Flow](/uploads/d625c62ac567469667cd46e586a821f0/OSDUD_R2_File_Service_getLocation_Flow.png)
 
 Upon a request to get a location for a file:
 
@@ -65,7 +63,7 @@ file ID as the key and object as the value.
 The file location delivery workflow is defined for the `/getFileLocation` API. The following diagram
 demonstrates the workflow.
 
-![OSDU_R2_FileService_getFileLocation](/uploads/49bfe58b13f45fd9c59124843a6c7433/OSDU_R2_FileService_getFileLocation.png)
+![OSDU R2 File Service getFileLocation Flow](https://gitlab.osdu-gcp.dev/odes/os-file/uploads/bea0627636b2d72e6598c79363d9798d/OSDU_R2_FileService_getFileLocation_Flow.png)
 
 Upon request from an OSDU R2 service:
 
@@ -310,9 +308,28 @@ signing a blob is only available with the service account credentials. Remember 
 `GOOGLE_APPLICATION_CREDENTIALS` environment variable. Follow the [instructions on the Google
 developer's portal][application-default-credentials].
 
+### Persistence layer
+
+The GCP implementation contains two mutually exclusive modules to work with the persistence layer.
+Presently, OSDU R2 connects to legacy Cloud Datastore for compatibility with the current OpenDES
+implementation. In the future, Cloud Datastore will be replaced by the existing Cloud Firestore
+implementation that's already available in the project.
+
+•	The Cloud Datastore implementation is located in the provider/file-gcp-datastore folder.
+•	The Cloud Firestore implementation is located in the provider/file-gcp folder.
+
+To learn more about available collections, follow to the [Firestore collections](#collections)
+section.
+
+## Datastore
+
+The service account for File service must have the `datastore.indexes.*` permissions.
+The predefined **roles/datastore.indexAdmin** and **roles/datastore.owner** roles include
+the required permission.
+
 ## Firestore
 
-The GCP-based implementation of the File service uses Cloud Firestore with the following
+The GCP implementation of the File service uses Cloud Firestore with the following
 [collections](#collections) and [indexes](#indexes).
 
 ### Collections
@@ -346,4 +363,3 @@ The GCP-based implementation of the File service uses Cloud Firestore with the f
 | file-locations | `CreatedBy: ASC`, `CreatedAt: ASC` | Collection  |
 
 [application-default-credentials]: https://developers.google.com/identity/protocols/application-default-credentials#calling
-[Open Group Community Wiki]: https://community.opengroup.org/osdu/documentation/-/wikis/OSDU-(C)/Design-and-Implementation/Ingestion-and-Enrichment-Detail/R2-Ingestion-Workflow-Orchestration-Spike#file-service

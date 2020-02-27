@@ -34,7 +34,9 @@
   <name>file-core</name>
   <description>Core project for the File service</description>
 
-  <properties/>
+  <properties>
+    <os-core-common.version>0.0.5-SNAPSHOT</os-core-common.version>
+  </properties>
 
   <dependencies>
     <dependency>
@@ -48,7 +50,7 @@
     <dependency>
       <groupId>org.opengroup.osdu</groupId>
       <artifactId>os-core-common</artifactId>
-      <version>0.0.4-SNAPSHOT</version>
+      <version>${os-core-common.version}</version>
     </dependency>
   </dependencies>
 
