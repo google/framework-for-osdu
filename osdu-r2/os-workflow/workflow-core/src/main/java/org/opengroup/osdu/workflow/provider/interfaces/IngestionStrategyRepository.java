@@ -28,9 +28,9 @@ public interface IngestionStrategyRepository {
    * @param workflowType type of workflow
    * @param dataType data type
    * @param userId user id
-   * @return
+   * @return ingestion strategy
    */
-  IngestionStrategy findByWorkflowTypeAndDataTypeAndUserId(WorkflowType workflowType, DataType dataType,
-      String userId);
+  IngestionStrategy findByWorkflowTypeAndDataTypeAndUserId(WorkflowType workflowType,
+      DataType dataType, String userId);
 
 }

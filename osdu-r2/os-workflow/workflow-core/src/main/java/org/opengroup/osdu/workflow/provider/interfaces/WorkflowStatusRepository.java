@@ -30,7 +30,8 @@ public interface WorkflowStatusRepository {
   WorkflowStatus findWorkflowStatus(String workflowId);
 
   /**
-   * Save workflow status
+   * Save workflow status.
+   *
    * @param workflowStatus to save
    * @return saved workflow status
    */

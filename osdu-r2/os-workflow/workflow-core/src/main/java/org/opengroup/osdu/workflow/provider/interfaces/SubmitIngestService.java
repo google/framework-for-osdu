@@ -21,7 +21,8 @@ import java.util.Map;
 public interface SubmitIngestService {
 
   /**
-   * Make a call to workflow engine to start workflow
+   * Make a call to workflow engine to start workflow.
+   *
    * @param strategyName ingest strategy name to submit
    * @param context payload to pass to workflow engine
    * @return dummy boolean

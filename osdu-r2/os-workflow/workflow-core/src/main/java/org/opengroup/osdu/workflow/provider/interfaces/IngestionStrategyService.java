@@ -16,14 +16,13 @@
 
 package org.opengroup.osdu.workflow.provider.interfaces;
 
-
 import org.opengroup.osdu.core.common.model.DataType;
 import org.opengroup.osdu.core.common.model.WorkflowType;
 
 public interface IngestionStrategyService {
 
   /**
-   * Determine which ingestion strategy to use based on input parameters
+   * Determine which ingestion strategy to use based on input parameters.
    *
    * @param workflowType workflow type
    * @param dataType     data type

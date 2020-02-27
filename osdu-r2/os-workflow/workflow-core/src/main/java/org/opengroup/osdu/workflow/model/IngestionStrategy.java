@@ -31,16 +31,16 @@ import org.opengroup.osdu.core.common.model.WorkflowType;
 public class IngestionStrategy {
 
   @JsonProperty(Fields.WORKFLOW_TYPE)
-  public WorkflowType workflowType;
+  WorkflowType workflowType;
 
   @JsonProperty(Fields.DATA_TYPE)
-  public DataType dataType;
+  DataType dataType;
 
   @JsonProperty(Fields.USER_ID)
-  public String userId;
+  String userId;
 
   @JsonProperty(Fields.DAG_NAME)
-  public String dagName;
+  String dagName;
 
   public static final class Fields {
 
