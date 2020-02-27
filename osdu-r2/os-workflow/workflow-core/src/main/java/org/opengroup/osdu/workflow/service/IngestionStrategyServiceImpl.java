@@ -21,8 +21,8 @@ import org.opengroup.osdu.core.common.model.DataType;
 import org.opengroup.osdu.core.common.model.WorkflowType;
 import org.opengroup.osdu.workflow.exception.IngestionStrategyNotFoundException;
 import org.opengroup.osdu.workflow.model.IngestionStrategy;
-import org.opengroup.osdu.workflow.provider.interfaces.IngestionStrategyService;
 import org.opengroup.osdu.workflow.provider.interfaces.IngestionStrategyRepository;
+import org.opengroup.osdu.workflow.provider.interfaces.IngestionStrategyService;
 import org.springframework.stereotype.Service;
 
 @Service

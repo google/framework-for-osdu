@@ -40,13 +40,17 @@ import org.opengroup.osdu.core.common.model.workflow.StartWorkflowRequest;
 import org.opengroup.osdu.workflow.ReplaceCamelCase;
 import org.opengroup.osdu.workflow.config.RequestConstraintMappingContributor;
 import org.opengroup.osdu.workflow.model.GetStatusRequest;
+import org.opengroup.osdu.workflow.model.UpdateStatusRequest;
+import org.opengroup.osdu.workflow.model.WorkflowStatusType;
 import org.opengroup.osdu.workflow.provider.interfaces.ValidationService;
 
 @DisplayNameGeneration(ReplaceCamelCase.class)
 class ValidationServiceImplTest {
 
   private static final String WORKFLOW_ID = "WorkflowID";
+  private static final String STATUS = "Status";
   private static final String NOT_BLANK_MESSAGE = "must not be blank";
+  private static final String NOT_ALLOWED_MESSAGE = "Not allowed workflow status type: SUBMITTED, Should be one of: [RUNNING, FINISHED, FAILED]";
   private static final String NOT_NULL_MESSAGE = "must not be null";
   private static final String WORKFLOW_ID_VALUE = "workflow-id";
   private static final String WORKFLOW_TYPE = "WorkflowType";
@@ -137,10 +141,116 @@ class ValidationServiceImplTest {
   }
 
   @Nested
+  class ValidUpdateStatusRequest {
+
+    @Test
+    void shouldSuccessfullyValidateProperRequest() {
+      // given
+      UpdateStatusRequest request = UpdateStatusRequest.builder().workflowId(WORKFLOW_ID_VALUE)
+          .workflowStatusType(WorkflowStatusType.RUNNING).build();
+
+      // when
+      Throwable thrown = catchThrowable(
+          () -> validationService.validateUpdateStatusRequest(request));
+
+      // then
+      assertThat(thrown).isNull();
+    }
+
+    @Test
+    void shouldFailValidationWhenRequestHasBlankWorkflowId() {
+      // given
+      UpdateStatusRequest request = UpdateStatusRequest.builder()
+          .workflowId(" ")
+          .workflowStatusType(WorkflowStatusType.RUNNING).build();
+
+      // when
+      Throwable thrown = catchThrowable(
+          () -> validationService.validateUpdateStatusRequest(request));
+
+      // then
+      assertThat(thrown)
+          .isInstanceOf(ConstraintViolationException.class)
+          .hasMessage("Invalid Update Workflow Status request");
+
+      ConstraintViolationException ex = (ConstraintViolationException) thrown;
+      assertThat(ex.getConstraintViolations())
+          .extracting(v -> tuple(v.getPropertyPath().toString(), v.getMessage()))
+          .containsExactly(tuple(WORKFLOW_ID, NOT_BLANK_MESSAGE));
+    }
+
+    @Test
+    void shouldFailValidationWhenThereIsNoWorkflowId() {
+      // given
+      UpdateStatusRequest request = UpdateStatusRequest.builder()
+          .workflowId(null)
+          .workflowStatusType(WorkflowStatusType.RUNNING).build();
+
+      // when
+      Throwable thrown = catchThrowable(
+          () -> validationService.validateUpdateStatusRequest(request));
+
+      // then
+      assertThat(thrown)
+          .isInstanceOf(ConstraintViolationException.class)
+          .hasMessage("Invalid Update Workflow Status request");
+
+      ConstraintViolationException ex = (ConstraintViolationException) thrown;
+      assertThat(ex.getConstraintViolations())
+          .extracting(v -> tuple(v.getPropertyPath().toString(), v.getMessage()))
+          .containsExactly(tuple(WORKFLOW_ID, NOT_BLANK_MESSAGE));
+    }
+
+    @Test
+    void shouldFailValidationWhenThereIsNoWorkflowStatusType() {
+      // given
+      UpdateStatusRequest request = UpdateStatusRequest.builder()
+          .workflowId(WORKFLOW_ID_VALUE)
+          .workflowStatusType(null).build();
+
+      // when
+      Throwable thrown = catchThrowable(
+          () -> validationService.validateUpdateStatusRequest(request));
+
+      // then
+      assertThat(thrown)
+          .isInstanceOf(ConstraintViolationException.class)
+          .hasMessage("Invalid Update Workflow Status request");
+
+      ConstraintViolationException ex = (ConstraintViolationException) thrown;
+      assertThat(ex.getConstraintViolations())
+          .extracting(v -> tuple(v.getPropertyPath().toString(), v.getMessage()))
+          .containsExactly(tuple(STATUS, NOT_NULL_MESSAGE));
+    }
+
+    @Test
+    void shouldFailValidationWhenWorkflowStatusTypeIsNotAllowed() {
+      // given
+      UpdateStatusRequest request = UpdateStatusRequest.builder()
+          .workflowId(WORKFLOW_ID_VALUE)
+          .workflowStatusType(WorkflowStatusType.SUBMITTED).build();
+
+      // when
+      Throwable thrown = catchThrowable(
+          () -> validationService.validateUpdateStatusRequest(request));
+
+      // then
+      assertThat(thrown)
+          .isInstanceOf(ConstraintViolationException.class)
+          .hasMessage("Invalid Update Workflow Status request");
+
+      ConstraintViolationException ex = (ConstraintViolationException) thrown;
+      assertThat(ex.getConstraintViolations())
+          .extracting(v -> tuple(v.getPropertyPath().toString(), v.getMessage()))
+          .containsExactly(tuple(STATUS, NOT_ALLOWED_MESSAGE));
+    }
+  }
+
+  @Nested
   class ValidateStartWorkflowRequest {
 
     @Test
-    void shouldSuccessfullyValidateWhenRequestHasValidFileId() {
+    void shouldSuccessfullyValidateWhenRequestHasValidValues() {
       // given
       StartWorkflowRequest request = StartWorkflowRequest.builder()
           .workflowType(WorkflowType.INGEST)
@@ -216,6 +326,11 @@ class ValidationServiceImplTest {
 
       if (GetStatusRequestValidatorWrapper.class.equals(key)) {
         return (T) new GetStatusRequestValidatorWrapper(new CommonGetStatusRequestValidator());
+      }
+
+      if (UpdateStatusRequestValidatorWrapper.class.equals(key)) {
+        return (T) new UpdateStatusRequestValidatorWrapper(
+            new CommonUpdateStatusRequestValidator());
       }
 
       return constraintValidatorFactory.getInstance(key);

@@ -17,9 +17,6 @@ performs preliminary work such as fetching file location data or validating the 
 The current implementation of the Ingestion service provides two API endpoints for submitting files
 for ingestion.
 
-The high-level design of the OSDU R2 Prototype Ingest service is located in the [Open Group
-Community Wiki].
-
 ## System interactions
 
 The Ingestion service in the OSDU R2 Prototype provides two ingestion workflows. The _default
@@ -42,7 +39,7 @@ documentation].
 The Default Ingestion workflow starts upon a call to the `/submit` endpoint. The following diagram
 shows this workflow at a high level.
 
-![OSDU_R2_Prototype_IngestService_submit](/uploads/c6bc349869fa2517851e23991aab5cd2/OSDU_R2_Prototype_IngestService_submit.png)
+![OSDU_R2_Prototype_Default_Ingestion_Service](https://gitlab.osdu-gcp.dev/odes/os-ingest/uploads/cfd9c49e0b767372cd575475435405d3/OSDU_R2_Prototype_Default_Ingestion_Service.png)
 
 Upon a `/submit` request:
 
@@ -74,7 +71,7 @@ The OSDU Ingestion workflow, unlike the Default Ingestion workflow, is designed 
 The OSDU ingestion workflow has a dedicated `/submitWithManifest` endpoint. The following diagram
 shows the workflow at the high level.
 
-![OSDU_R2_IngestService_submitWithManifest](/uploads/31a125774c8dbb41cc0ac299fab65f1d/OSDU_R2_IngestService_submitWithManifest.png)
+![OSDU_R2_OSDU_Ingestion](https://gitlab.osdu-gcp.dev/odes/os-ingest/uploads/a7e99f08b11f8d28970b8e7e91302ba9/OSDU_R2_OSDU_Ingestion.png)
 
 The workflow is the following:
 
@@ -171,7 +168,26 @@ provided. For OSDU Ingestion workflow, the service also validates the manifest.
 
 In the OSDU R2, the service doesn't perform any verification whether a file upload happened.
 
-[OSDU R2 Workflow service]: ../os-workflow
-[OSDU R2 File service documentation]: ../os-file/README.md
+## GCP implementation
+
+For development purposes, it's recommended to create a separate service account.
+It's enough to grant the **Service Account Token Creator** role to the development service account.
+
+Obtaining user credentials for Application Default Credentials isn't suitable in this case because
+signing a blob is only available with the service account credentials. Remember to set the
+`GOOGLE_APPLICATION_CREDENTIALS` environment variable. Follow the [instructions on the Google
+developer's portal][application-default-credentials].
+
+### Persistence layer
+
+The GCP implementation contains two mutually exclusive modules to work with the persistence layer.
+Presently, OSDU R2 connects to legacy Cloud Datastore for compatibility with the current OpenDES
+implementation. In the future, Cloud Datastore will be replaced by the existing Cloud Firestore
+implementation that's already available in the project.
+
+•	The Cloud Datastore implementation is located in the provider/ingest-gcp-datastore folder.
+•	The Cloud Firestore implementation is located in the provider/ingest-gcp folder.
+
+[OSDU R2 Workflow service]: https://gitlab.osdu-gcp.dev/odes/os-workflow
+[OSDU R2 File service documentation]: https://gitlab.osdu-gcp.dev/odes/os-file/blob/develop/README.md
 [WorkProductLoadManifestStagedFiles]: https://gitlab.opengroup.org/osdu/open-test-data/blob/master/rc-1.0.0/3-schemas/WorkProductLoadManifestStagedFiles.json
-[Open Group Community Wiki]: https://community.opengroup.org/osdu/documentation/-/wikis/OSDU-(C)/Design-and-Implementation/Ingestion-and-Enrichment-Detail/R2-Ingestion-Workflow-Orchestration-Spike#ingestion-service

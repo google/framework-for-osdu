@@ -32,15 +32,4 @@ public class SchemaDataDto {
   String schema;
   Date createdAt;
 
-  public static final class Fields {
-
-    public static final String TITLE = "title";
-    public static final String SCHEMA = "schema";
-    public static final String CREATED_AT = "createAt";
-
-    private Fields() {
-    }
-
-  }
-
 }

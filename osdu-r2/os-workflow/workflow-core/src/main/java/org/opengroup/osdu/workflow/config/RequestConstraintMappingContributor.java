@@ -20,8 +20,10 @@ import org.hibernate.validator.cfg.GenericConstraintDef;
 import org.hibernate.validator.spi.cfg.ConstraintMappingContributor;
 import org.opengroup.osdu.core.common.model.workflow.StartWorkflowRequest;
 import org.opengroup.osdu.workflow.model.GetStatusRequest;
+import org.opengroup.osdu.workflow.model.UpdateStatusRequest;
 import org.opengroup.osdu.workflow.validation.annotation.ValidGetStatusRequest;
 import org.opengroup.osdu.workflow.validation.annotation.ValidStartWorkflowRequest;
+import org.opengroup.osdu.workflow.validation.annotation.ValidUpdateStatusRequest;
 import org.opengroup.osdu.workflow.validation.group.Extended;
 import org.springframework.stereotype.Component;
 
@@ -42,6 +44,11 @@ public class RequestConstraintMappingContributor implements ConstraintMappingCon
     builder.addConstraintMapping()
         .type(StartWorkflowRequest.class)
         .constraint(new GenericConstraintDef<>(ValidStartWorkflowRequest.class)
+            .groups(Extended.class));
+
+    builder.addConstraintMapping()
+        .type(UpdateStatusRequest.class)
+        .constraint(new GenericConstraintDef<>(ValidUpdateStatusRequest.class)
             .groups(Extended.class));
 
   }

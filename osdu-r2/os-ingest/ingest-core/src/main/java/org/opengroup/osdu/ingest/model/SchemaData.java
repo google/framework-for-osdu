@@ -16,6 +16,7 @@
 
 package org.opengroup.osdu.ingest.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Date;
 import lombok.AllArgsConstructor;
@@ -29,8 +30,24 @@ import lombok.NoArgsConstructor;
 @Builder
 public class SchemaData {
 
+  @JsonProperty(Fields.TITLE)
   String title;
+
+  @JsonProperty(Fields.SCHEMA)
   JsonNode schema;
+
+  @JsonProperty(Fields.CREATED_AT)
   Date created;
+
+  public static final class Fields {
+
+    public static final String TITLE = "Title";
+    public static final String SCHEMA = "Schema";
+    public static final String CREATED_AT = "CreateAt";
+
+    private Fields() {
+    }
+
+  }
 
 }

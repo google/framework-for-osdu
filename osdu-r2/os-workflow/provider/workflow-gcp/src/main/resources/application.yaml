@@ -16,10 +16,4 @@
 
 gcp:
   airflow:
-    url: https://f8da48af35b533f94-tp.appspot.com
-
-database:
-  collection:
-    name:
-      ingestion-strategy: ingestion-strategy
-      workflow-status: workflow-status
+    url: ${GCP_AIRFLOW_URL}

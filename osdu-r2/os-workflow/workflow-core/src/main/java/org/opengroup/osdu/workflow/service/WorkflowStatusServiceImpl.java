@@ -29,8 +29,8 @@ import org.opengroup.osdu.workflow.model.UpdateStatusResponse;
 import org.opengroup.osdu.workflow.model.WorkflowStatus;
 import org.opengroup.osdu.workflow.provider.interfaces.AuthenticationService;
 import org.opengroup.osdu.workflow.provider.interfaces.ValidationService;
-import org.opengroup.osdu.workflow.provider.interfaces.WorkflowStatusService;
 import org.opengroup.osdu.workflow.provider.interfaces.WorkflowStatusRepository;
+import org.opengroup.osdu.workflow.provider.interfaces.WorkflowStatusService;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
 

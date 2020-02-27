@@ -37,7 +37,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @Slf4j
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
-  @ExceptionHandler({ JsonParseException.class, IllegalStateException.class, MismatchedInputException.class })
+  @ExceptionHandler({ JsonParseException.class, IllegalStateException.class,
+      MismatchedInputException.class })
   protected ResponseEntity<Object> handleInvalidBody(RuntimeException ex,
       WebRequest request) {
     log.error("Exception during REST request: " + request.getDescription(false), ex);
@@ -54,10 +55,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler({ ConstraintViolationException.class })
   protected ResponseEntity<Object> handle(ConstraintViolationException ex, WebRequest request) {
     List<String> errors = new ArrayList<>();
-    log.error("Constraint exception: {}", errors);
     for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
       errors.add(violation.getPropertyPath() + ": " + violation.getMessage());
     }
+    log.error("Constraint exception: {}", errors);
 
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);

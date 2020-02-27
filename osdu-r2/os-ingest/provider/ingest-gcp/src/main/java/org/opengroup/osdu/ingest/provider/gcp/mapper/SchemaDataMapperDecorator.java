@@ -37,6 +37,10 @@ public abstract class SchemaDataMapperDecorator implements SchemaDataMapper {
   @Override
   public SchemaData schemaDataDtoToSchemaData(SchemaDataDto schemaDataDto) {
     log.debug("Request to map schemaDataDto to schemaData : {} ", schemaDataDto);
+    if (schemaDataDto == null) {
+      return null;
+    }
+
     SchemaData schemaData = schemaDataMapper.schemaDataDtoToSchemaData(schemaDataDto);
 
     try {
