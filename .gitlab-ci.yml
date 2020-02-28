@@ -15,16 +15,13 @@ cache:
 
 verify:
   stage: test
-  before_script:
-    - cd compatibility-layer
   script:
     - mvn $MAVEN_CLI_OPTS verify sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.projectKey=osdu-gcp -Dsonar.login=$SONAR_TOKEN -Dsonar.coverage.jacoco.xmlReportsPath=target/site/jacoco/jacoco.xml
   artifacts:
     reports:
       junit:
-        - compatibility-layer/service/delivery/target/surefire-reports/TEST-*.xml
-        - compatibility-layer/service/ingest/target/surefire-reports/TEST-*.xml
-        - compatibility-laye/rservice/search/target/surefire-reports/TEST-*.xml
+        - compatibility-layer/**/target/surefire-reports/TEST-*.xml
+        - osdu-r2/**/target/surefire-reports/TEST-*.xml
 
 .deploy_template: &deploy_template
   stage: deploy
