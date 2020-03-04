@@ -186,6 +186,6 @@ implementation that's already available in the project.
 •	The Cloud Datastore implementation is located in the provider/ingest-gcp-datastore folder.
 •	The Cloud Firestore implementation is located in the provider/ingest-gcp folder.
 
-[OSDU R2 Workflow service]: https://gitlab.osdu-gcp.dev/odes/os-workflow
+[OSDU R2 Workflow service]: ../os-workflow/README.md
 [OSDU R2 File service documentation]: ../os-file/README.md
 [WorkProductLoadManifestStagedFiles]: https://gitlab.opengroup.org/osdu/open-test-data/blob/master/rc-1.0.0/3-schemas/WorkProductLoadManifestStagedFiles.json
