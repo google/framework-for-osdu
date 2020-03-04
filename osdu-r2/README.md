@@ -35,20 +35,22 @@ The following table defines the terms or clarifies the meaning of the words in t
 
 | Property     | Description                                                                                          |
 | ------------ | ---------------------------------------------------------------------------------------------------- |
-| ODES         | The open source version of the DELFI Data Ecosystem that is developed and supported by Schlumberger. |
-| Landing zone | The location in a cloud provider's platform where files for OSDU ingestion are loaded. The landing zone consists of the Driver and Location properties. |
-| Driver       | A description of where a file was loaded by the user. The Driver is used in combination with the Location to allow direct access to the file. Example: "GCS" |
-| Location     | A direct URI to file in storage, such as a GCS bucket. The Location might be different from the signed URL returned to the user, by which the user uploads a file to the landing zone. The Location is used with Driver to allow direct access to the file to the internal OSDU R2 services. |
+| ODES         | The open source version of the DELFI Data Ecosystem that is developed and supported by Schlumberger. Supports the OSDU standard. |
+| Landing zone | The location in a cloud platform where files for ingestion are loaded. The landing zone consists of the Driver and Location properties. |
+| Driver       | A description of where a file was loaded by the user. Example: "GCS" |
+| Location     | A direct URI to file in storage, such as a GCS bucket. The Location might differ from the signed URL returned to the user, by which the user uploads a file to the landing zone. |
+
+> The Driver and Location are necessary to allow direct access to the file to the internal OSDU R2 services.
 
 ## Intention
 
 The OSDU R2 Prototype focuses on the implementation of the OSDU-compatible ingestion process. More specifically, the 
 intent of the OSDU R2 Prototype is to:
 
-* Provide a unified ingestion flows from OSDU Release 1 and the DELFI Data Ecosystem
+* Provide a unified ingestion flow based on the ingestion flows from OSDU Release 1 and the DELFI Data Ecosystem
 * Refactor the orchestration implementation of the DELFI Data Ecosystem
-* Develop a workflow orchestration basis for different kinds of OSDU workflows, including the interactions with OSDU, 
-storage and indexing workflows, and domain-specific ingestion workflows for different file types
+* Develop an orchestration basis for different kinds of OSDU workflows, including the interactions with OSDU, storage
+and indexing workflows, and domain-specific ingestion workflows for different file types
 
 The Apache Airflow implementation of the orchestration will allow for:
 
@@ -98,7 +100,7 @@ The general preconditions of OSDU R2 services implementation are:
 third-party applications to query the API, while the internal API endpoints can only be queried by the OSDU services.
 * Each service's external APIs need to receive a JSON Web Token (JWT). The future implementations of the services might
 be based on the token exchange as part of the security model.
-* Each service's external APIs need to receive the ID of a DELFI partition that the user has access to.
+* Each service's external APIs need to receive the DELFI partition ID to which the user has access.
 
 ### Ingestion service
 
@@ -106,12 +108,11 @@ The OSDU R2 Prototype introduces two ingestion workflow types.
 
 * **OSDU Ingestion workflow**. This ingestion process is based on the implementation of the OSDU R1 Ingestion service
 and targets at processing multiple files with metadata added as OSDU Work Product and Work Product Components to the
-ingestion manifest. The OSDU Ingestion DAG is discussed in a separate section.
+ingestion manifest.
 * **Default Ingestion workflow**. This ingestion process aims at processing a single file per request. The 
 OSDU-compatible metadata (the OSDU WorkProduct manifest) isn't added to the request.
 
-**Implementation**: [ingest](./os-ingest)
-
+**Implementation**: [ingest](./os-ingest) <br>
 **Detailed information**: [OSDU Ingestion Service](./os-ingest/README.md)
 
 #### API
@@ -130,13 +131,12 @@ manifest. Available for external requests.
 
 ### Workflow service
 
-The Workflow service determines and configures any business workflow to run by Workflow Engine (Airflow).
+The Workflow service determines and configures any business workflow to run by Workflow Engine (Apache Airflow).
 
 In the OSDU R2 Prototype, the Workflow service queries Apache Airflow to start specific ingestion flows depending on the
-workflow type and data (file) type.
+workflow type and data type.
 
-**Implementation**: [os-workflow](./os-workflow)
-
+**Implementation**: [os-workflow](./os-workflow) <br>
 **Description and workflow**: [ODES Workflow Service](./os-workflow/README.md)
 
 #### API
@@ -156,8 +156,7 @@ requests.
 The File service provides internal and external APIs to let OSDU services and third-party applications query file 
 location data.
 
-**Implementation**: [os-file](./os-file)
-
+**Implementation**: [os-file](./os-file) <br>
 **Description and workflow**: [OSDU R2 Prototype File Service](./os-file/README.md)
 
 #### File service API
@@ -174,17 +173,17 @@ internal OSDU services can query this endpoint.
 
 **POST /getFileList**
 
-The `/getFileList` endpoint returns the paginated results from the database. The API lets know whether a file was 
-uploaded by the user or not. Only internal OSDU services can query this endpoint.
+The `/getFileList` endpoint returns the paginated results of the file records from the database. The API lets know
+whether a file was uploaded by the user or not. Only internal OSDU services can query this endpoint.
 
-> The `getFileList` endpoint isn't implemented in the OSDU R2 Prototype.
+> The `getFileList` endpoint isn't used in the OSDU R2 Prototype.
 
 ### Storage service
 
-The Storage service is an extension of the ODES Storage service designed to store extra non-indexed metadata with 
-key-value string parameters with each record.
+The OSDU R2 Prototype Storage service is an extension of the ODES Storage service designed to store extra non-indexed
+metadata with key-value string parameters with each record.
 
-In the OSDU R2 Prototype implementation, the Storage service's `CreateRecord` endpoint adds the workflow and file IDs to
+In the OSDU R2 Prototype implementation, the Storage service's `/CreateRecord` endpoint adds the workflow and file IDs to
 the file records in the database.
 
 #### API
@@ -200,32 +199,35 @@ The `/listRecords` endpoint searches the existing records by metadata. Unavailab
 
 ### Workflow Engine (Apache Airflow)
 
+The Workflow Engine is basically an implementation of Apache Airflow that handles pipeline processing. More details:
+[OSDU Ingestion DAG](./docs/Workflow%20Engine.md).
+
 #### Opaque Ingestion DAG
 
 The Opaque Ingestion DAG carries out ingestion of the opaque data type. The DAG receives files for ingestion and creates
-records in the database for new files.
+records for them in the database.
 
 #### OSDU Ingestion DAG
 
 The OSDU Ingestion DAG is partly based on the implementation of the [OSDU R1 Ingestion service](../compatibility-layer).
-The DAG carries out ingestion of OSDU Files with Work Product and Work Product Components metadata added to the request.
-The manifest validation is performed in the Ingestion service, whereas the DAG runs the necessary tasks to ingest files
-from the manifest.
+The DAG carries out ingestion of OSDU Files with Work Product and Work Product Components metadata. The manifest
+validation is performed in the Ingestion service, whereas the DAG runs the necessary tasks to ingest files from the
+manifest.
 
 #### Stale Jobs Scheduler
 
 The Stale Jobs Scheduler is an operator designed to run at an N minutes interval to verify the current status of the
-submitted workflows. For workflows that have a SUBMITTED or RUNNING status in the database but have failed during
-execution, the Stale Jobs Scheduler sets their status to FAILED in the database.
+submitted workflow. For the workflows that have a **submitted** or **running** status in the database but that have
+failed during execution, the Stale Jobs Scheduler sets their status to **failed**.
 
 #### Workflow Status Operator
 
 The Workflow Status Operator is a custom Airflow operator that updates the status of the submitted workflows in the
-database. This operator is called directly by the DAGs.
+database. This operator is called directly by the Airflow DAGs.
 
 ## OSDU R2 Prototype Ingestion workflow
 
-The OSDU R2 Prototype implementation introduces two workflows that consist of the following phases:
+The OSDU R2 Prototype implementation introduces two workflow types that both consist of the following phases:
 
 1. File upload
 2. Ingestion
@@ -238,6 +240,7 @@ the OSDU File Service. The user fully controls file upload. In OSDU R2 Prototype
 was uploaded to the landing zone or not.
 
 File upload workflow:
+
 1. The client application sends an HTTP request to the File Service to get a file location.
     * The File service creates a signed URL for the file.
     * In the GCP implementation, the File service queries Google Cloud Storage to generate a signed URL.
@@ -259,22 +262,26 @@ The ingestion phase consists of the following steps:
 contains a list of file locations.
 3. The File service returns the file location data &mdash; Driver and Location &mdash; to the Ingest service.
 4. Upon receiving a file location, the Ingestion service submits a new ingestion job with the context to the Workflow
-service. The context includes:
-    * File location from the File service.
-    * Workflow ingestion type &mdash; "ingest" or "osdu".
-    * Manifest for the "osdu" workflow type.
+service. The context might include:
+    * File location
+    * Workflow ingestion type &mdash; "ingest" or "osdu"
+    * Manifest if the workflow type is "osdu"
 5. The Workflow service queries the database to understand what Airflow DAG should be started.
-6. The Workflow service submits a new workflow job with the DAG data, file, and context.
+6. The Workflow service submits a new workflow job with the DAG type, file type, and context.
 7. The Workflow service stores the workflow job ID in the database, and then returns the workflow job ID to the 
 Ingestion service.
-8. The Ingestion service returns the workflow job ID to the user. The user can store and eventually submit the workflow
-job ID to the Workflow service to learn the status of the current workflow.
+8. The Ingestion service returns the workflow job ID to the user. The user can eventually submit the workflow job ID to
+the Workflow service to learn the status of the current workflow.
 
 ## Google Cloud Platform implementation
 
 The OSDU R2 Prototype uses the following Google Cloud Platform services:
 
 * Cloud Firestore
+* Cloud Datastore
+    > The OSDU GCP project uses Cloud Datastore for compatibility reasons to work with the ODES services. The current
+      implementation includes code to work with Firestore or Datastore. However, in the future releases of Firestore,
+      the Datastore implementation will be removed.
 * Cloud Compose
 * Cloud Storage (GCS)
 
@@ -282,6 +289,8 @@ The OSDU R2 Prototype uses the following Google Cloud Platform services:
 
 Cloud Firestore creates the following collections in the database to store various data required by OSDU R2 Prototype to
 function.
+
+> Cloud Datastore has the same collections as Cloud Firestore.
 
 #### `file-locations`
 
