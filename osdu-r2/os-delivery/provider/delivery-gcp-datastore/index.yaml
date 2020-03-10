@@ -1,0 +1,6 @@
+indexes:
+
+- kind: "file-locations"
+  properties:
+  - name: "CreatedBy"
+  - name: "CreatedAt"

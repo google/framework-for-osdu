@@ -27,7 +27,7 @@
 
   <modules>
     <module>os-core-common</module>
-    <module>os-file</module>
+    <module>os-delivery</module>
     <module>os-ingest</module>
     <module>os-workflow</module>
   </modules>
