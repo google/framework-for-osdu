@@ -12,13 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Local emulator
+spring:
+  cloud:
+    gcp:
+      datastore:
+        project-id: a2ba07aca58-energy-osdu
+        emulator:
+          enabled: true
+          consistency: 1
+
 osdu:
   file-service:
-    url: https://test-file-service
-    #get-file-location-endpoint: getFileLocationFunction
+    url: http://test-file-service
+    get-file-location-endpoint: testLocationEndpoint
   workflow-service:
-    url: https//test-worflow-service
-    #start-workflow-endpoint: startWorkflowFunction
-
-#validation:
-  #allowed-datatypes: well_log, opaque
+    url: http://test-workflow-service
+    start-workflow-endpoint: testStartWorkflowEndpoint
+validation:
+  allowed-datatypes: well_log, opaque
