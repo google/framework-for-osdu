@@ -34,7 +34,7 @@ list delivery.
 The file upload workflow is defined for the `/getLocation` API endpoint. The following diagram
 illustrates the workflow.
 
-![OSDU R2 DeliveryService getLocation](https://user-images.githubusercontent.com/21691607/75542516-a912e180-5a28-11ea-9613-6e4418e82f79.png)
+![OSDU R2 Delivery Service getLocation](https://user-images.githubusercontent.com/21691607/76421952-233e5100-63ad-11ea-8893-3ad5b6950b4c.png)
 
 Upon a request to get a location for a file:
 
@@ -61,7 +61,7 @@ file ID as the key and object as the value. For more information on the record, 
 The file location delivery workflow is defined for the `/getFileLocation` API. The following diagram
 demonstrates the workflow.
 
-![OSDU R2 DeliveryService getFileLocation](https://user-images.githubusercontent.com/21691607/75542644-e11a2480-5a28-11ea-9e0c-732ce57a818e.png)
+![OSDU R2 Delivery Service getFileLocation](https://user-images.githubusercontent.com/21691607/76414998-11ef4780-63a1-11ea-8a38-cb4dc4522d83.png)
 
 Upon request from an OSDU R2 service:
 

@@ -40,7 +40,7 @@ documentation].
 The Default Ingestion workflow starts upon a call to the `/submit` endpoint. The following diagram
 shows this workflow at a high level.
 
-![OSDU R2 IngestService submit](https://user-images.githubusercontent.com/21691607/75542671-ee371380-5a28-11ea-970b-6d9b93ac8f6f.png)
+![OSDU R2 Ingestion Service submit](https://user-images.githubusercontent.com/21691607/76414508-2252f280-63a0-11ea-83a3-237709c2fb0e.png
 
 Upon a `/submit` request:
 
@@ -73,7 +73,7 @@ files.
 The OSDU ingestion workflow has a dedicated `/submitWithManifest` endpoint. The following diagram
 shows the workflow at the high level.
 
-![OSDU R2 IngestService submitWithManifest](https://user-images.githubusercontent.com/21691607/75542675-eecfaa00-5a28-11ea-91c5-eca66a7c43ce.png)
+![OSDU R2 Ingestion Service submitWithManifest](https://user-images.githubusercontent.com/21691607/76414553-372f8600-63a0-11ea-8aaa-1b7260d15cfc.png)
 
 The workflow is the following:
 
