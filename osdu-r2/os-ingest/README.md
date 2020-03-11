@@ -31,9 +31,10 @@ The following sections discuss the specifics of the workflows.
 
 The Default Ingestion workflow is designed to ingest one file per request. Before submitting a file
 for ingestion, the user needs to upload the file to the system. For that purpose, the user needs to
-obtain a URL from the OSDU R2 File service. By the URL, the user will be able to upload their file.
+obtain a URL from the OSDU R2 Delivery service. By the URL, the user will be able to upload their
+file.
 
-For more information on uploading files to the system, consult the [OSDU R2 File service
+For more information on uploading files to the system, consult the [OSDU R2 Delivery service
 documentation].
 
 The Default Ingestion workflow starts upon a call to the `/submit` endpoint. The following diagram
@@ -48,14 +49,14 @@ Upon a `/submit` request:
     respond with the HTTP error `401 Unauthorized`.
     * Verify the partition ID. Fail ingestion if the partition ID is missing or invalid, and then
     respond with the HTTP error `401 Unauthorized`.
-    * Verify FileID. Respond with the `400 Bad request` status and the `Missing required field
+    * Verify `FileID`. Respond with the `400 Bad request` status and the `Missing required field
     FileID` message if `FileID` isn't provided.
-    * Verify DataType. Respond with the `400 Bad request` status and a message:
+    * Verify `DataType`. Respond with the `400 Bad request` status and a message:
     `Missing required field DataType` if `DataType` isn't provided, or `Incorrect DataType field` if
     `DataType` is not "opaque" or "well_log".
-2. Query the File service's `/getFileLocation` API endpoint to obtain a direct link to the file by
-`FileID`. The File service will verify whether the `FileID` field exists in the database and will
-fetch the file location data. The following flows are possible for File service:
+2. Query the Delivery service's `/getFileLocation` API endpoint to obtain a direct link to the file
+by `FileID`. The Delivery service will verify whether the `FileID` field exists in the database and
+will fetch the file location data. The following flows are possible for the Delivery service:
     * Respond with the `400 Bad request` status and the `Missing required field FileID` message if
     an ID wasn't provided.
     * Respond with the Driver and Location for the requested `FileID`.
@@ -107,7 +108,7 @@ General considerations related to querying the Ingestion API:
 ### POST /submit
 
 Starts a new ingestion process and carries out necessary operations depending on the file type. The
-operations include obtaining file location data from the OSDU R2 File service.
+operations include obtaining file location data from the OSDU R2 Delivery service.
 
 The current implementation of the endpoint supports ingestion of any file types.
 
@@ -128,7 +129,7 @@ The current implementation of the endpoint supports ingestion of any file types.
 
 ## Internal requests
 
-Inside the OSDU R2, the Ingestion service queries the File service's `/getFileLocation` API. The
+Inside the OSDU R2, the Ingestion service queries the Delivery service's `/getFileLocation` API. The
 information retrieved from the API will be added to the Context and passed to the Workflow service
 afterwards.
 
@@ -180,12 +181,12 @@ developer's portal][application-default-credentials].
 
 The GCP implementation contains two mutually exclusive modules to work with the persistence layer.
 Presently, OSDU R2 connects to legacy Cloud Datastore for compatibility with the current OpenDES
-implementation. In the future, Cloud Datastore will be replaced by the existing Cloud Firestore
-implementation that's already available in the project.
+implementation. In the future OSDU releases, Cloud Datastore will be replaced by the existing Cloud
+Firestore implementation that's already available in the project.
 
-•	The Cloud Datastore implementation is located in the provider/ingest-gcp-datastore folder.
-•	The Cloud Firestore implementation is located in the provider/ingest-gcp folder.
+* The Cloud Datastore implementation is located in the **provider/ingest-gcp-datastore** folder.
+* The Cloud Firestore implementation is located in the **provider/ingest-gcp** folder.
 
 [OSDU R2 Workflow service]: ../os-workflow/README.md
-[OSDU R2 File service documentation]: ../os-file/README.md
+[OSDU R2 Delivery service documentation]: ../os-delivery/README.md
 [WorkProductLoadManifestStagedFiles]: https://gitlab.opengroup.org/osdu/open-test-data/blob/master/rc-1.0.0/3-schemas/WorkProductLoadManifestStagedFiles.json

@@ -34,7 +34,7 @@ list delivery.
 The file upload workflow is defined for the `/getLocation` API endpoint. The following diagram
 illustrates the workflow.
 
-![OSDU R2 Delivery Service getLocation Flow](/uploads/d625c62ac567469667cd46e586a821f0/OSDUD_R2_File_Service_getLocation_Flow.png)
+![OSDU R2 DeliveryService getLocation](https://user-images.githubusercontent.com/21691607/75542516-a912e180-5a28-11ea-9613-6e4418e82f79.png)
 
 Upon a request to get a location for a file:
 
@@ -61,7 +61,7 @@ file ID as the key and object as the value. For more information on the record, 
 The file location delivery workflow is defined for the `/getFileLocation` API. The following diagram
 demonstrates the workflow.
 
-![OSDU R2 Delivery Service getFileLocation Flow](https://gitlab.osdu-gcp.dev/odes/os-file/uploads/bea0627636b2d72e6598c79363d9798d/OSDU_R2_FileService_getFileLocation_Flow.png)
+![OSDU R2 DeliveryService getFileLocation](https://user-images.githubusercontent.com/21691607/75542644-e11a2480-5a28-11ea-9e0c-732ce57a818e.png)
 
 Upon request from an OSDU R2 service:
 
@@ -129,10 +129,11 @@ Creates a new location in the landing zone, such as a GCS bucket.
 | ------------- | -------- | --------------------- | ----------------- |
 | FileID        | `String` | Unique ID of the file | Optional          |
 
-> If **FileID** isn't provided in the request, the Delivery service generates a Universally Unique
-Identifier (UUID) to be stored in `FileID`. If `FileID` is provided and is already registered in the
-system, an error is returned.
-> **FileID** must correspond to the regular expression: `^[\w,\s-]+(\.\w+)?$`.
+> **Note**: If `FileID` isn't provided in the request, the Delivery service generates a Universally
+> Unique Identifier (UUID) to be stored in `FileID`. If `FileID` is provided and is already
+> registered in the system, an error is returned.
+
+> **Note**: `FileID` must correspond to the regular expression: `^[\w,\s-]+(\.\w+)?$`.
 
 **Example**:
 
@@ -153,12 +154,12 @@ The Delivery service returns the following data.
 | Property  | Type     | Description                                           |
 | --------- | -------- | ----------------------------------------------------- |
 | FileID    | `String` | ID of the file to be ingested                         |
-| Location  | `List`   | List of key-value pairs with cloud provider details to access the landing zone |
+| Location  | `List`   | List of key-value pairs with cloud provider details to access the landing zone* |
 | SignedURL | `String` | Signed URL by which the file to be ingested is stored |
 
-> **Note**: Landing zone is a location in a cloud provider's platform where the user uploaded files
-> for OSDU ingestion. The landing zone consists of the `Driver` and `Location` properties, which are
-> stored in the database for each file upload request.
+> **Note**: The landing zone is a location in a cloud provider's platform where the user uploaded
+> files for OSDU ingestion. The landing zone consists of the `Driver` and `Location` properties,
+> which are stored in the database for each file upload request.
 
 Example:
 
@@ -224,7 +225,7 @@ after the file upload.
 | Items    | `short`    | Pagination of the result                    |
 | UserID   | `String`   | The ID of the user role or group            |
 
-> `UserID` is not supported in the OSDU R2 Prototype.
+> **Note**: `UserID` is not supported in the OSDU R2 Prototype.
 
 **Example**:
 
@@ -289,15 +290,15 @@ The Delivery service has several Service Provider Interfaces that the classes ne
 
 | Interface              | Required/Optional       | Path                                                                     |
 | ---------------------- | ----------------------- | ------------------------------------------------------------------------ |
-| AuthenticationService  | Optional to implement   | `file-core/src/main/java/.../provider/interfaces/AuthenticationService`  |
-| FileListService        | Optional to implement   | `file-core/src/main/java/.../provider/interfaces/FileListService`        |
-| FileLocationRepository | Optional to implement   | `file-core/src/main/java/.../provider/interfaces/FileLocationRepository` |
-| FileService            | Optional to implement   | `file-core/src/main/java/.../provider/interfaces/FileService`            |
-| LocationMapper         | Obligatory to implement | `file-core/src/main/java/.../provider/interfaces/LocationMapper`         |
-| LocationService        | Optional to implement   | `file-core/src/main/java/.../provider/interfaces/LocationService`        |
-| StorageRepository      | Obligatory to implement | `file-core/src/main/java/.../provider/interfaces/StorageRepository`      |
-| StorageService         | Obligatory to implement | `file-core/src/main/java/.../provider/interfaces/StorageService`         |
-| ValidationService      | Optional to implement   | `file-core/src/main/java/.../provider/interfaces/ValidationService`      |
+| AuthenticationService  | Optional to implement   | `delivery-core/src/main/java/.../provider/interfaces/AuthenticationService`  |
+| FileListService        | Optional to implement   | `delivery-core/src/main/java/.../provider/interfaces/FileListService`        |
+| FileLocationRepository | Optional to implement   | `delivery-core/src/main/java/.../provider/interfaces/FileLocationRepository` |
+| FileService            | Optional to implement   | `delivery-core/src/main/java/.../provider/interfaces/FileService`            |
+| LocationMapper         | Obligatory to implement | `delivery-core/src/main/java/.../provider/interfaces/LocationMapper`         |
+| LocationService        | Optional to implement   | `delivery-core/src/main/java/.../provider/interfaces/LocationService`        |
+| StorageRepository      | Obligatory to implement | `delivery-core/src/main/java/.../provider/interfaces/StorageRepository`      |
+| StorageService         | Obligatory to implement | `delivery-core/src/main/java/.../provider/interfaces/StorageService`         |
+| ValidationService      | Optional to implement   | `delivery-core/src/main/java/.../provider/interfaces/ValidationService`      |
 
 ## GCP implementation
 
@@ -318,20 +319,20 @@ developer's portal][application-default-credentials].
 
 The GCP implementation contains two mutually exclusive modules to work with the persistence layer.
 Presently, OSDU R2 connects to legacy Cloud Datastore for compatibility with the current OpenDES
-implementation. In the future, Cloud Datastore will be replaced by the existing Cloud Firestore
-implementation that's already available in the project.
+implementation. In the future OSDU releases, Cloud Datastore will be replaced by the existing Cloud
+Firestore implementation that's already available in the project.
 
-* The Cloud Datastore implementation is located in the **provider/file-gcp-datastore** folder.
-* The Cloud Firestore implementation is located in the **provider/file-gcp** folder.
+* The Cloud Datastore implementation is located in the **provider/delivery-gcp-datastore** folder.
+* The Cloud Firestore implementation is located in the **provider/delivery-gcp** folder.
 
 To learn more about available collections, follow to the [Firestore collections](#collections)
 section.
 
 ## Datastore
 
-The service account for Delivery service must have the `datastore.indexes.*` permissions.
-The predefined **roles/datastore.indexAdmin** and **roles/datastore.owner** roles include
-the required permission.
+The service account for Delivery service must have the `datastore.indexes.*` permissions. The
+predefined **roles/datastore.indexAdmin** and **roles/datastore.owner** roles include the required
+permission.
 
 ## Firestore
 
@@ -342,13 +343,13 @@ The GCP implementation of the Delivery service uses Cloud Firestore with the fol
 
 `file-locations`
 
-| Field     | Type     | Description                                                               |
-| --------- | -------- | ------------------------------------------------------------------------- |
-| FileID    | `String` | Unique file ID used as a key to reference a file data object with Driver, Location, CreatedAt, and CreatedBy |
-| Driver    | `String` | Description of the storage where files were loaded                        |
-| Location  | `String` | Direct URI to the file in storage                                         |
-| CreatedAt | `String` | Time when the record was created                                          |
-| CreatedBy | `String` | ID of the user that requested file location                               |
+| Field     | Type                    | Description                                                               |
+| --------- | ----------------------- | ------------------------------------------------------------------------- |
+| FileID    | List of key-value pairs | Unique file ID used as a key to reference a file data object with Driver, Location, CreatedAt, and CreatedBy |
+| Driver    | `String`                | Description of the storage where files were loaded                        |
+| Location  | `String`                | Direct URI to the file in storage                                         |
+| CreatedAt | `String`                | Time when the record was created                                          |
+| CreatedBy | `String`                | ID of the user that requested file location                               |
 
 > **Note**: The `Location` value might be different from the signed URL returned to the user.
 > **Note**: The `CreatedBy` property isn't supported in the OSDU R2 Prototype.
