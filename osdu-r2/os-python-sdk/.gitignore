@@ -2,3 +2,6 @@ build
 dist
 osdu_api.egg-info
 __pycache__
+
+**/venv/**
+**/.idea/**

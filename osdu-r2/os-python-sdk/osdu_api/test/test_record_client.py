@@ -12,6 +12,7 @@ from osdu_api.model.acl import Acl
 from osdu_api.model.legal import Legal
 from osdu_api.model.record_ancestry import RecordAncestry
 
+
 class TestRecordClient(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
@@ -77,10 +78,10 @@ class TestRecordClient(unittest.TestCase):
         version = 0
         data = {'id': 'test'}
         self.test_record = Record(id, version, kind, acl, legal, data, ancestry, meta)
-        
+
     @mock.patch.object(BaseClient, '_get_bearer_token', return_value="stubbed")
     @mock.patch.object(BaseClient, 'make_request', return_value="response")
-    @mock.patch.object(BaseClient, '_parse_config', return_value="stubbed")
+    @mock.patch.object(BaseClient, '_read_variables', return_value="stubbed")
     def test_create_update_records(self, get_bearer_token_mock, make_request_mock, parse_config_mock):
         # Arrange
         record_client = RecordClient()
@@ -89,16 +90,18 @@ class TestRecordClient(unittest.TestCase):
         records = [
             self.test_record_dict
         ]
+        headers = {'test': 'test-value'}
 
         # Act
-        response = record_client.create_update_records_from_dict(records)
+        response = record_client.create_update_records_from_dict(records, headers=headers)
 
         # Assert
-        make_request_mock.assert_called_with(data=json.dumps(records), method=HttpMethod.PUT, url='stubbed url')
+        make_request_mock.assert_called_with(data=json.dumps(records), method=HttpMethod.PUT, url='stubbed url',
+                                             add_headers=headers)
 
     @mock.patch.object(BaseClient, '_get_bearer_token', return_value="stubbed")
     @mock.patch.object(BaseClient, 'make_request', return_value="response")
-    @mock.patch.object(BaseClient, '_parse_config', return_value="stubbed")
+    @mock.patch.object(BaseClient, '_read_variables', return_value="stubbed")
     def test_create_update_records_model_record(self, get_bearer_token_mock, make_request_mock, parse_config_mock):
         # Arrange
         record_client = RecordClient()
@@ -106,16 +109,17 @@ class TestRecordClient(unittest.TestCase):
         record_client.headers = {}
 
         make_request_mock.return_value = 'called'
+        headers = {}
 
         # Act
-        response = record_client.create_update_records([self.test_record])
+        response = record_client.create_update_records([self.test_record], headers=headers)
 
         # Assert
         assert response == make_request_mock.return_value
 
     @mock.patch.object(BaseClient, '_get_bearer_token', return_value="stubbed")
     @mock.patch.object(BaseClient, 'make_request', return_value="response")
-    @mock.patch.object(BaseClient, '_parse_config', return_value="stubbed")
+    @mock.patch.object(BaseClient, '_read_variables', return_value="stubbed")
     def test_get_latest_record_version(self, get_bearer_token_mock, make_request_mock, parse_config_mock):
         # Arrange
         record_client = RecordClient()
@@ -125,12 +129,14 @@ class TestRecordClient(unittest.TestCase):
         make_request_mock.return_value = types.SimpleNamespace()
         make_request_mock.return_value.content = self.test_record_str
         request_params = {'attribute': []}
+        headers = {'test': 'test-value'}
 
         # Act
-        record = record_client.get_latest_record(record_id)
+        record = record_client.get_latest_record(record_id, headers=headers)
 
         # Assert
-        make_request_mock.assert_called_with(url=record_client.storage_url + '/test', params=request_params, method=HttpMethod.GET)
+        make_request_mock.assert_called_with(url=record_client.storage_url + '/test', params=request_params,
+                                             method=HttpMethod.GET, add_headers=headers)
         assert record.acl.owners == self.test_record.acl.owners
         assert record.acl.viewers == self.test_record.acl.viewers
         assert record.id == self.test_record.id
@@ -144,7 +150,7 @@ class TestRecordClient(unittest.TestCase):
 
     @mock.patch.object(BaseClient, '_get_bearer_token', return_value="stubbed")
     @mock.patch.object(BaseClient, 'make_request', return_value="response")
-    @mock.patch.object(BaseClient, '_parse_config', return_value="stubbed")
+    @mock.patch.object(BaseClient, '_read_variables', return_value="stubbed")
     def test_get_specific_record_version(self, get_bearer_token_mock, make_request_mock, parse_config_mock):
         # Arrange
         record_client = RecordClient()
@@ -155,12 +161,14 @@ class TestRecordClient(unittest.TestCase):
         make_request_mock.return_value.content = self.test_record_str
         request_params = {'attribute': []}
         version = 123
+        headers = {'test': 'test-value'}
 
         # Act
-        record = record_client.get_specific_record(record_id, version)
+        record = record_client.get_specific_record(record_id, version, headers)
 
         # Assert
-        make_request_mock.assert_called_with(url=record_client.storage_url + '/test/123', params=request_params, method=HttpMethod.GET)
+        make_request_mock.assert_called_with(url=record_client.storage_url + '/test/123', params=request_params,
+                                             method=HttpMethod.GET, add_headers=headers)
         assert record.acl.owners == self.test_record.acl.owners
         assert record.acl.viewers == self.test_record.acl.viewers
         assert record.id == self.test_record.id
@@ -174,7 +182,7 @@ class TestRecordClient(unittest.TestCase):
 
     @mock.patch.object(BaseClient, '_get_bearer_token', return_value="stubbed")
     @mock.patch.object(BaseClient, 'make_request', return_value="response")
-    @mock.patch.object(BaseClient, '_parse_config', return_value="stubbed")
+    @mock.patch.object(BaseClient, '_read_variables', return_value="stubbed")
     def test_get_record_versions(self, get_bearer_token_mock, make_request_mock, parse_config_mock):
         # Arrange
         record_client = RecordClient()
@@ -184,10 +192,12 @@ class TestRecordClient(unittest.TestCase):
         make_request_mock.return_value = types.SimpleNamespace()
         make_request_mock.return_value.content = b'{"versions": [123]}'
         request_params = {'attribute': []}
+        headers = {'test': 'test-value'}
 
         # Act
-        versions = record_client.get_record_versions(record_id)
+        versions = record_client.get_record_versions(record_id, headers)
 
         # Assert
-        make_request_mock.assert_called_with(url=record_client.storage_url + '/versions/test', method=HttpMethod.GET)
+        make_request_mock.assert_called_with(url=record_client.storage_url + '/versions/test', method=HttpMethod.GET,
+                                             add_headers=headers)
         assert versions == [123]

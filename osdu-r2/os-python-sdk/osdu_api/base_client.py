@@ -2,6 +2,7 @@ import sys, os
 import importlib
 import yaml # MIT license
 import requests
+from airflow.models import Variable
 from osdu_api.model.http_method import HttpMethod
 
 '''
@@ -14,7 +15,7 @@ class BaseClient:
     based on provider-specific logic
     '''
     def __init__(self):
-        self._parse_config()
+        self._read_variables()
         self.bearer_token = self._get_bearer_token()
     
     '''
@@ -22,7 +23,7 @@ class BaseClient:
     what provider and entitlements module name is provided in the configuration yaml
     '''
     def _get_bearer_token(self):
-        entitlements_client = importlib.import_module('osdu_api.provider.%s.%s' % (self.provider, self.entitlements_module_name))
+        entitlements_client = importlib.import_module(f"osdu_api.provider.{self.provider}.{self.entitlements_module_name}")
         return entitlements_client.get_bearer_token()
 
     '''
@@ -39,6 +40,15 @@ class BaseClient:
             self.search_url = self._parse_config_value(config, 'search_url', False)
             self.provider = self._parse_config_value(config, 'provider', True)
             self.entitlements_module_name = self._parse_config_value(config, 'entitlements_module_name', True)
+
+    '''
+    Read Airflow variables 
+    '''
+    def _read_variables(self):
+        self.storage_url = Variable.get('storage_url')
+        self.search_url = Variable.get('search_url')
+        self.provider = Variable.get('provider')
+        self.entitlements_module_name = Variable.get('entitlements_module_name')
     
     '''
     Used during parsing of the yaml config file. Will raise an exception if a required config

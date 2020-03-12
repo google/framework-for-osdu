@@ -25,11 +25,11 @@ class RecordClient(BaseClient):
     data = {'id': 'test'}
     record = Record(id, version, kind, acl, legal, data, ancestry, meta)
     '''
-    def create_update_records(self, records: List[Record]):
+    def create_update_records(self, records: List[Record], headers: dict):
         records_data = [record.convert_to_dict() for record in records]
         print(records_data)
 
-        return self.create_update_records_from_dict(records_data)
+        return self.create_update_records_from_dict(records_data, headers)
 
     '''
     Calls storage's api endpoint createOrUpdateRecords taking individual attributes and constructing
@@ -65,10 +65,10 @@ class RecordClient(BaseClient):
             }
         ]
     '''
-    def create_update_records_from_dict(self, records: dict):
+    def create_update_records_from_dict(self, records: dict, headers: dict):
         records_data = json.dumps(records)
 
-        response = self.make_request(method=HttpMethod.PUT, url=self.storage_url, data=records_data)
+        response = self.make_request(method=HttpMethod.PUT, url=self.storage_url, data=records_data, add_headers=headers)
 
         return response
 
@@ -76,9 +76,9 @@ class RecordClient(BaseClient):
     Calls storage's api endpoint getLatestRecordVersion taking the required attributes
     Returns the content for the response object
     '''
-    def get_latest_record(self, recordId: str, attributes: List[str] = []):
+    def get_latest_record(self, recordId: str, attributes: List[str] = [], headers = dict):
         request_params = {'attribute': attributes}
-        response = self.make_request(method=HttpMethod.GET, params=request_params, url=(self.storage_url + '/%s' % (recordId)))
+        response = self.make_request(method=HttpMethod.GET, params=request_params, url=f"{self.storage_url}/{recordId}", add_headers=headers)
         response_content = json.loads(response.content)
         return Record.from_dict(response_content)
 
@@ -86,9 +86,9 @@ class RecordClient(BaseClient):
     Calls storage's api endpoint getSpecificRecordVersion taking the required attributes
     Returns the content for the response object
     '''
-    def get_specific_record(self, recordId: str, version: str, attributes: List[str] = []):
+    def get_specific_record(self, recordId: str, version: str, headers: dict, attributes: List[str] = []):
         request_params = {'attribute': attributes}
-        response = self.make_request(method=HttpMethod.GET, params=request_params, url=(self.storage_url + '/%s/%s' % (recordId, version)))
+        response = self.make_request(method=HttpMethod.GET, params=request_params, url=f"{self.storage_url}/{recordId}/{version}", add_headers=headers)
         response_content = json.loads(response.content)
         return Record.from_dict(response_content)
 
@@ -97,8 +97,8 @@ class RecordClient(BaseClient):
     Returns the content for the response object for the call containing the list of versions. 
     Find the versions in the response.content attribute
     '''
-    def get_record_versions(self, recordId: str):
-        response = self.make_request(method=HttpMethod.GET, url=(self.storage_url + '/versions/%s' % (recordId)))
+    def get_record_versions(self, recordId: str, headers: dict):
+        response = self.make_request(method=HttpMethod.GET, url=f"{self.storage_url}/versions/{recordId}", add_headers=headers)
         response_content = json.loads(response.content.decode("utf-8"))
         return response_content['versions']
         
