@@ -3,14 +3,14 @@ A workflow creating a record
 """
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
+from airflow.utils.dates import days_ago
 from datetime import datetime, timedelta
-from entitlements_client import get_bearer_token
 from create_records import create_records
 
 default_args = {
     'owner': 'Airflow',
     'depends_on_past': False,
-    'start_date': datetime(2015, 6, 1),
+    'start_date': days_ago(2),
     'email': ['airflow@example.com'],
     'email_on_failure': False,
     'email_on_retry': False,
