@@ -1,5 +1,5 @@
 /*
- * Copyright  2019 Google LLC
+ * Copyright  2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.osdu.utils;
+package com.osdu.core.utils.helper;
 
 public class EnvironmentVariableReceiver {
     public static String getGoogleCredentialFile() {
@@ -23,5 +23,24 @@ public class EnvironmentVariableReceiver {
 
     public static String getBearerToken() {
         return System.getenv("TOKEN");
+    }
+
+    /**
+     * Get main url paths
+     */
+    public static String getIngestHost() {
+        return System.getenv("INGEST");
+    }
+
+    public static String getDeliveryHost() {
+        return System.getenv("DELIVERY");
+    }
+
+    public static String getWorkflowHost() {
+        return System.getenv("WORKFLOW");
+    }
+
+    public static String getAirflowHost() {
+        return System.getenv("AIRFLOW");
     }
 }

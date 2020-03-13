@@ -24,7 +24,7 @@ import org.testng.annotations.BeforeClass;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import static com.osdu.utils.EnvironmentVariableReceiver.getGoogleCredentialFile;
+import static com.osdu.core.utils.helper.EnvironmentVariableReceiver.getGoogleCredentialFile;
 
 public class Authentication {
     /**

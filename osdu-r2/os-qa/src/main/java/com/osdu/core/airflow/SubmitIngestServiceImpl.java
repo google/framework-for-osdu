@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.InputStreamReader;
 
+import static com.osdu.core.utils.helper.EnvironmentVariableReceiver.getAirflowHost;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Service
@@ -38,7 +39,7 @@ public class SubmitIngestServiceImpl {
 
     @SneakyThrows
     public static JSONObject submitIngest() {
-        String airflowUrl = PropertyHolder.remoteProps.getAirflowApi();
+        String airflowUrl = getAirflowHost();
         String iapClientId = googleIapHelper.getIapClientId(airflowUrl);
         String webServerUrl = airflowUrl + PropertyHolder.remoteProps.getAirflowDagsList();
         HttpRequest request = googleIapHelper.buildIapRequest(webServerUrl, iapClientId);
