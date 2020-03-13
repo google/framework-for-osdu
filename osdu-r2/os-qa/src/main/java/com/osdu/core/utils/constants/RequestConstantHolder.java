@@ -19,7 +19,7 @@ package com.osdu.core.utils.constants;
 public class RequestConstantHolder {
     public static final String AUTHORIZATION = "Authorization";
     public static final String BEARER = "Bearer ";
-    public static final String PARTITION_ID = "Partition-Id";
+    public static final String PARTITION_ID = "Data-Partition-Id";
     public static final String LEGAL_TAGS = "Legal-Tags";
     public static final String KIND = "kind";
     public static final String APP_KEY = "AppKey";

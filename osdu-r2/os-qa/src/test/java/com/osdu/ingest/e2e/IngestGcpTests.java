@@ -35,7 +35,6 @@ import org.testng.annotations.Test;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 
 import static com.osdu.common.FilesKeeper.*;
 import static com.osdu.core.data.parser.JsonParser.readJson;

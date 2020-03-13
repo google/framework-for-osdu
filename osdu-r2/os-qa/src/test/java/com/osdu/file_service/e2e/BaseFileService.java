@@ -28,7 +28,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 
 import static com.osdu.core.utils.constants.RequestConstantHolder.*;
-import static com.osdu.utils.EnvironmentVariableReceiver.getBearerToken;
+import static com.osdu.core.utils.helper.EnvironmentVariableReceiver.getBearerToken;
 
 public class BaseFileService extends Authentication {
     public RequestSpecification baseRequestSpec(HashMap<String, String> headers) {
