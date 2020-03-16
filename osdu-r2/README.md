@@ -99,9 +99,9 @@ The general preconditions of OSDU R2 services implementation are:
 
 * Most services provide both external and internal API endpoints. The third-party applications can query only the
 external API endpoints, while the internal API endpoints can only be queried by OSDU services.
-* Each service's external APIs need to receive a JSON Web Token (JWT). The future implementations of the services might
-be based on the token exchange as part of the security model.
-* Each service's external APIs need to receive the DELFI partition ID to which the user has access.
+* Each service's internal and external API endpoints need to receive a JSON Web Token (JWT). The future implementations
+of the services might be based on the token exchange as part of the security model.
+* Each service's internal and external APIs need to receive the DELFI partition ID to which the user has access.
 
 ### Ingestion service
 
@@ -181,8 +181,8 @@ know whether a file was uploaded by the user or not. Only internal OSDU services
 
 ### Storage service
 
-The OSDU R2 Prototype Storage service is an extension of the DELFI Storage service designed to store extra non-indexed
-metadata with key-value string parameters with each record.
+The OSDU R2 Prototype Storage service is an extension of the DELFI Storage service and is designed to store extra
+non-indexed metadata with key-value string parameters with each record.
 
 In the OSDU R2 Prototype implementation, the Storage service's `/CreateRecord` endpoint adds the workflow and file IDs
 to the file records in the database.
@@ -191,12 +191,12 @@ to the file records in the database.
 
 **POST /CreateRecord**
 
-The `/CreateRecord` endpoint creates a record in the database for each uploaded file. This is an existing API and is
-updated to store extra non-indexing metadata fields with the records. Unavailable for external requests.
+The `/CreateRecord` endpoint creates a record in the database for each uploaded file. This is an existing API endpoint
+and is updated to store extra non-indexing metadata fields with the records. Unavailable for external requests.
 
 **POST /listRecords**
 
-The `/listRecords` endpoint searches the existing records by metadata. Unavailable for external requests.
+The `/listRecords` API endpoint is new and searches the existing records by metadata. Unavailable for external requests.
 
 ### Workflow Engine (Apache Airflow)
 

@@ -40,20 +40,20 @@ documentation].
 The Default Ingestion workflow starts upon a call to the `/submit` endpoint. The following diagram
 shows this workflow at a high level.
 
-![OSDU R2 Ingestion Service submit](https://user-images.githubusercontent.com/21691607/76414508-2252f280-63a0-11ea-83a3-237709c2fb0e.png
+![OSDU R2 Ingestion Service submit](https://user-images.githubusercontent.com/21691607/76414508-2252f280-63a0-11ea-83a3-237709c2fb0e.png)
 
 Upon a `/submit` request:
 
 1. Validate the incoming request.
     * Verify the authorization token. Fail ingestion if the token is missing or invalid, and then
-    respond with the HTTP error `401 Unauthorized`.
+    respond with the `401 Unauthorized` status.
     * Verify the partition ID. Fail ingestion if the partition ID is missing or invalid, and then
-    respond with the HTTP error `401 Unauthorized`.
+    respond with the `401 Unauthorized` status.
     * Verify `FileID`. Respond with the `400 Bad request` status and the `Missing required field
     FileID` message if `FileID` isn't provided.
-    * Verify `DataType`. Respond with the `400 Bad request` status and a message:
-    `Missing required field DataType` if `DataType` isn't provided, or `Incorrect DataType field` if
-    `DataType` is not "opaque" or "well_log".
+    * Verify `DataType`. The `DataType` can be any string. It cannot be null. Respond with the
+    `400 Bad request` status and `Missing required field DataType` message if `DataType` isn't
+    provided.
 2. Query the Delivery service's `/getFileLocation` API endpoint to obtain a direct link to the file
 by `FileID`. The Delivery service will verify whether the `FileID` field exists in the database and
 will fetch the file location data. The following flows are possible for the Delivery service:
@@ -83,10 +83,10 @@ The workflow is the following:
     * Verify the partition ID. Fail ingestion if the partition is missing or invalid, and then
     respond with the HTTP error `401 Unauthorized`.
     * Validate the manifest. If the manifest doesn't correspond to the OSDU
-    `WorkProductLoadManifestStagedFiles` schema stored in the database, fail ingestion and then
+    `WorkProductLoadManifestStagedFiles` schema stored in the database, fail ingestion, and then
     respond with the HTTP error.
 2. Query the Workflow service's `/startWorkflow` API endpoint with the "osdu" workflow type and the
-manifest added in the request's Context property.
+manifest added to the request's `Context` property.
 3. Return the workflow ID received from the Workflow service.
 
 ## API
