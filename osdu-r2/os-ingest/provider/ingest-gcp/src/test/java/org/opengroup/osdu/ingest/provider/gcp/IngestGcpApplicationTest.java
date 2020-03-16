@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.opengroup.osdu.ingest.provider.interfaces.SubmitService;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.function.context.FunctionCatalog;
@@ -32,7 +33,7 @@ import org.springframework.cloud.function.context.test.FunctionalSpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
-@FunctionalSpringBootTest
+@FunctionalSpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class IngestGcpApplicationTest {
 
   @Inject
