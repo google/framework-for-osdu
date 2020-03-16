@@ -19,7 +19,6 @@ package com.osdu.core.endpoints.factories;
 import com.osdu.core.endpoints.factories.specified.BaseFactory;
 import com.osdu.core.endpoints.factories.specified.LocalUrlFactory;
 import com.osdu.core.endpoints.factories.specified.RemoteApigeeUrlFactory;
-import com.osdu.core.endpoints.factories.specified.RemoteGcpUrlFactory;
 
 /**
  * Get required factory
@@ -30,10 +29,6 @@ public class FactoriesHolder {
     }
 
     public BaseFactory remoteFactoryCreator() {
-        return new RemoteGcpUrlFactory();
-    }
-
-    public BaseFactory remoteApigeeFactoryCreator() {
         return new RemoteApigeeUrlFactory();
     }
 }

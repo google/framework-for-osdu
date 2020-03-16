@@ -18,7 +18,10 @@ package com.osdu.core.endpoints.factories.specified;
 
 import com.osdu.core.data.properties.PropertyHolder;
 import com.osdu.core.endpoints.creator.InstanceCreator;
+import com.osdu.core.endpoints.services.FileServiceCreator;
 import com.osdu.core.endpoints.services.IngestCreator;
+
+import static com.osdu.core.utils.helper.EnvironmentVariableReceiver.*;
 
 /**
  * Get remote url for the required endpoint
@@ -28,16 +31,16 @@ public class RemoteApigeeUrlFactory implements BaseFactory {
 
     @Override
     public String getIngest(String resource) {
-        return instanceCreator.creator(new IngestCreator()).getUrl(PropertyHolder.remoteProps.getIngestApigeeUrl() + resource);
+        return instanceCreator.creator(new IngestCreator()).getUrl(getIngestHost() + PropertyHolder.remoteProps.getIngestGcpUrl() + resource);
     }
 
     @Override
-    public String getFileService(String url) {
-        return null;
+    public String getFileService(String resource) {
+        return instanceCreator.creator(new FileServiceCreator()).getUrl(getDeliveryHost() + PropertyHolder.remoteProps.getFileServiceHost() + resource);
     }
 
     @Override
-    public String getWorkflowService(String url) {
-        return null;
+    public String getWorkflowService(String resource) {
+        return instanceCreator.creator(new FileServiceCreator()).getUrl(getWorkflowHost() + PropertyHolder.remoteProps.getWorkflowServiceHost() + resource);
     }
 }

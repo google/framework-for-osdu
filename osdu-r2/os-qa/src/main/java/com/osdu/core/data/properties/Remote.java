@@ -23,9 +23,6 @@ public interface Remote extends Config {
     @Key("ingest.gcp")
     String getIngestGcpUrl();
 
-    @Key("ingest.apigee")
-    String getIngestApigeeUrl();
-
     @Key("file.service")
     String getFileServiceHost();
 

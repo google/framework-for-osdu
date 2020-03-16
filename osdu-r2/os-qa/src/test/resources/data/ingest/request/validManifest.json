@@ -97,7 +97,7 @@
       "Data": {
         "GroupTypeProperties": {
           "FileSource": "",
-          "PreLoadFilePath": "https://storage.googleapis.com/test-bucket/test-file.tmp"
+          "PreLoadFilePath": "https://storage.googleapis.com/osdu-gcp-temp-file/7006_a1701_1972_comp.las?x-goog-signature=897ba9b89ba7ca5d1b8738943865e1b20b2a7d574f89c66387b8745fad1c450c4f83c7cc1586250cb8a4ba4db88fff49d54a5186fede2ace841266b5ff91c55feb0f835aa0e509b75fbd436bc127bea0903c6bd9eaeca6d8c9a2488bf0d2a6e4eb62a9e584893d2c972f6d584f46168f6f7197aa30ac33c71ccacb0c0c7d15fe8723c48e8ba464feeb0a85a926beeca63975c27e58fb3cc9aa7f164fa0764f5ec67e30f0b4b5f4f53546a4d8fad703bc0d68135faa254d91da3aceef57e2c0ea47999c43eace3a0cfd5e6ca9e501b8c4382c9063c40ecee3486b4ead9827cfbbfc23914da50b7712897eeb3f2cd2cc1d21618b359727ca59151221999fea2576&x-goog-algorithm=GOOG4-RSA-SHA256&x-goog-credential=opendes-storage-full%40a2ba07aca58-energy-osdu.iam.gserviceaccount.com%2F20191213%2Fus-central1%2Fstorage%2Fgoog4_request&x-goog-date=20191213T094358Z&x-goog-expires=604800&x-goog-signedheaders=host"
         },
         "IndividualTypeProperties": {},
         "ExtensionProperties": {}
