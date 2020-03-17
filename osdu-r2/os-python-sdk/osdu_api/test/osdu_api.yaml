@@ -1,0 +1,6 @@
+storage_url: http://localhost:8081/api/storage/v2/records
+search_url: http://localhost:8085/api/search/v2/query
+data_partition_id: stubbed_partition
+# dynamically injects what provider-specific logic to use
+provider: stubbed_provider
+entitlements_module_name: entitlements_client

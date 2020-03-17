@@ -30,6 +30,7 @@ import org.opengroup.osdu.workflow.provider.interfaces.WorkflowService;
 import org.opengroup.osdu.workflow.provider.interfaces.WorkflowStatusService;
 import org.opengroup.osdu.workflow.service.WorkflowServiceImpl;
 import org.opengroup.osdu.workflow.service.WorkflowStatusServiceImpl;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.cloud.function.context.FunctionCatalog;
 import org.springframework.cloud.function.context.config.RoutingFunction;
@@ -39,7 +40,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)
-@FunctionalSpringBootTest
+@FunctionalSpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class WorkflowGcpApplicationTest {
 
   @Inject
