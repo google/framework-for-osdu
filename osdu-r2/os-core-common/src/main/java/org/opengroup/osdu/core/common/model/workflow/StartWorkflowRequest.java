@@ -22,7 +22,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.opengroup.osdu.core.common.model.DataType;
 import org.opengroup.osdu.core.common.model.WorkflowType;
 
 @Data
@@ -35,7 +34,7 @@ public class StartWorkflowRequest {
   WorkflowType workflowType;
 
   @JsonProperty("DataType")
-  DataType dataType;
+  String dataType;
 
   @JsonProperty("Context")
   Map<String, Object> context;

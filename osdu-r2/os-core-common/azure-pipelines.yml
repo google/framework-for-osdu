@@ -1,0 +1,44 @@
+# Copyright 2017-2019, Schlumberger
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+trigger:
+  branches:
+    include:
+    - master
+    - core-refactor-p3
+  paths:
+    exclude:
+      - README.md
+
+pool:
+  name: Hosted Ubuntu 1604
+  demands: maven
+
+steps:
+- task: Maven@3
+  displayName: 'Build core-common-model-lib and run unit test'
+  inputs:
+    mavenPomFile: './pom.xml'
+    goals: 'clean install'
+    options: '--settings ./maven/settings.xml -DVSTS_FEED_TOKEN=$(VSTS_FEED_TOKEN)'
+    testResultsFiles: '**/TEST-*.xml'
+    codeCoverageToolOption: JaCoCo
+
+- task: Maven@3
+  displayName: 'Deploy core common model lib'
+  inputs:
+    mavenPomFile: 'pom.xml'
+    goals: 'deploy -Dmaven.test.skip=true'
+    options: '--settings ./maven/settings.xml -DVSTS_FEED_TOKEN=$(VSTS_FEED_TOKEN)'
+    publishJUnitResults: false
