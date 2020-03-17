@@ -10,7 +10,7 @@
 * [Service definitions](#services-definitions)
     * [Ingestion service](#ingestion-service)
     * [Workflow service](#workflow-service)
-    * [File service](#file-service)
+    * [Delivery service](#delivery-service)
     * [Storage service](#storage-service)
 * [Workflow Engine](#workflow-engine-apache-airflow)
     * [Opaque Ingestion DAG](#opaque-ingestion-dag)
@@ -25,7 +25,7 @@
 The OSDU Release 2 Prototype is an implementation of the OSDU standard and focuses on the ingestion of oil and gas data.
 
 The OSDU R2 is cloud-agnostic &mdash; it provides common implementations that can be deployed and orchestrated on any
-cloud provider platform.
+cloud platform.
 
 The high-level design of the OSDU R2 Prototype is available in the [Open Group Community Wiki].
 
@@ -33,14 +33,15 @@ The high-level design of the OSDU R2 Prototype is available in the [Open Group C
 
 The following table defines the terms or clarifies the meaning of the words in this document.
 
-| Property     | Description                                                                                          |
-| ------------ | ---------------------------------------------------------------------------------------------------- |
-| ODES         | The open source version of the DELFI Data Ecosystem that is developed and supported by Schlumberger. Supports the OSDU standard. |
-| Landing zone | The location in a cloud platform where files for ingestion are loaded. The landing zone consists of the Driver and Location properties. |
-| Driver       | A description of where a file was loaded by the user. Example: "GCS" |
-| Location     | A direct URI to file in storage, such as a GCS bucket. The Location might differ from the signed URL returned to the user, by which the user uploads a file to the landing zone. |
+| Property     | Description                                                                                                        |
+| ------------ | ------------------------------------------------------------------------------------------------------------------ |
+| ODES         | OpenDES, the open source version of the DELFI Data Ecosystem that is developed and supported by Schlumberger.      |
+| Landing zone | Location in a cloud platform where files for ingestion are loaded. Consists of the Driver and Location properties. |
+| Driver       | Description of where a file was loaded by the user. Example: "GCS" (Google Cloud Storage)                          |
+| Location     | Direct URI to file in cloud platform storage, such as a GCS bucket.                                                |
 
-> The Driver and Location are necessary to allow direct access to the file to the internal OSDU R2 services.
+> **Note**: The Driver and Location are used to allow direct access to the file to the internal OSDU R2 services.
+> **Note**: The Location doesn't necessarily store the signed URL by which the user uploads their file to the system.
 
 ## Intention
 
@@ -75,20 +76,20 @@ services is dictated by a set of functional and operational requirements listed 
 
 The OSDU R2 Prototype introduces the following services:
 
-* File
+* Delivery
 * Ingestion
 * Workflow
 
-Besides the core services necessary for ingestion, the OSDU R2 Prototype also introduces several changes to the DELFI 
-Storage service in order to support the new ingestion flow.
+Besides the core services necessary for ingestion, the OSDU R2 Prototype also introduces changes to the DELFI Storage
+service in order to support the new ingestion flow.
     
-The OSDU R2 Prototype orchestration implementation is available as a Workflow Engine, which encompasses the following 
-implementations:
+The OSDU R2 Prototype orchestration implementation is available as a Workflow Engine, which encompasses the following:
 
 * OSDU Ingestion DAG
 * Opaque Ingestion DAG
 * Stale Jobs Scheduler
 * Workflow Status Operator
+* Airflow Workflow Sensor Operator
 
 ## Services definitions
 
@@ -96,11 +97,11 @@ The following sections discuss the implementation details of the services develo
 
 The general preconditions of OSDU R2 services implementation are:
 
-* Most services provide both external and internal API endpoints. The external API endpoints are implemented to let
-third-party applications to query the API, while the internal API endpoints can only be queried by the OSDU services.
-* Each service's external APIs need to receive a JSON Web Token (JWT). The future implementations of the services might
-be based on the token exchange as part of the security model.
-* Each service's external APIs need to receive the DELFI partition ID to which the user has access.
+* Most services provide both external and internal API endpoints. The third-party applications can query only the
+external API endpoints, while the internal API endpoints can only be queried by OSDU services.
+* Each service's internal and external API endpoints need to receive a JSON Web Token (JWT). The future implementations
+of the services might be based on the token exchange as part of the security model.
+* Each service's internal and external APIs need to receive the DELFI partition ID to which the user has access.
 
 ### Ingestion service
 
@@ -131,13 +132,13 @@ manifest. Available for external requests.
 
 ### Workflow service
 
-The Workflow service determines and configures any business workflow to run by Workflow Engine (Apache Airflow).
+The Workflow service determines and configures any business workflow to run by the Workflow Engine (Apache Airflow).
 
 In the OSDU R2 Prototype, the Workflow service queries Apache Airflow to start specific ingestion flows depending on the
 workflow type and data type.
 
 **Implementation**: [os-workflow](./os-workflow) <br>
-**Description and workflow**: [ODES Workflow Service](./os-workflow/README.md)
+**Description and workflow**: [OSDU Workflow Service](./os-workflow/README.md)
 
 #### API
 
@@ -151,15 +152,15 @@ Unavailable for external requests. Only internal OSDU services can query this AP
 The `/workflowID` endpoint returns the current status of the workflow job stored in the database. Available for external
 requests.
 
-### File service
+### Delivery service
 
-The File service provides internal and external APIs to let OSDU services and third-party applications query file 
+The Delivery service provides internal and external APIs to let OSDU services and third-party applications query file 
 location data.
 
-**Implementation**: [os-file](./os-file) <br>
-**Description and workflow**: [OSDU R2 Prototype File Service](./os-file/README.md)
+**Implementation**: [os-delivery](./os-delivery) <br>
+**Description and workflow**: [OSDU R2 Prototype Delivery Service](./os-delivery/README.md)
 
-#### File service API
+#### Delivery service API
 
 **POST /getLocation**
 
@@ -173,34 +174,33 @@ internal OSDU services can query this endpoint.
 
 **POST /getFileList**
 
-The `/getFileList` endpoint returns the paginated results of the file records from the database. The API lets know
-whether a file was uploaded by the user or not. Only internal OSDU services can query this endpoint.
+The `/getFileList` endpoint returns the paginated results of the file records from the database to let OSDU services 
+know whether a file was uploaded by the user or not. Only internal OSDU services can query this endpoint.
 
-> The `getFileList` endpoint isn't used in the OSDU R2 Prototype.
+> **Note**: The `getFileList` endpoint isn't used in the OSDU R2 Prototype.
 
 ### Storage service
 
-The OSDU R2 Prototype Storage service is an extension of the ODES Storage service designed to store extra non-indexed
-metadata with key-value string parameters with each record.
+The OSDU R2 Prototype Storage service is an extension of the DELFI Storage service and is designed to store extra
+non-indexed metadata with key-value string parameters with each record.
 
-In the OSDU R2 Prototype implementation, the Storage service's `/CreateRecord` endpoint adds the workflow and file IDs to
-the file records in the database.
+In the OSDU R2 Prototype implementation, the Storage service's `/CreateRecord` endpoint adds the workflow and file IDs
+to the file records in the database.
 
 #### API
 
 **POST /CreateRecord**
 
-The `/CreateRecord` endpoint creates a record in the database for each uploaded file. This is an existing API and is
-updated to store extra non-indexing metadata fields with the records. Unavailable for external requests.
+The `/CreateRecord` endpoint creates a record in the database for each uploaded file. This is an existing API endpoint
+and is updated to store extra non-indexing metadata fields with the records. Unavailable for external requests.
 
 **POST /listRecords**
 
-The `/listRecords` endpoint searches the existing records by metadata. Unavailable for external requests.
+The `/listRecords` API endpoint is new and searches the existing records by metadata. Unavailable for external requests.
 
 ### Workflow Engine (Apache Airflow)
 
-The Workflow Engine is basically an implementation of Apache Airflow that handles pipeline processing. More details:
-[OSDU Ingestion DAG](./docs/Workflow%20Engine.md).
+The Workflow Engine is basically an implementation of Apache Airflow that handles pipeline processing.
 
 #### Opaque Ingestion DAG
 
@@ -227,7 +227,7 @@ database. This operator is called directly by the Airflow DAGs.
 
 ## OSDU R2 Prototype Ingestion workflow
 
-The OSDU R2 Prototype implementation introduces two workflow types that both consist of the following phases:
+The OSDU R2 Prototype implementation introduces two ingestion workflow types that both consist of the following phases:
 
 1. File upload
 2. Ingestion
@@ -235,19 +235,19 @@ The OSDU R2 Prototype implementation introduces two workflow types that both con
 
 ### 1. File upload
 
-The first phase of OSDU R2 ingestion concerns file uploading to the system by a signed URL that the user obtained from
-the OSDU File Service. The user fully controls file upload. In OSDU R2 Prototype, services do not verify whether a file
-was uploaded to the landing zone or not.
+The first phase of OSDU R2 ingestion concerns file uploading to the system by a signed URL that the user obtains from
+the OSDU Delivery Service. The user fully controls file upload. In OSDU R2 Prototype, services do not verify whether a
+file was uploaded to the landing zone or not.
 
 File upload workflow:
 
-1. The client application sends an HTTP request to the File Service to get a file location.
-    * The File service creates a signed URL for the file.
-    * In the GCP implementation, the File service queries Google Cloud Storage to generate a signed URL.
-2. The File service creates a file upload record in the database.
-3. The File service returns a signed URL to the client.
-4. The client uploads a file to the landing zone by the signed URL. The File Service does not verify whether the file
-was uploaded or not.
+1. The client application sends an HTTP request to the Delivery Service to get a file location.
+    * The Delivery service creates a signed URL for the file.
+    * In the GCP implementation, the Delivery service queries Google Cloud Storage to generate a signed URL.
+2. The Delivery service creates a file upload record in the database.
+3. The Delivery service returns a signed URL to the client.
+4. The client uploads a file to the landing zone by the signed URL. The Delivery Service does not verify whether the
+file was uploaded or not.
 
 ### 2. Ingestion
 
@@ -255,12 +255,12 @@ The ingestion phase consists of the following steps:
 
 1. The client application submits data for ingestion to the OSDU Ingestion Service.
 
-> The ingestion request may contain a manifest with a list of files and the metadata added as OSDU Work Product and Work 
-> Product Components. For the OSDU Ingestion workflow, the Files are represented as a list of file IDs.
+    > **Note**: The ingestion request may contain a manifest with a list of files and the metadata added as OSDU Work
+    > Product and Work Product Components. For the OSDU Ingestion workflow, Files are presented as a list of file IDs.
 
-2. The Ingestion service queries the File service to obtain the files by the signed URLs. The Ingestion service request
-contains a list of file locations.
-3. The File service returns the file location data &mdash; Driver and Location &mdash; to the Ingest service.
+2. The Ingestion service queries the Delivery service to obtain the files by the signed URLs. The Ingestion service
+request contains a list of file IDs.
+3. The Delivery service returns the file location data &mdash; Driver and Location &mdash; to the Ingestion service.
 4. Upon receiving a file location, the Ingestion service submits a new ingestion job with the context to the Workflow
 service. The context might include:
     * File location
@@ -279,30 +279,28 @@ The OSDU R2 Prototype uses the following Google Cloud Platform services:
 
 * Cloud Firestore
 * Cloud Datastore
-    > The OSDU GCP project uses Cloud Datastore for compatibility reasons to work with the ODES services. The current
-      implementation includes code to work with Firestore or Datastore. However, in the future releases of Firestore,
-      the Datastore implementation will be removed.
+    > **Note**: The OSDU GCP project uses Cloud Datastore for compatibility reasons to work with the ODES services. The
+      current OSDU implementation includes code to work with Firestore or Datastore. However, in the future releases of
+      OSDU, the Cloud Datastore implementation will be removed.
+    > **Note**: Cloud Datastore creates the same collections and indexes as Cloud Firestore.
 * Cloud Compose
 * Cloud Storage (GCS)
 
 ### Cloud Firestore collections
 
-Cloud Firestore creates the following collections in the database to store various data required by OSDU R2 Prototype to
-function.
-
-> Cloud Datastore has the same collections as Cloud Firestore.
+Cloud Firestore creates the following collections in the database to store various data in OSDU R2 Prototype.
 
 #### `file-locations`
 
 The `file-locations` collection stores the file documents by file ID. Each document stores the following information.
 
-| Property  | Type     | Description                                                               |
-| --------- | -------- | ------------------------------------------------------------------------- | 
-| FileID    | `String` | Unique file ID used as key to store file data                             |
-| Driver    | `String` | Description of the place where files are loaded                           |
-| Location  | `String` | Direct URI to the file                                                    |
-| CreatedAt | `String` | Timestamp when the record was created                                     |
-| CreatedBy | `String` | User ID. The CreatedBy property isn't supported in the OSDU R2 Prototype. |
+| Property  | Type     | Description                                     |
+| --------- | -------- | ----------------------------------------------- | 
+| FileID    | `String` | Unique file ID used as key to store file data   |
+| Driver    | `String` | Description of the place where files are loaded |
+| Location  | `String` | Direct URI to the file                          |
+| CreatedAt | `String` | Timestamp when the record was created           |
+| CreatedBy | `String` | User ID, not supported in the OSDU R2 Prototype |
 
 #### `dag-selection`
 
@@ -320,12 +318,12 @@ workflow.
 
 The `workflow-status` collection stores the current status and some additional properties of a started workflow job.
 
-| Property     | Type     | Description                                                                   |
-| ------------ | -------- | ----------------------------------------------------------------------------- | 
-| WorkflowID   | `String` | ID of the started workflow                                                    |
-| AirflowRunID | `String` | ID of the Airflow process                                                     |
-| Status       | `String` | Current status of a workflow &mdash; SUBMITTED, RUNNING,  FINISHED, or FAILED |
-| SubmittedAt  | `String` | Timestamp when the workflow was submitted to Airflow                          |
-| SubmittedBy  | `String` | User ID. The SubmittedBy property isn't supported in the ODES R2 Prototype    |
+| Property     | Type     | Description                                                                  |
+| ------------ | -------- | ---------------------------------------------------------------------------- | 
+| WorkflowID   | `String` | ID of the started workflow                                                   |
+| AirflowRunID | `String` | ID of the Airflow process                                                    |
+| Status       | `String` | Current status of a workflow &mdash; submitted, running, finished, or failed |
+| SubmittedAt  | `String` | Timestamp when the workflow was submitted to Airflow                         |
+| SubmittedBy  | `String` | User ID, isn't supported in the OSDU R2 Prototype                            |
 
 [Open Group Community Wiki]: https://community.opengroup.org/osdu/documentation/-/wikis/OSDU-(C)/Design-and-Implementation/Ingestion-and-Enrichment-Detail/R2-Ingestion-Workflow-Orchestration-Spike

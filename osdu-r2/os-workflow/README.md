@@ -15,8 +15,8 @@
 
 ## Introduction
 
-The OSDU R2 Workflow service starts any business process in the system. In the prototype phase, the
-service starts ingestion of OSDU data.
+The OSDU R2 Workflow service is designed to start business processes in the system. In the prototype
+phase, the service starts ingestion of OSDU data.
 
 The Workflow service provides a wrapper functionality around the Apache Airflow functions and is
 designed to carry out a preliminary work with files before running the Airflow Directed Acyclic
@@ -49,6 +49,8 @@ Upon a `/startWorkflow` request:
     respond with the `400 Bad request` status.
     * Check that the workflow type is "ingest" or "osdu".
     * Check that the data type is "well_log" or "opaque".
+        > The `DataType` property can be any string value. If the `DataType` value is not
+        > "well_log", then it's treated as the "opaque" data type.
 2. Query the database to obtain a DAG suitable for the current request. The Workflow service
 decides which DAG to run by the following three parameters:
     * `WorkflowType`
@@ -60,11 +62,16 @@ decides which DAG to run by the following three parameters:
 
 ### Get workflow status
 
-Upon the `/getWorkflow` request:
+Upon a `/getWorkflow` request:
 
-1. Query the database with the workflow ID received from the client.
+1. Validate the incoming request.
+    * Verify the authorization token. Fail ingestion if the token is missing or invalid, and then
+    respond with the `401 Unauthorized` status.
+    * Verify the partition ID. Fail ingestion if the partition ID is missing or invalid, and then
+    respond with the `400 Bad request` status.
+2. Query the database with the workflow ID received from the client.
     * Respond with the **404 Not Found** status if the requested workflow ID isn't found.
-2. Return the workflow job status to the user or application.
+3. Return the workflow job status to the user or application.
 
 ### Update workflow status
 
@@ -77,11 +84,11 @@ Upon an `/updateWorkflowStatus` request:
 1. Validate the incoming request.
     * Validate the authentication token and the DELFI partition ID. Fail workflow status update if
     the token or the partition ID is not provided.
-    * Fail the request if the workflow ID or the workflow status is not provided.
+    * Fail the request if the workflow ID or status is not provided.
     * Fail the request if the workflow status is not **running**, **finished**, or **failed**.
 2. Update the workflow status in the database.
     * Fail the update if the workflow ID is not found in the database.
-    * Fail the update if there's more than one status for the workflow in the database.
+    * Fail the update if there's more than one workflow found by the workflow ID.
     * Fail the update if the stored status and the incoming status are the same.
 3. Return the workflow ID and the workflow status to the requester.
 
@@ -98,13 +105,14 @@ General considerations related to querying the Workflow API:
 * Each endpoint must receive the authorization token in the "Authorization" header. Example:
 `"Authorization": "Bearer {token}"`
 * Each endpoint must receive the partition ID in the "Partition-ID" header. Example:
-`"Partition-Id: "systemdefault8apre7h881noa9"`
+`"Partition-Id: "default_partition"`
 * The request and response Content Type is "application/json"
 * The request to any endpoint doesn't use any URL parameters
 
 ### POST /startWorkflow
 
-Starts a new workflow. This API isn't available for third-party applications.
+The `/startWorkflow` API endpoint starts a new workflow. This API isn't available for third-party
+applications.
 
 The `/startWorkflow` endpoint is a wrapper around the Airflow invocation, and it is designed to
 reconfigure the default workflows. For each combination of user, data, and workflow types, the API
@@ -158,12 +166,13 @@ If the workflow ID isn't found in the database, the `404 Not Found` status is re
 
 ### POST /updateWorkflowStatus
 
-Updates the status of a workflow to the latest status. This API endpoint is not available for
-third-party applications.
+The `/updateWorkflowStatus` API endpoint updates the status of a workflow job. This endpoint is not
+available for third-party applications. In particular, the Apache Airflow DAGs query this endpoint
+to set the status of a workflow.
 
 #### Request
 
-The incoming request contains the following properties in the request body.
+The incoming request body contains the following properties in the request body.
 
 | Property   | Type     | Description                                      |
 | ---------- | -------- | ------------------------------------------------ |

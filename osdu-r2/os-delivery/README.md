@@ -17,24 +17,24 @@
 
 ## Introduction
 
-The OSDU R2 Prototype Delivery service provides internal and external APIs to request for file
+The OSDU R2 Prototype Delivery service provides internal and external API endpoints to request file
 location data. For example, users can request generation of an individual signed URL per file. Using
 the signed URL, OSDU R2 users will be able to upload their files for ingestion to the system.
 
 The current implementation of the Delivery service supports only cloud platform-specific locations.
-The future implementations might allow the use of on premises locations.
+The future implementations might allow the use of on-premises locations.
 
 ## System interactions
 
-The Delivery service defines three workflows &mdash; file upload, file location delivery, and file
-list delivery.
+OSDU R2 Delivery defines three workflows &mdash; file upload, file location delivery, and file list
+delivery.
 
 ### File upload
 
 The file upload workflow is defined for the `/getLocation` API endpoint. The following diagram
 illustrates the workflow.
 
-![OSDU R2 Delivery Service getLocation Flow](/uploads/d625c62ac567469667cd46e586a821f0/OSDUD_R2_File_Service_getLocation_Flow.png)
+![OSDU R2 Delivery Service getLocation](https://user-images.githubusercontent.com/21691607/76421952-233e5100-63ad-11ea-8893-3ad5b6950b4c.png)
 
 Upon a request to get a location for a file:
 
@@ -42,15 +42,17 @@ Upon a request to get a location for a file:
     * Verify the authentication token. Fail signed URL generation if the token is missing or
     invalid, and then respond with the HTTP error `401 Unauthorized`.
     * Verify the partition ID. Fail signed URL generation if the partition ID is missing or invalid
-    or doesn't have assigned user groups. Respond with the HTTP error `400 Bad Request`.
-    * Verify the file ID (only if it's passed in the request body). Fail signed URL generation if
-    the file ID is invalid or if this ID was already created. Respond with the error `Location for
-    fileID {ID} already exists` and `400 Bad Request` status.
-2. Generate a new Universally Unique Identifier (UUID) for the file if a file ID isn't provided.
-3. Create an empty object in Google Cloud Storage, and then generate a signed URL with the write
-access for that object.
+    or doesn't have assigned user groups, and then respond with the `401 Unauthorized` status.
+    * Verify the file ID if it's passed in the request. Fail signed URL generation if the file ID is
+    invalid or if this ID was already created. Respond with the `400 Bad Request` status and the
+    `Location for FileID {ID} already exists` error.
+2. Generate a new Universally Unique Identifier (UUID) for the file if an ID isn't provided.
+3. Create an empty object in storage, and then generate a signed URL with the write access for that
+object.
     * By the signed URL, the user or application will upload their file for ingestion.
     * The generated signed URL has the maximum duration of 7 days.
+    > **Note**: How a signed URL is generated depends fully on the cloud provider implementation.
+    > This step description is based on the Google Cloud Storage implementation.
 4. Create a record with file data in the database. The record will contain a key-value pair with the
 file ID as the key and object as the value. For more information on the record, consult the
 [Firestore](#firestore) section.
@@ -61,7 +63,7 @@ file ID as the key and object as the value. For more information on the record, 
 The file location delivery workflow is defined for the `/getFileLocation` API. The following diagram
 demonstrates the workflow.
 
-![OSDU R2 Delivery Service getFileLocation Flow](https://gitlab.osdu-gcp.dev/odes/os-file/uploads/bea0627636b2d72e6598c79363d9798d/OSDU_R2_FileService_getFileLocation_Flow.png)
+![OSDU R2 Delivery Service getFileLocation](https://user-images.githubusercontent.com/21691607/76414998-11ef4780-63a1-11ea-8a38-cb4dc4522d83.png)
 
 Upon request from an OSDU R2 service:
 
@@ -69,7 +71,7 @@ Upon request from an OSDU R2 service:
     * Verify the authentication token. Fail signed URL generation if the token is missing or
     invalid, and then respond with the `401 Unauthorized` status.
     * Verify the partition ID. Fail signed URL generation if the partition ID is missing, invalid or
-    doesn't have assigned user groups, and then respond with the `400 Bad Request` status.
+    doesn't have assigned user groups, and then respond with the `400 Unauthorized` status.
 2. Get the `FileID` value from the incoming request.
 3. Query the database with `FileID` to get the file record.
 4. Return the `Location` and `Driver` from the record to the calling service.
@@ -106,22 +108,24 @@ implementations, the Delivery service will be able to check if file uploads did 
 
 ## API
 
-The Delivery service's API includes the following three methods in the OSDU R2 Prototype:
+The OSDU R2 Delivery API includes the following three methods:
 
 * `/getLocation`, external
 * `/getFileLocation`, internal
 * `/getFileList`, internal
 
-Each request to Delivery service's API endpoints needs the meet the following requirements:
+General considerations related to querying the Delivery API:
 
-* Authentication token needs to be passed in header. Example: `"Authorization": "Bearer {token}"`
-* DELFI partition ID needs to be passed in header. Example: `"Partition-Id": "default-partition"`
-* No parameters are provided in the URL
-* Request and response Content Type is **application/json**
+* Each endpoint must receive an authentication token in header. Example:
+`"Authorization": "Bearer {token}"`
+* Each endpoint must receive a DELFI partition ID in header. Example:
+`"Partition-Id": "default-partition"`
+* The request and response Content Type is **application/json**
+* No parameters need to be provided in the URL
 
 ### POST /getLocation
 
-Creates a new location in the landing zone, such as a GCS bucket.
+The `/getLocation` API endpoint creates a new location in the landing zone, such as a GCS bucket.
 
 #### Request body
 
@@ -129,10 +133,11 @@ Creates a new location in the landing zone, such as a GCS bucket.
 | ------------- | -------- | --------------------- | ----------------- |
 | FileID        | `String` | Unique ID of the file | Optional          |
 
-> If **FileID** isn't provided in the request, the Delivery service generates a Universally Unique
-Identifier (UUID) to be stored in `FileID`. If `FileID` is provided and is already registered in the
-system, an error is returned.
-> **FileID** must correspond to the regular expression: `^[\w,\s-]+(\.\w+)?$`.
+> **Note**: If `FileID` isn't provided in the request, the Delivery service generates a Universally
+> Unique Identifier (UUID) to be stored in `FileID`. If `FileID` is provided and is already
+> registered in the system, an error is returned.
+
+> **Note**: `FileID` must correspond to the regular expression: `^[\w,\s-]+(\.\w+)?$`.
 
 **Example**:
 
@@ -153,12 +158,12 @@ The Delivery service returns the following data.
 | Property  | Type     | Description                                           |
 | --------- | -------- | ----------------------------------------------------- |
 | FileID    | `String` | ID of the file to be ingested                         |
-| Location  | `List`   | List of key-value pairs with cloud provider details to access the landing zone |
+| Location  | `List`   | List of key-value pairs with cloud provider details to access the landing zone* |
 | SignedURL | `String` | Signed URL by which the file to be ingested is stored |
 
-> **Note**: Landing zone is a location in a cloud provider's platform where the user uploaded files
-> for OSDU ingestion. The landing zone consists of the `Driver` and `Location` properties, which are
-> stored in the database for each file upload request.
+> **Note**: The landing zone is a location in a cloud provider's platform where the user uploaded
+> files for OSDU ingestion. The landing zone consists of the `Driver` and `Location` properties,
+> which are stored in the database for each file upload request.
 
 Example:
 
@@ -206,8 +211,8 @@ curl --location --request POST 'https://{path}/getFileLocation' \
 
 ### POST /getFileList
 
-The `/getFileList` API endpoint allows auditing the attempted file uploads. The method is
-unavailable for third-party applications.
+The `/getFileList` API endpoint allows auditing the attempted file uploads. The endpoint isn't
+available for third-party applications.
 
 The ingestion process depends on whether the client application uploaded a file or not. The
 `/getFileList` API endpoint is designed to let other OSDU services to inspect which user uploaded a
@@ -224,7 +229,7 @@ after the file upload.
 | Items    | `short`    | Pagination of the result                    |
 | UserID   | `String`   | The ID of the user role or group            |
 
-> `UserID` is not supported in the OSDU R2 Prototype.
+> **Note**: `UserID` is not supported in the OSDU R2 Prototype.
 
 **Example**:
 
@@ -254,7 +259,7 @@ A paginated result of the records stored in the database.
 | Size             | `short`   | The size of the Content list                     |
 
 Each file record contains the following properties: `FileID`, `Driver`, `Location`, `CreatedAt`,
-`CreatedBy`. For more information the returned properties, consult the [Firestore
+`CreatedBy`. For more information on the returned properties, consult the [Firestore
 collections](#collections) section.
 
 Response example:
@@ -289,15 +294,15 @@ The Delivery service has several Service Provider Interfaces that the classes ne
 
 | Interface              | Required/Optional       | Path                                                                     |
 | ---------------------- | ----------------------- | ------------------------------------------------------------------------ |
-| AuthenticationService  | Optional to implement   | `file-core/src/main/java/.../provider/interfaces/AuthenticationService`  |
-| FileListService        | Optional to implement   | `file-core/src/main/java/.../provider/interfaces/FileListService`        |
-| FileLocationRepository | Optional to implement   | `file-core/src/main/java/.../provider/interfaces/FileLocationRepository` |
-| FileService            | Optional to implement   | `file-core/src/main/java/.../provider/interfaces/FileService`            |
-| LocationMapper         | Obligatory to implement | `file-core/src/main/java/.../provider/interfaces/LocationMapper`         |
-| LocationService        | Optional to implement   | `file-core/src/main/java/.../provider/interfaces/LocationService`        |
-| StorageRepository      | Obligatory to implement | `file-core/src/main/java/.../provider/interfaces/StorageRepository`      |
-| StorageService         | Obligatory to implement | `file-core/src/main/java/.../provider/interfaces/StorageService`         |
-| ValidationService      | Optional to implement   | `file-core/src/main/java/.../provider/interfaces/ValidationService`      |
+| AuthenticationService  | Optional to implement   | `delivery-core/src/main/java/.../provider/interfaces/AuthenticationService`  |
+| FileListService        | Optional to implement   | `delivery-core/src/main/java/.../provider/interfaces/FileListService`        |
+| FileLocationRepository | Optional to implement   | `delivery-core/src/main/java/.../provider/interfaces/FileLocationRepository` |
+| FileService            | Optional to implement   | `delivery-core/src/main/java/.../provider/interfaces/FileService`            |
+| LocationMapper         | Obligatory to implement | `delivery-core/src/main/java/.../provider/interfaces/LocationMapper`         |
+| LocationService        | Optional to implement   | `delivery-core/src/main/java/.../provider/interfaces/LocationService`        |
+| StorageRepository      | Obligatory to implement | `delivery-core/src/main/java/.../provider/interfaces/StorageRepository`      |
+| StorageService         | Obligatory to implement | `delivery-core/src/main/java/.../provider/interfaces/StorageService`         |
+| ValidationService      | Optional to implement   | `delivery-core/src/main/java/.../provider/interfaces/ValidationService`      |
 
 ## GCP implementation
 
@@ -306,8 +311,8 @@ The service account for Delivery service must have the `iam.serviceAccounts.sign
 The predefined **Cloud Functions Service Agent**, **Cloud Run Service Agent**, and **Service Account
 Token Creator** roles include the required permission.
 
-For development purposes, it's recommended to create a separate service account.
-It's enough to grant the **Service Account Token Creator** role to the development service account.
+For development, it's recommended to create a separate service account. It's enough to grant the
+**Service Account Token Creator** role to the development service account.
 
 Obtaining user credentials for Application Default Credentials isn't suitable in this case because
 signing a blob is only available with the service account credentials. Remember to set the
@@ -318,20 +323,20 @@ developer's portal][application-default-credentials].
 
 The GCP implementation contains two mutually exclusive modules to work with the persistence layer.
 Presently, OSDU R2 connects to legacy Cloud Datastore for compatibility with the current OpenDES
-implementation. In the future, Cloud Datastore will be replaced by the existing Cloud Firestore
-implementation that's already available in the project.
+implementation. In the future OSDU releases, Cloud Datastore will be replaced by the existing Cloud
+Firestore implementation that's already available in the project.
 
-* The Cloud Datastore implementation is located in the **provider/file-gcp-datastore** folder.
-* The Cloud Firestore implementation is located in the **provider/file-gcp** folder.
+* The Cloud Datastore implementation is located in the **provider/delivery-gcp-datastore** folder.
+* The Cloud Firestore implementation is located in the **provider/delivery-gcp** folder.
 
 To learn more about available collections, follow to the [Firestore collections](#collections)
 section.
 
 ## Datastore
 
-The service account for Delivery service must have the `datastore.indexes.*` permissions.
-The predefined **roles/datastore.indexAdmin** and **roles/datastore.owner** roles include
-the required permission.
+The service account for Delivery service must have the `datastore.indexes.*` permissions. The
+predefined **roles/datastore.indexAdmin** and **roles/datastore.owner** roles include the required
+permission.
 
 ## Firestore
 
@@ -342,13 +347,13 @@ The GCP implementation of the Delivery service uses Cloud Firestore with the fol
 
 `file-locations`
 
-| Field     | Type     | Description                                                               |
-| --------- | -------- | ------------------------------------------------------------------------- |
-| FileID    | `String` | Unique file ID used as a key to reference a file data object with Driver, Location, CreatedAt, and CreatedBy |
-| Driver    | `String` | Description of the storage where files were loaded                        |
-| Location  | `String` | Direct URI to the file in storage                                         |
-| CreatedAt | `String` | Time when the record was created                                          |
-| CreatedBy | `String` | ID of the user that requested file location                               |
+| Field     | Type                    | Description                                                               |
+| --------- | ----------------------- | ------------------------------------------------------------------------- |
+| FileID    | List of key-value pairs | Unique file ID used as a key to reference a file data object with Driver, Location, CreatedAt, and CreatedBy |
+| Driver    | `String`                | Description of the storage where files were loaded                        |
+| Location  | `String`                | Direct URI to the file in storage                                         |
+| CreatedAt | `String`                | Time when the record was created                                          |
+| CreatedBy | `String`                | ID of the user that requested file location                               |
 
 > **Note**: The `Location` value might be different from the signed URL returned to the user.
 > **Note**: The `CreatedBy` property isn't supported in the OSDU R2 Prototype.
