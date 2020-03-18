@@ -24,19 +24,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.ingest.model.SchemaData;
 import org.opengroup.osdu.ingest.model.WorkProductLoadManifest;
-import org.opengroup.osdu.ingest.provider.interfaces.SchemaRepository;
+import org.opengroup.osdu.ingest.provider.interfaces.ISchemaRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class LoadManifestValidationServiceImpl implements LoadManifestValidationService {
+public class LoadManifestValidationServiceImpl implements ILoadManifestValidationService {
 
   private static final String WP_LOAD_MANIFEST_SCHEMA_TITLE = "WorkProductLoadManifestStagedFiles";
 
   final ObjectMapper objectMapper;
-  final SchemaRepository schemaRepository;
-  final JsonValidationService jsonValidationService;
+  final ISchemaRepository schemaRepository;
+  final IJsonValidationService jsonValidationService;
 
   @Override
   public Set<ValidationMessage> validateManifest(WorkProductLoadManifest loadManifest) {
@@ -44,7 +44,8 @@ public class LoadManifestValidationServiceImpl implements LoadManifestValidation
     SchemaData schemaData = schemaRepository.findByTitle(WP_LOAD_MANIFEST_SCHEMA_TITLE);
     JsonNode manifest = objectMapper.valueToTree(loadManifest);
 
-    Set<ValidationMessage> errors = jsonValidationService.validate(schemaData.getSchema(), manifest);
+    Set<ValidationMessage> errors = jsonValidationService
+        .validate(schemaData.getSchema(), manifest);
     log.debug("Validation result: {}", errors);
     return errors;
   }

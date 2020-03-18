@@ -40,20 +40,20 @@ documentation].
 The Default Ingestion workflow starts upon a call to the `/submit` endpoint. The following diagram
 shows this workflow at a high level.
 
-![OSDU R2 Ingestion Service submit](https://user-images.githubusercontent.com/21691607/76414508-2252f280-63a0-11ea-83a3-237709c2fb0e.png)
+![OSDU_R2_Ingestion_Service_submit](/uploads/086b2f2c131522b726227ab57c07cde0/OSDU_R2_Ingestion_Service_submit.png)
 
 Upon a `/submit` request:
 
 1. Validate the incoming request.
     * Verify the authorization token. Fail ingestion if the token is missing or invalid, and then
-    respond with the `401 Unauthorized` status.
+    respond with the HTTP error `401 Unauthorized`.
     * Verify the partition ID. Fail ingestion if the partition ID is missing or invalid, and then
-    respond with the `401 Unauthorized` status.
+    respond with the HTTP error `401 Unauthorized`.
     * Verify `FileID`. Respond with the `400 Bad request` status and the `Missing required field
     FileID` message if `FileID` isn't provided.
-    * Verify `DataType`. The `DataType` can be any string. It cannot be null. Respond with the
-    `400 Bad request` status and `Missing required field DataType` message if `DataType` isn't
-    provided.
+    * Verify `DataType`. Respond with the `400 Bad request` status and a message:
+    `Missing required field DataType` if `DataType` isn't provided, or `Incorrect DataType field` if
+    `DataType` is not "opaque" or "well_log".
 2. Query the Delivery service's `/getFileLocation` API endpoint to obtain a direct link to the file
 by `FileID`. The Delivery service will verify whether the `FileID` field exists in the database and
 will fetch the file location data. The following flows are possible for the Delivery service:
@@ -73,7 +73,7 @@ files.
 The OSDU ingestion workflow has a dedicated `/submitWithManifest` endpoint. The following diagram
 shows the workflow at the high level.
 
-![OSDU R2 Ingestion Service submitWithManifest](https://user-images.githubusercontent.com/21691607/76414553-372f8600-63a0-11ea-8aaa-1b7260d15cfc.png)
+![OSDU_R2_Ingestion_Service_submitWithManifest](/uploads/015b6e868c09802ab035fd1dae8112a4/OSDU_R2_Ingestion_Service_submitWithManifest.png)
 
 The workflow is the following:
 
@@ -83,10 +83,10 @@ The workflow is the following:
     * Verify the partition ID. Fail ingestion if the partition is missing or invalid, and then
     respond with the HTTP error `401 Unauthorized`.
     * Validate the manifest. If the manifest doesn't correspond to the OSDU
-    `WorkProductLoadManifestStagedFiles` schema stored in the database, fail ingestion, and then
+    `WorkProductLoadManifestStagedFiles` schema stored in the database, fail ingestion and then
     respond with the HTTP error.
 2. Query the Workflow service's `/startWorkflow` API endpoint with the "osdu" workflow type and the
-manifest added to the request's `Context` property.
+manifest added in the request's Context property.
 3. Return the workflow ID received from the Workflow service.
 
 ## API
@@ -187,6 +187,6 @@ Firestore implementation that's already available in the project.
 * The Cloud Datastore implementation is located in the **provider/ingest-gcp-datastore** folder.
 * The Cloud Firestore implementation is located in the **provider/ingest-gcp** folder.
 
-[OSDU R2 Workflow service]: ../os-workflow/README.md
-[OSDU R2 Delivery service documentation]: ../os-delivery/README.md
+[OSDU R2 Workflow service]: https://gitlab.osdu-gcp.dev/odes/os-workflow
+[OSDU R2 Delivery service documentation]: https://gitlab.osdu-gcp.dev/odes/os-delivery/blob/develop/README.md
 [WorkProductLoadManifestStagedFiles]: https://gitlab.opengroup.org/osdu/open-test-data/blob/master/rc-1.0.0/3-schemas/WorkProductLoadManifestStagedFiles.json

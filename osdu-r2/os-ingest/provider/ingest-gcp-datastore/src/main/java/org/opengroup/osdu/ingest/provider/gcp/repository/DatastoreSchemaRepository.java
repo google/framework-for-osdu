@@ -20,19 +20,19 @@ import javax.inject.Named;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.ingest.model.SchemaData;
-import org.opengroup.osdu.ingest.provider.gcp.mapper.SchemaDataMapper;
+import org.opengroup.osdu.ingest.provider.gcp.mapper.ISchemaDataMapper;
 import org.opengroup.osdu.ingest.provider.gcp.model.entity.SchemaDataEntity;
-import org.opengroup.osdu.ingest.provider.interfaces.SchemaRepository;
+import org.opengroup.osdu.ingest.provider.interfaces.ISchemaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @Slf4j
 @RequiredArgsConstructor
-public class DatastoreSchemaRepository implements SchemaRepository {
+public class DatastoreSchemaRepository implements ISchemaRepository {
 
   @Named
-  final SchemaDataMapper schemaDataMapper;
-  final SchemaDataEntityRepository schemaDataEntityRepository;
+  final ISchemaDataMapper schemaDataMapper;
+  final ISchemaDataEntityRepository schemaDataEntityRepository;
 
   @Override
   public SchemaData findByTitle(String title) {

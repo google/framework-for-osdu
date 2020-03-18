@@ -16,7 +16,6 @@
 
 package org.opengroup.osdu.workflow.provider.interfaces;
 
-import org.opengroup.osdu.core.common.model.DataType;
 import org.opengroup.osdu.core.common.model.WorkflowType;
 import org.opengroup.osdu.workflow.model.IngestionStrategy;
 
@@ -26,11 +25,11 @@ public interface IngestionStrategyRepository {
    * Finds a dag based on parameters.
    *
    * @param workflowType type of workflow
-   * @param dataType data type
-   * @param userId user id
+   * @param dataType     data type
+   * @param userId       user id
    * @return ingestion strategy
    */
   IngestionStrategy findByWorkflowTypeAndDataTypeAndUserId(WorkflowType workflowType,
-      DataType dataType, String userId);
+      String dataType, String userId);
 
 }

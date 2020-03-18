@@ -32,7 +32,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.opengroup.osdu.core.common.model.DataType;
 import org.opengroup.osdu.core.common.model.WorkflowType;
 import org.opengroup.osdu.workflow.model.IngestionStrategy;
 import org.opengroup.osdu.workflow.provider.gcp.exception.IngestionStrategyQueryException;
@@ -51,7 +50,7 @@ public class FirestoreIngestionStrategyRepository implements IngestionStrategyRe
 
   @Override
   public IngestionStrategy findByWorkflowTypeAndDataTypeAndUserId(WorkflowType workflowType,
-      DataType dataType, String userId) {
+      String dataType, String userId) {
     log.debug("Requesting dag selection. Workflow type : {}, Data type : {}, User id : {}",
         workflowType, dataType, userId);
     ApiFuture<QuerySnapshot> query = firestore.collection(COLLECTION_NAME)
@@ -96,8 +95,7 @@ public class FirestoreIngestionStrategyRepository implements IngestionStrategyRe
     log.info("Build ingestion strategy. Document snapshot : {}", snap.getData());
     return IngestionStrategy.builder()
         .workflowType(WorkflowType.valueOf(snap.getString(WORKFLOW_TYPE)))
-        .dataType(snap.getString(DATA_TYPE) == null ? null :
-            DataType.valueOf(snap.getString(DATA_TYPE)))
+        .dataType(snap.getString(DATA_TYPE))
         .userId(snap.getString(USER_ID))
         .dagName(snap.getString(DAG_NAME))
         .build();
