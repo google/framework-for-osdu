@@ -1,0 +1,60 @@
+# Copyright 2020 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+steps:
+  - name: 'maven:3-jdk-8-alpine'
+    entrypoint: 'mvn'
+    env:
+    # parallel builds (-T2) hang for some reason
+    args: [
+      'package', '--batch-mode', '--errors', '--fail-at-end',
+      '--show-version', '-DinstallAtEnd=true', '-DdeployAtEnd=true', '-DskipTests',
+      '-Dmaven.repo.local=/workspace/.m2/repository',
+      '-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN',
+      '-Djava.awt.headless=true', '-Dhttps.protocols=TLSv1.2'
+    ]
+  - name: 'gcr.io/cloud-builders/docker'
+    dir: os-ingest
+    args: [
+      'build',
+      '--build-arg', 'PROVIDER_NAME=${_PROVIDER_NAME}',
+      '-t', 'gcr.io/$PROJECT_ID/os-ingest/ingest-${_PROVIDER_NAME}:${_SHORT_SHA}',
+      '-t', 'gcr.io/$PROJECT_ID/os-ingest/ingest-${_PROVIDER_NAME}:latest',
+      '-f', 'Dockerfile.cloudbuild',
+      '.'
+    ]
+  - name: 'gcr.io/cloud-builders/docker'
+    dir: os-delivery
+    args: [
+      'build',
+      '--build-arg', 'PROVIDER_NAME=${_PROVIDER_NAME}',
+      '-t', 'gcr.io/$PROJECT_ID/os-delivery/delivery-${_PROVIDER_NAME}:${_SHORT_SHA}',
+      '-t', 'gcr.io/$PROJECT_ID/os-delivery/delivery-${_PROVIDER_NAME}:latest',
+      '-f', 'Dockerfile.cloudbuild',
+      '.'
+    ]
+  - name: 'gcr.io/cloud-builders/docker'
+    dir: os-ingest
+    args: [
+      'build',
+      '--build-arg', 'PROVIDER_NAME=${_PROVIDER_NAME}',
+      '-t', 'gcr.io/$PROJECT_ID/os-worfklow/workflow-${_PROVIDER_NAME}:${_SHORT_SHA}',
+      '-t', 'gcr.io/$PROJECT_ID/os-workflow/workflow-${_PROVIDER_NAME}:latest',
+      '-f', 'Dockerfile.cloudbuild',
+      '.'
+    ]
+images:
+  - 'gcr.io/$PROJECT_ID/os-ingest/ingest-${_PROVIDER_NAME}'
+  - 'gcr.io/$PROJECT_ID/os-delivery/delivery-${_PROVIDER_NAME}'
+  - 'gcr.io/$PROJECT_ID/os-workflow/workflow-${_PROVIDER_NAME}'
