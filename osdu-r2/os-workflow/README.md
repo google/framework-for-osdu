@@ -141,7 +141,8 @@ determine which DAG to run.
 
 ### POST /getStatus
 
-Returns the current status of a workflow job. This endpoint is available for external requests.
+The `/getStatus` API endpoint returns the current status of a workflow job. This endpoint is
+available for external requests.
 
 #### Request body
 
@@ -162,8 +163,8 @@ If the workflow ID isn't found in the database, the `404 Not Found` status is re
 ### POST /updateWorkflowStatus
 
 The `/updateWorkflowStatus` API endpoint updates the status of a workflow job. This endpoint is not
-available for external requests. In particular, the Apache Airflow DAGs query this endpoint to set
-the status of a workflow.
+available for external requests. The endpoint is necesasry to let Apache Airflow DAGs update the
+workflow status.
 
 #### Request body
 
