@@ -21,7 +21,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.opengroup.osdu.core.common.model.DataType;
 import org.opengroup.osdu.core.common.model.WorkflowType;
 
 @Data
@@ -34,7 +33,7 @@ public class IngestionStrategy {
   WorkflowType workflowType;
 
   @JsonProperty(Fields.DATA_TYPE)
-  DataType dataType;
+  String dataType;
 
   @JsonProperty(Fields.USER_ID)
   String userId;

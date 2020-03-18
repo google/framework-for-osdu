@@ -18,6 +18,7 @@ package org.opengroup.osdu.workflow.provider.gcp.service;
 
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.BDDAssertions.then;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -44,6 +45,8 @@ import org.opengroup.osdu.workflow.provider.interfaces.SubmitIngestService;
 @DisplayNameGeneration(ReplaceCamelCase.class)
 class SubmitIngestServiceTest {
 
+  private static final String TEST_AIRFLOW_URL = "http://test-airflow";
+  private static final String TEST_CLIENT_ID = "client-id";
   @Mock
   private GoogleIapHelper googleIapHelper;
 
@@ -69,20 +72,21 @@ class SubmitIngestServiceTest {
     // given
     HashMap<String, Object> data = new HashMap<>();
     data.put("key", "value");
-    given(airflowProperties.getUrl()).willReturn("http://test-airflow");
-    given(googleIapHelper.getIapClientId(eq("http://test-airflow"))).willReturn("client-id");
-    given(googleIapHelper.buildIapRequest(anyString(), eq("client-id"), eq(data))).willReturn(httpRequest);
+    given(airflowProperties.getUrl()).willReturn(TEST_AIRFLOW_URL);
+    given(googleIapHelper.getIapClientId(eq(TEST_AIRFLOW_URL))).willReturn(TEST_CLIENT_ID);
+    given(googleIapHelper.buildIapRequest(anyString(), eq(TEST_CLIENT_ID), anyMap()))
+        .willReturn(httpRequest);
     given(httpRequest.execute()).willReturn(httpResponse);
-    given(httpResponse.getContent()).willReturn(new ByteArrayInputStream( "test".getBytes() ));
+    given(httpResponse.getContent()).willReturn(new ByteArrayInputStream("test".getBytes()));
 
     // when
-    boolean result = submitIngestService.submitIngest("dag-name", data);
+    submitIngestService.submitIngest("dag-name", data);
 
     // then
     InOrder inOrder = Mockito.inOrder(airflowProperties, googleIapHelper);
     inOrder.verify(airflowProperties).getUrl();
-    inOrder.verify(googleIapHelper).getIapClientId(eq("http://test-airflow"));
-    inOrder.verify(googleIapHelper).buildIapRequest(anyString(), anyString(), eq(data));
+    inOrder.verify(googleIapHelper).getIapClientId(eq(TEST_AIRFLOW_URL));
+    inOrder.verify(googleIapHelper).buildIapRequest(anyString(), anyString(), anyMap());
     inOrder.verifyNoMoreInteractions();
   }
 
@@ -92,9 +96,10 @@ class SubmitIngestServiceTest {
     // given
     HashMap<String, Object> data = new HashMap<>();
     data.put("key", "value");
-    given(airflowProperties.getUrl()).willReturn("http://test-airflow");
-    given(googleIapHelper.getIapClientId(eq("http://test-airflow"))).willReturn("client-id");
-    given(googleIapHelper.buildIapRequest(anyString(), eq("client-id"), eq(data))).willReturn(httpRequest);
+    given(airflowProperties.getUrl()).willReturn(TEST_AIRFLOW_URL);
+    given(googleIapHelper.getIapClientId(eq(TEST_AIRFLOW_URL))).willReturn(TEST_CLIENT_ID);
+    given(googleIapHelper.buildIapRequest(anyString(), eq(TEST_CLIENT_ID), anyMap()))
+        .willReturn(httpRequest);
     given(httpRequest.execute()).willThrow(new IOException("test-exception"));
 
     // when
@@ -103,7 +108,7 @@ class SubmitIngestServiceTest {
     // then
     then(thrown).satisfies(exception -> {
       then(exception).isInstanceOf(OsduRuntimeException.class);
-      then(exception).hasMessage("Request execution exception");
+      then(exception).hasMessage("test-exception");
     });
   }
 

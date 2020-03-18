@@ -16,7 +16,6 @@
 
 package org.opengroup.osdu.workflow.provider.interfaces;
 
-import org.opengroup.osdu.core.common.model.DataType;
 import org.opengroup.osdu.core.common.model.WorkflowType;
 
 public interface IngestionStrategyService {
@@ -29,5 +28,5 @@ public interface IngestionStrategyService {
    * @param userId       user id
    * @return name of ingestion strategy
    */
-  String determineStrategy(WorkflowType workflowType, DataType dataType, String userId);
+  String determineStrategy(WorkflowType workflowType, String dataType, String userId);
 }

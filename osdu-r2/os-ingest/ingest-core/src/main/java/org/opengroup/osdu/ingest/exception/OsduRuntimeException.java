@@ -16,12 +16,12 @@
 
 package org.opengroup.osdu.ingest.exception;
 
-import org.opengroup.osdu.core.common.exception.OsduException;
+import org.opengroup.osdu.core.common.exception.CoreException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.FORBIDDEN)
-public class OsduRuntimeException extends OsduException {
+public class OsduRuntimeException extends CoreException {
 
   public OsduRuntimeException(String message) {
     super(message);

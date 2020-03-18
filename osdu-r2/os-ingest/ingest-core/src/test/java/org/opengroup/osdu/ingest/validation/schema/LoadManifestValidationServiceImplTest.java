@@ -35,7 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.opengroup.osdu.ingest.ReplaceCamelCase;
 import org.opengroup.osdu.ingest.model.SchemaData;
 import org.opengroup.osdu.ingest.model.WorkProductLoadManifest;
-import org.opengroup.osdu.ingest.provider.interfaces.SchemaRepository;
+import org.opengroup.osdu.ingest.provider.interfaces.ISchemaRepository;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)
@@ -46,11 +46,11 @@ class LoadManifestValidationServiceImplTest {
 
   private ObjectMapper objectMapper = new ObjectMapper();
   @Mock
-  private SchemaRepository schemaRepository;
+  private ISchemaRepository schemaRepository;
   @Mock
-  private JsonValidationService jsonValidationService;
+  private IJsonValidationService jsonValidationService;
 
-  private LoadManifestValidationService loadManifestValidationService;
+  private ILoadManifestValidationService loadManifestValidationService;
 
   @BeforeEach
   void setUp() {

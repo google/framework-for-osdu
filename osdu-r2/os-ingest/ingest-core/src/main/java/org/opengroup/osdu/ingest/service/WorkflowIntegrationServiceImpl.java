@@ -22,28 +22,27 @@ import java.io.IOException;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.opengroup.osdu.core.common.model.DataType;
 import org.opengroup.osdu.core.common.model.WorkflowType;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.core.common.model.workflow.StartWorkflowRequest;
 import org.opengroup.osdu.core.common.model.workflow.StartWorkflowResponse;
-import org.opengroup.osdu.ingest.client.WorkflowServiceClient;
-import org.opengroup.osdu.ingest.exception.OsduServerErrorException;
-import org.opengroup.osdu.ingest.model.Headers;
-import org.opengroup.osdu.ingest.provider.interfaces.WorkflowIntegrationService;
+import org.opengroup.osdu.ingest.client.IWorkflowServiceClient;
+import org.opengroup.osdu.ingest.exception.ServerErrorException;
+import org.opengroup.osdu.ingest.provider.interfaces.IWorkflowIntegrationService;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class WorkflowIntegrationServiceImpl implements WorkflowIntegrationService {
+public class WorkflowIntegrationServiceImpl implements IWorkflowIntegrationService {
 
-  final WorkflowServiceClient workflowServiceClient;
+  final IWorkflowServiceClient workflowServiceClient;
   final ObjectMapper objectMapper;
 
   @Override
-  public String submitIngestToWorkflowService(WorkflowType workflowType, DataType dataType,
+  public String submitIngestToWorkflowService(WorkflowType workflowType, String dataType,
       Map<String, Object> context,
-      Headers commonHeaders) {
+      DpsHeaders commonHeaders) {
 
     StartWorkflowRequest request = StartWorkflowRequest.builder()
         .workflowType(workflowType)
@@ -51,10 +50,7 @@ public class WorkflowIntegrationServiceImpl implements WorkflowIntegrationServic
         .context(context).build();
 
     log.debug("Send start workflow request to workflow service, request - {}", request);
-    try (Response response = workflowServiceClient
-        .startWorkflow(commonHeaders.getAuthorizationToken(), commonHeaders.getPartitionID(),
-            request)) {
-
+    try (Response response = startWorkflow(commonHeaders, request)) {
       StartWorkflowResponse startWorkflowResponse = objectMapper
           .readValue(response.body().asInputStream(), StartWorkflowResponse.class);
 
@@ -62,12 +58,17 @@ public class WorkflowIntegrationServiceImpl implements WorkflowIntegrationServic
           startWorkflowResponse);
 
       if (startWorkflowResponse.getWorkflowId() == null) {
-        throw new OsduServerErrorException("No workflow id in workflow service response");
+        throw new ServerErrorException("No workflow id in workflow service response");
       }
 
       return startWorkflowResponse.getWorkflowId();
     } catch (IOException exception) {
-      throw new OsduServerErrorException("Exception in start workflow request", exception);
+      throw new ServerErrorException("Exception in start workflow request", exception);
     }
+  }
+
+  private Response startWorkflow(DpsHeaders commonHeaders, StartWorkflowRequest request) {
+    return workflowServiceClient.startWorkflow(commonHeaders.getAuthorization(),
+        commonHeaders.getPartitionIdWithFallbackToAccountId(), request);
   }
 }

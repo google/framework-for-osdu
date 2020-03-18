@@ -21,13 +21,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
-import org.opengroup.osdu.core.common.exception.OsduBadRequestException;
-import org.opengroup.osdu.core.common.exception.OsduException;
-import org.opengroup.osdu.core.common.exception.OsduNotFoundException;
-import org.opengroup.osdu.core.common.exception.OsduUnauthorizedException;
-import org.opengroup.osdu.ingest.exception.OsduForbiddenException;
+import org.opengroup.osdu.core.common.exception.BadRequestException;
+import org.opengroup.osdu.core.common.exception.CoreException;
+import org.opengroup.osdu.core.common.exception.NotFoundException;
+import org.opengroup.osdu.core.common.exception.UnauthorizedException;
+import org.opengroup.osdu.ingest.exception.ForbiddenException;
 import org.opengroup.osdu.ingest.exception.OsduRuntimeException;
-import org.opengroup.osdu.ingest.exception.OsduServerErrorException;
+import org.opengroup.osdu.ingest.exception.ServerErrorException;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 
@@ -47,17 +47,17 @@ public class CheckClientResponseAspect {
 
         switch (httpStatus.value()) {
           case 400:
-            throw new OsduBadRequestException(errorMessage);
+            throw new BadRequestException(errorMessage);
           case 401:
-            throw new OsduUnauthorizedException(errorMessage);
+            throw new UnauthorizedException(errorMessage);
           case 403:
-            throw new OsduForbiddenException(errorMessage);
+            throw new ForbiddenException(errorMessage);
           case 404:
-            throw new OsduNotFoundException(errorMessage);
+            throw new NotFoundException(errorMessage);
           case 500:
-            throw new OsduServerErrorException(errorMessage);
+            throw new ServerErrorException(errorMessage);
           default:
-            throw new OsduException(errorMessage);
+            throw new CoreException(errorMessage);
         }
       }
     } catch (IOException exception) {

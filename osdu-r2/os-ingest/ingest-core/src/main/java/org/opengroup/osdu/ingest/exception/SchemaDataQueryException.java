@@ -16,9 +16,9 @@
 
 package org.opengroup.osdu.ingest.exception;
 
-import org.opengroup.osdu.core.common.exception.OsduException;
+import org.opengroup.osdu.core.common.exception.CoreException;
 
-public class SchemaDataQueryException extends OsduException {
+public class SchemaDataQueryException extends CoreException {
 
   public SchemaDataQueryException(String message) {
     super(message);

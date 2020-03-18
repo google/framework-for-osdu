@@ -24,25 +24,25 @@ import javax.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.opengroup.osdu.core.common.exception.OsduBadRequestException;
+import org.opengroup.osdu.core.common.exception.BadRequestException;
 import org.opengroup.osdu.ingest.model.SubmitRequest;
 import org.opengroup.osdu.ingest.model.WorkProductLoadManifest;
-import org.opengroup.osdu.ingest.provider.interfaces.ValidationService;
-import org.opengroup.osdu.ingest.validation.schema.LoadManifestValidationService;
+import org.opengroup.osdu.ingest.provider.interfaces.IValidationService;
+import org.opengroup.osdu.ingest.validation.schema.ILoadManifestValidationService;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ValidationServiceImpl implements ValidationService {
+public class ValidationServiceImpl implements IValidationService {
 
   final Validator validator;
-  final LoadManifestValidationService loadManifestValidationService;
+  final ILoadManifestValidationService loadManifestValidationService;
 
   @Override
   public void validateSubmitRequest(SubmitRequest request) {
     Set<ConstraintViolation<SubmitRequest>> constraintViolations =
-        validator.validate(request, ValidationSequence.class);
+        validator.validate(request, IValidationSequence.class);
     if (CollectionUtils.isNotEmpty(constraintViolations)) {
       throw new ConstraintViolationException("Invalid Submit request", constraintViolations);
     }
@@ -52,7 +52,7 @@ public class ValidationServiceImpl implements ValidationService {
   public void validateManifest(WorkProductLoadManifest loadManifest) {
     Set<ValidationMessage> errors = loadManifestValidationService.validateManifest(loadManifest);
     if (CollectionUtils.isNotEmpty(errors)) {
-      throw new OsduBadRequestException(String.format(
+      throw new BadRequestException(String.format(
           "Failed to validate json from manifest %s, validation result is %s",
           loadManifest, errors));
     }

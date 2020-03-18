@@ -23,22 +23,22 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.core.common.model.file.FileLocationRequest;
 import org.opengroup.osdu.core.common.model.file.FileLocationResponse;
-import org.opengroup.osdu.ingest.client.FileServiceClient;
-import org.opengroup.osdu.ingest.exception.OsduServerErrorException;
-import org.opengroup.osdu.ingest.model.Headers;
-import org.opengroup.osdu.ingest.provider.interfaces.FileIntegrationService;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
+import org.opengroup.osdu.ingest.client.IFileServiceClient;
+import org.opengroup.osdu.ingest.exception.ServerErrorException;
+import org.opengroup.osdu.ingest.provider.interfaces.IFileIntegrationService;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class FileIntegrationServiceImpl implements FileIntegrationService {
+public class FileIntegrationServiceImpl implements IFileIntegrationService {
 
-  final FileServiceClient fileServiceClient;
+  final IFileServiceClient fileServiceClient;
   final ObjectMapper objectMapper;
 
   @Override
-  public FileLocationResponse getFileInfo(String fileId, Headers commonHeaders) {
+  public FileLocationResponse getFileInfo(String fileId, DpsHeaders commonHeaders) {
 
     FileLocationRequest request = FileLocationRequest.builder()
         .fileID(fileId).build();
@@ -46,7 +46,7 @@ public class FileIntegrationServiceImpl implements FileIntegrationService {
     log.debug("Send file location request to file service, request - {}", request);
 
     try (Response response = fileServiceClient
-        .getFileLocation(commonHeaders.getAuthorizationToken(), commonHeaders.getPartitionID(),
+        .getFileLocation(commonHeaders.getAuthorization(), commonHeaders.getPartitionIdWithFallbackToAccountId(),
             request)) {
 
       FileLocationResponse fileLocationResponse = objectMapper
@@ -56,12 +56,12 @@ public class FileIntegrationServiceImpl implements FileIntegrationService {
           fileLocationResponse);
 
       if (fileLocationResponse.getLocation() == null) {
-        throw new OsduServerErrorException("No file location in file service response");
+        throw new ServerErrorException("No file location in file service response");
       }
 
       return fileLocationResponse;
     } catch (IOException exception) {
-      throw new OsduServerErrorException("Exception while getting file location", exception);
+      throw new ServerErrorException("Exception while getting file location", exception);
     }
   }
 

@@ -27,7 +27,6 @@ import org.opengroup.osdu.workflow.provider.interfaces.IngestionStrategyReposito
 import org.opengroup.osdu.workflow.provider.interfaces.WorkflowStatusRepository;
 import org.opengroup.osdu.workflow.provider.interfaces.AuthenticationService;
 import org.opengroup.osdu.workflow.provider.interfaces.SubmitIngestService;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.function.context.FunctionCatalog;
@@ -36,7 +35,7 @@ import org.springframework.cloud.function.context.test.FunctionalSpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
-@FunctionalSpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@FunctionalSpringBootTest
 class WorkflowApplicationTest {
 
   @Inject

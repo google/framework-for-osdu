@@ -21,7 +21,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.opengroup.osdu.ingest.model.Headers.AUTHORIZATION;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,24 +29,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.opengroup.osdu.core.common.model.DataType;
 import org.opengroup.osdu.core.common.model.WorkflowType;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.ingest.ReplaceCamelCase;
-import org.opengroup.osdu.ingest.mapper.HeadersMapper;
-import org.opengroup.osdu.ingest.model.Headers;
 import org.opengroup.osdu.ingest.model.SubmitRequest;
 import org.opengroup.osdu.ingest.model.SubmitResponse;
-import org.opengroup.osdu.ingest.provider.interfaces.AuthenticationService;
-import org.opengroup.osdu.ingest.provider.interfaces.ValidationService;
-import org.opengroup.osdu.ingest.provider.interfaces.WorkflowIntegrationService;
-import org.opengroup.osdu.ingest.provider.interfaces.WorkflowPayloadService;
-import org.springframework.messaging.MessageHeaders;
+import org.opengroup.osdu.ingest.provider.interfaces.IValidationService;
+import org.opengroup.osdu.ingest.provider.interfaces.IWorkflowIntegrationService;
+import org.opengroup.osdu.ingest.provider.interfaces.IWorkflowPayloadService;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)
@@ -58,16 +51,12 @@ class SubmitServiceImplTest {
   private static final String AUTH_TOKEN = "auth-token";
   private static final String WORKFLOW_ID = "workflow-id";
 
-  @Spy
-  private HeadersMapper headersMapper = Mappers.getMapper(HeadersMapper.class);
   @Mock
-  private AuthenticationService authenticationService;
+  private IWorkflowIntegrationService workflowIntegrationService;
   @Mock
-  private WorkflowIntegrationService workflowIntegrationService;
+  private IValidationService validationService;
   @Mock
-  private ValidationService validationService;
-  @Mock
-  private WorkflowPayloadService workflowPayloadService;
+  private IWorkflowPayloadService workflowPayloadService;
 
   @Captor
   ArgumentCaptor<Map<String, Object>> contextCaptor;
@@ -76,8 +65,7 @@ class SubmitServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    submitServiceImpl = new SubmitServiceImpl(headersMapper,
-        authenticationService,
+    submitServiceImpl = new SubmitServiceImpl(
         workflowIntegrationService,
         validationService,
         workflowPayloadService);
@@ -88,23 +76,23 @@ class SubmitServiceImplTest {
 
     // given
     SubmitRequest request = SubmitRequest.builder()
-        .dataType(DataType.WELL_LOG)
+        .dataType("WELL_LOG")
         .fileId(FILE_ID).build();
 
-    Map<String, Object> headersMap = new HashMap<>();
-    headersMap.put(AUTHORIZATION, AUTH_TOKEN);
+    Map<String, String> headersMap = new HashMap<>();
+    headersMap.put(DpsHeaders.AUTHORIZATION, AUTH_TOKEN);
     headersMap.put(PARTITION, PARTITION);
-    MessageHeaders messageHeaders = new MessageHeaders(headersMap);
+    DpsHeaders headers = DpsHeaders.createFromMap(headersMap);
 
     given(workflowPayloadService.getContext(eq(FILE_ID), any()))
         .willReturn(Collections.singletonMap("key", "value"));
 
     given(workflowIntegrationService
-        .submitIngestToWorkflowService(eq(WorkflowType.INGEST), eq(DataType.WELL_LOG)
-            , any(), any(Headers.class))).willReturn(WORKFLOW_ID);
+        .submitIngestToWorkflowService(eq(WorkflowType.INGEST), eq("WELL_LOG")
+            , any(), any(DpsHeaders.class))).willReturn(WORKFLOW_ID);
 
     // when
-    SubmitResponse submitResponse = submitServiceImpl.submit(request, messageHeaders);
+    SubmitResponse submitResponse = submitServiceImpl.submit(request, headers);
 
     // then
     then(submitResponse.getWorkflowId()).isEqualTo(WORKFLOW_ID);

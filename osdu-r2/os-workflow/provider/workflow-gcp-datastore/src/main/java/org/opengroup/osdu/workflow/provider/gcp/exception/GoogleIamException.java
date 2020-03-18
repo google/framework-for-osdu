@@ -16,7 +16,7 @@
 
 package org.opengroup.osdu.workflow.provider.gcp.exception;
 
-import org.opengroup.osdu.core.common.exception.OsduException;
+import org.opengroup.osdu.workflow.exception.OsduException;
 
 public class GoogleIamException extends OsduException {
 

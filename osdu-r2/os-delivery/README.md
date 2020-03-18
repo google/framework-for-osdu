@@ -17,24 +17,24 @@
 
 ## Introduction
 
-The OSDU R2 Prototype Delivery service provides internal and external API endpoints to request file
+The OSDU R2 Prototype Delivery service provides internal and external APIs to request for file
 location data. For example, users can request generation of an individual signed URL per file. Using
 the signed URL, OSDU R2 users will be able to upload their files for ingestion to the system.
 
 The current implementation of the Delivery service supports only cloud platform-specific locations.
-The future implementations might allow the use of on-premises locations.
+The future implementations might allow the use of on premises locations.
 
 ## System interactions
 
-OSDU R2 Delivery defines three workflows &mdash; file upload, file location delivery, and file list
-delivery.
+The Delivery service defines three workflows &mdash; file upload, file location delivery, and file
+list delivery.
 
 ### File upload
 
 The file upload workflow is defined for the `/getLocation` API endpoint. The following diagram
 illustrates the workflow.
 
-![OSDU R2 Delivery Service getLocation](https://user-images.githubusercontent.com/21691607/76421952-233e5100-63ad-11ea-8893-3ad5b6950b4c.png)
+![OSDU_R2_Delivery_Service_getLocation](/uploads/a83ea229ca0cef81344a916e74ee2096/OSDU_R2_Delivery_Service_getLocation.png)
 
 Upon a request to get a location for a file:
 
@@ -42,17 +42,15 @@ Upon a request to get a location for a file:
     * Verify the authentication token. Fail signed URL generation if the token is missing or
     invalid, and then respond with the HTTP error `401 Unauthorized`.
     * Verify the partition ID. Fail signed URL generation if the partition ID is missing or invalid
-    or doesn't have assigned user groups, and then respond with the `401 Unauthorized` status.
-    * Verify the file ID if it's passed in the request. Fail signed URL generation if the file ID is
-    invalid or if this ID was already created. Respond with the `400 Bad Request` status and the
-    `Location for FileID {ID} already exists` error.
-2. Generate a new Universally Unique Identifier (UUID) for the file if an ID isn't provided.
-3. Create an empty object in storage, and then generate a signed URL with the write access for that
-object.
+    or doesn't have assigned user groups. Respond with the HTTP error `400 Bad Request`.
+    * Verify the file ID (only if it's passed in the request body). Fail signed URL generation if
+    the file ID is invalid or if this ID was already created. Respond with the error `Location for
+    fileID {ID} already exists` and `400 Bad Request` status.
+2. Generate a new Universally Unique Identifier (UUID) for the file if a file ID isn't provided.
+3. Create an empty object in Google Cloud Storage, and then generate a signed URL with the write
+access for that object.
     * By the signed URL, the user or application will upload their file for ingestion.
     * The generated signed URL has the maximum duration of 7 days.
-    > **Note**: How a signed URL is generated depends fully on the cloud provider implementation.
-    > This step description is based on the Google Cloud Storage implementation.
 4. Create a record with file data in the database. The record will contain a key-value pair with the
 file ID as the key and object as the value. For more information on the record, consult the
 [Firestore](#firestore) section.
@@ -63,7 +61,7 @@ file ID as the key and object as the value. For more information on the record, 
 The file location delivery workflow is defined for the `/getFileLocation` API. The following diagram
 demonstrates the workflow.
 
-![OSDU R2 Delivery Service getFileLocation](https://user-images.githubusercontent.com/21691607/76414998-11ef4780-63a1-11ea-8a38-cb4dc4522d83.png)
+![OSDU_R2_Delivery_Service_getFileLocation](/uploads/f68011126933398f196e3d0066a9335d/OSDU_R2_Delivery_Service_getFileLocation.png)
 
 Upon request from an OSDU R2 service:
 
@@ -71,7 +69,7 @@ Upon request from an OSDU R2 service:
     * Verify the authentication token. Fail signed URL generation if the token is missing or
     invalid, and then respond with the `401 Unauthorized` status.
     * Verify the partition ID. Fail signed URL generation if the partition ID is missing, invalid or
-    doesn't have assigned user groups, and then respond with the `400 Unauthorized` status.
+    doesn't have assigned user groups, and then respond with the `400 Bad Request` status.
 2. Get the `FileID` value from the incoming request.
 3. Query the database with `FileID` to get the file record.
 4. Return the `Location` and `Driver` from the record to the calling service.
@@ -108,24 +106,22 @@ implementations, the Delivery service will be able to check if file uploads did 
 
 ## API
 
-The OSDU R2 Delivery API includes the following three methods:
+The Delivery service's API includes the following three methods in the OSDU R2 Prototype:
 
 * `/getLocation`, external
 * `/getFileLocation`, internal
 * `/getFileList`, internal
 
-General considerations related to querying the Delivery API:
+Each request to Delivery service's API endpoints needs the meet the following requirements:
 
-* Each endpoint must receive an authentication token in header. Example:
-`"Authorization": "Bearer {token}"`
-* Each endpoint must receive a DELFI partition ID in header. Example:
-`"Partition-Id": "default-partition"`
-* The request and response Content Type is **application/json**
-* No parameters need to be provided in the URL
+* Authentication token needs to be passed in header. Example: `"Authorization": "Bearer {token}"`
+* DELFI partition ID needs to be passed in header. Example: `"Partition-Id": "default-partition"`
+* No parameters are provided in the URL
+* Request and response Content Type is **application/json**
 
 ### POST /getLocation
 
-The `/getLocation` API endpoint creates a new location in the landing zone, such as a GCS bucket.
+Creates a new location in the landing zone, such as a GCS bucket.
 
 #### Request body
 
@@ -211,8 +207,8 @@ curl --location --request POST 'https://{path}/getFileLocation' \
 
 ### POST /getFileList
 
-The `/getFileList` API endpoint allows auditing the attempted file uploads. The endpoint isn't
-available for third-party applications.
+The `/getFileList` API endpoint allows auditing the attempted file uploads. The method is
+unavailable for third-party applications.
 
 The ingestion process depends on whether the client application uploaded a file or not. The
 `/getFileList` API endpoint is designed to let other OSDU services to inspect which user uploaded a
@@ -259,7 +255,7 @@ A paginated result of the records stored in the database.
 | Size             | `short`   | The size of the Content list                     |
 
 Each file record contains the following properties: `FileID`, `Driver`, `Location`, `CreatedAt`,
-`CreatedBy`. For more information on the returned properties, consult the [Firestore
+`CreatedBy`. For more information the returned properties, consult the [Firestore
 collections](#collections) section.
 
 Response example:
@@ -311,8 +307,8 @@ The service account for Delivery service must have the `iam.serviceAccounts.sign
 The predefined **Cloud Functions Service Agent**, **Cloud Run Service Agent**, and **Service Account
 Token Creator** roles include the required permission.
 
-For development, it's recommended to create a separate service account. It's enough to grant the
-**Service Account Token Creator** role to the development service account.
+For development purposes, it's recommended to create a separate service account.
+It's enough to grant the **Service Account Token Creator** role to the development service account.
 
 Obtaining user credentials for Application Default Credentials isn't suitable in this case because
 signing a blob is only available with the service account credentials. Remember to set the

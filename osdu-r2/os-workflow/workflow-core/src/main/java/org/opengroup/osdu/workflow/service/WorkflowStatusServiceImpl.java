@@ -16,12 +16,14 @@
 
 package org.opengroup.osdu.workflow.service;
 
-import javax.inject.Named;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.opengroup.osdu.core.common.model.Headers;
+import org.apache.commons.lang3.tuple.Pair;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.workflow.exception.WorkflowNotFoundException;
-import org.opengroup.osdu.workflow.mapper.HeadersMapper;
 import org.opengroup.osdu.workflow.model.GetStatusRequest;
 import org.opengroup.osdu.workflow.model.GetStatusResponse;
 import org.opengroup.osdu.workflow.model.UpdateStatusRequest;
@@ -39,8 +41,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class WorkflowStatusServiceImpl implements WorkflowStatusService {
 
-  @Named
-  final HeadersMapper headersMapper;
   final AuthenticationService authenticationService;
   final ValidationService validationService;
   final WorkflowStatusRepository workflowStatusRepository;
@@ -51,10 +51,15 @@ public class WorkflowStatusServiceImpl implements WorkflowStatusService {
     log.debug("Request get workflow status with parameters : {}, and headers, {}", request,
         messageHeaders);
 
-    Headers headers = headersMapper.toHeaders(messageHeaders);
+    // TODO remove it after switching to mvc
+    Map<String, String> input = messageHeaders.entrySet().stream()
+        .map(entry -> Pair.of(entry.getKey(), Objects.toString(entry.getValue(), "")))
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-    authenticationService.checkAuthentication(headers.getAuthorizationToken(),
-        headers.getPartitionID());
+    DpsHeaders headers = DpsHeaders.createFromMap(input);
+
+    authenticationService.checkAuthentication(headers.getAuthorization(),
+        headers.getPartitionId());
     validationService.validateGetStatusRequest(request);
 
     WorkflowStatus workflowStatus = workflowStatusRepository
@@ -78,15 +83,19 @@ public class WorkflowStatusServiceImpl implements WorkflowStatusService {
     log.debug("Request update workflow status with parameters : {}, and headers, {}", request,
         messageHeaders);
 
-    Headers headers = headersMapper.toHeaders(messageHeaders);
+    // TODO remove it after switching to mvc
+    Map<String, String> input = messageHeaders.entrySet().stream()
+        .map(entry -> Pair.of(entry.getKey(), Objects.toString(entry.getValue(), "")))
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-    authenticationService.checkAuthentication(headers.getAuthorizationToken(),
-        headers.getPartitionID());
+    DpsHeaders headers = DpsHeaders.createFromMap(input);
+
+    authenticationService.checkAuthentication(headers.getAuthorization(),
+        headers.getPartitionId());
     validationService.validateUpdateStatusRequest(request);
 
     WorkflowStatus workflowStatus = workflowStatusRepository
         .updateWorkflowStatus(request.getWorkflowId(), request.getWorkflowStatusType());
-
 
     UpdateStatusResponse response = UpdateStatusResponse.builder()
         .workflowId(workflowStatus.getWorkflowId())

@@ -18,14 +18,15 @@ package org.opengroup.osdu.workflow.service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
-import javax.inject.Named;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
-import org.opengroup.osdu.core.common.model.Headers;
+import org.apache.commons.lang3.tuple.Pair;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.core.common.model.workflow.StartWorkflowRequest;
 import org.opengroup.osdu.core.common.model.workflow.StartWorkflowResponse;
-import org.opengroup.osdu.workflow.mapper.HeadersMapper;
 import org.opengroup.osdu.workflow.model.WorkflowStatus;
 import org.opengroup.osdu.workflow.model.WorkflowStatusType;
 import org.opengroup.osdu.workflow.provider.interfaces.AuthenticationService;
@@ -41,8 +42,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class WorkflowServiceImpl implements WorkflowService {
 
-  @Named
-  final HeadersMapper headersMapper;
   final AuthenticationService authenticationService;
   final ValidationService validationService;
   final IngestionStrategyService ingestionStrategyService;
@@ -53,10 +52,15 @@ public class WorkflowServiceImpl implements WorkflowService {
   public StartWorkflowResponse startWorkflow(StartWorkflowRequest request,
       MessageHeaders messageHeaders) {
 
-    Headers headers = headersMapper.toHeaders(messageHeaders);
+    // TODO remove it after switching to mvc
+    Map<String, String> input = messageHeaders.entrySet().stream()
+        .map(entry -> Pair.of(entry.getKey(), Objects.toString(entry.getValue(), "")))
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-    authenticationService.checkAuthentication(headers.getAuthorizationToken(),
-        headers.getPartitionID());
+    DpsHeaders headers = DpsHeaders.createFromMap(input);
+
+    authenticationService.checkAuthentication(headers.getAuthorization(),
+        headers.getPartitionId());
     validationService.validateStartWorkflowRequest(request);
 
     // TODO will be populated after authorization came

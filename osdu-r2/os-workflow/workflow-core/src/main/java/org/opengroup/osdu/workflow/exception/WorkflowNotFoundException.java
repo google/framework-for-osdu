@@ -16,7 +16,6 @@
 
 package org.opengroup.osdu.workflow.exception;
 
-import org.opengroup.osdu.core.common.exception.OsduException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 

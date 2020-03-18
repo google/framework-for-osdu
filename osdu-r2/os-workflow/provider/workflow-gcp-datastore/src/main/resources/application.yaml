@@ -27,7 +27,10 @@ spring:
 
         # TODO: remove it after defined tenant info and auth
         namespace: odes-namespace
-
+osdu:
+  data-type:
+    default-type: opaque
 gcp:
   airflow:
     url: ${GCP_AIRFLOW_URL}
+

@@ -21,21 +21,20 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.opengroup.osdu.core.common.model.DataType;
-import org.opengroup.osdu.ingest.validation.Extended;
+import org.opengroup.osdu.ingest.validation.IExtended;
 import org.opengroup.osdu.ingest.validation.ValidSubmitRequest;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ValidSubmitRequest(groups = Extended.class)
+@ValidSubmitRequest(groups = IExtended.class)
 public class SubmitRequest {
 
   @JsonProperty("FileID")
   String fileId;
 
   @JsonProperty("DataType")
-  DataType dataType;
+  String dataType;
 
 }
