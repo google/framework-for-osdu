@@ -20,48 +20,38 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.Map;
-import javax.inject.Named;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.opengroup.osdu.core.common.model.DataType;
 import org.opengroup.osdu.core.common.model.WorkflowType;
-import org.opengroup.osdu.ingest.mapper.HeadersMapper;
-import org.opengroup.osdu.ingest.model.Headers;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.ingest.model.SubmitResponse;
 import org.opengroup.osdu.ingest.model.WorkProductLoadManifest;
-import org.opengroup.osdu.ingest.provider.interfaces.AuthenticationService;
-import org.opengroup.osdu.ingest.provider.interfaces.OsduSubmitService;
-import org.opengroup.osdu.ingest.provider.interfaces.ValidationService;
-import org.opengroup.osdu.ingest.provider.interfaces.WorkflowIntegrationService;
-import org.springframework.messaging.MessageHeaders;
+import org.opengroup.osdu.ingest.model.property.DataTypeProperties;
+import org.opengroup.osdu.ingest.provider.interfaces.IOsduSubmitService;
+import org.opengroup.osdu.ingest.provider.interfaces.IValidationService;
+import org.opengroup.osdu.ingest.provider.interfaces.IWorkflowIntegrationService;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class OsduSubmitServiceImpl implements OsduSubmitService {
+public class OsduSubmitServiceImpl implements IOsduSubmitService {
 
-  @Named
-  final HeadersMapper headersMapper;
-  final AuthenticationService authenticationService;
-  final WorkflowIntegrationService workflowIntegrationService;
-  final ValidationService validationService;
+  final IWorkflowIntegrationService workflowIntegrationService;
+  final IValidationService validationService;
   final ObjectMapper objectMapper;
+  final DataTypeProperties dataTypeProperties;
 
   @Override
-  public SubmitResponse submit(WorkProductLoadManifest manifest, MessageHeaders messageHeaders) {
-    log.debug("Submit manifest with payload - {} and headers - {}", manifest, messageHeaders);
+  public SubmitResponse submit(WorkProductLoadManifest manifest, DpsHeaders headers) {
+    log.debug("Submit manifest with payload - {} and headers - {}", manifest, headers);
 
-    Headers headers = headersMapper.toHeaders(messageHeaders);
-
-    authenticationService.checkAuthentication(headers.getAuthorizationToken(),
-        headers.getPartitionID());
     validationService.validateManifest(manifest);
 
     Map<String, Object> context = populateContext(manifest);
 
-    String workflowId = workflowIntegrationService
-        .submitIngestToWorkflowService(WorkflowType.OSDU, DataType.OSDU, context, headers);
+    String workflowId = workflowIntegrationService.submitIngestToWorkflowService(WorkflowType.OSDU,
+        dataTypeProperties.getLoadManifestType(), context, headers);
 
     SubmitResponse response = SubmitResponse.builder().workflowId(workflowId).build();
     log.debug("Submit manifest response - {}", response);

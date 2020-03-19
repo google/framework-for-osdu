@@ -34,7 +34,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.opengroup.osdu.core.common.model.DataType;
 import org.opengroup.osdu.core.common.model.WorkflowType;
 import org.opengroup.osdu.core.common.model.workflow.StartWorkflowRequest;
 import org.opengroup.osdu.workflow.ReplaceCamelCase;
@@ -55,6 +54,7 @@ class ValidationServiceImplTest {
   private static final String WORKFLOW_ID_VALUE = "workflow-id";
   private static final String WORKFLOW_TYPE = "WorkflowType";
   private static final String CONTEXT = "Context";
+  private static final String DATA_TYPE = "test-type";
 
   private static Validator validator;
   private ValidationService validationService;
@@ -254,7 +254,7 @@ class ValidationServiceImplTest {
       // given
       StartWorkflowRequest request = StartWorkflowRequest.builder()
           .workflowType(WorkflowType.INGEST)
-          .dataType(DataType.WELL_LOG)
+          .dataType(DATA_TYPE)
           .context(new HashMap<>()).build();
 
       // when
@@ -270,7 +270,7 @@ class ValidationServiceImplTest {
       // given
       StartWorkflowRequest request = StartWorkflowRequest.builder()
           .workflowType(null)
-          .dataType(DataType.WELL_LOG)
+          .dataType(DATA_TYPE)
           .context(new HashMap<>()).build();
 
       // when
@@ -293,7 +293,7 @@ class ValidationServiceImplTest {
       // given
       StartWorkflowRequest request = StartWorkflowRequest.builder()
           .workflowType(WorkflowType.INGEST)
-          .dataType(DataType.WELL_LOG)
+          .dataType(DATA_TYPE)
           .context(null).build();
 
       // when

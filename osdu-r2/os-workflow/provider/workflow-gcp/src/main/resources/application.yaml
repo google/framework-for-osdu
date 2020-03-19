@@ -17,3 +17,6 @@
 gcp:
   airflow:
     url: ${GCP_AIRFLOW_URL}
+osdu:
+  data-type:
+    default-type: opaque

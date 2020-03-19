@@ -16,8 +16,6 @@
 
 package org.opengroup.osdu.delivery.client;
 
-import static org.opengroup.osdu.core.common.model.Headers.AUTHORIZATION;
-
 import org.opengroup.osdu.delivery.model.Headers;
 import org.opengroup.osdu.delivery.model.entitlement.UserGroups;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -30,7 +28,7 @@ public interface EntitlementsClient {
 
   //TODO: Add to dps headers once they are merged into core-common
   @GetMapping("/groups")
-  UserGroups getUserGroups(@RequestHeader(AUTHORIZATION) String authorizationToken,
+  UserGroups getUserGroups(@RequestHeader(Headers.AUTHORIZATION) String authorizationToken,
       @RequestHeader(Headers.APP_KEY) String applicationKey,
       @RequestHeader(Headers.SLB_DATA_PARTITION_ID) String partition);
 

@@ -31,21 +31,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.ingest.exception.SchemaDataQueryException;
 import org.opengroup.osdu.ingest.model.SchemaData;
 import org.opengroup.osdu.ingest.model.SchemaData.Fields;
-import org.opengroup.osdu.ingest.provider.gcp.mapper.SchemaDataMapper;
+import org.opengroup.osdu.ingest.provider.gcp.mapper.ISchemaDataMapper;
 import org.opengroup.osdu.ingest.provider.gcp.model.dto.SchemaDataDto;
-import org.opengroup.osdu.ingest.provider.interfaces.SchemaRepository;
+import org.opengroup.osdu.ingest.provider.interfaces.ISchemaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @Slf4j
 @RequiredArgsConstructor
-public class FirestoreSchemaRepository implements SchemaRepository {
+public class FirestoreSchemaRepository implements ISchemaRepository {
 
   private static final String COLLECTION_NAME = "schema-data";
 
   final Firestore firestore;
   @Named
-  final SchemaDataMapper schemaDataMapper;
+  final ISchemaDataMapper schemaDataMapper;
 
   @Override
   public SchemaData findByTitle(String title) {

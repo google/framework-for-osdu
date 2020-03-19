@@ -26,11 +26,11 @@ import org.opengroup.osdu.ingest.provider.gcp.exception.SchemaMappingException;
 import org.opengroup.osdu.ingest.provider.gcp.model.entity.SchemaDataEntity;
 
 @Slf4j
-public abstract class SchemaDataMapperDecorator implements SchemaDataMapper {
+public abstract class SchemaDataMapperDecorator implements ISchemaDataMapper {
 
   @Inject
-  @Named("org.opengroup.osdu.ingest.provider.gcp.mapper.SchemaDataMapperImpl_")
-  SchemaDataMapper schemaDataMapper;
+  @Named("org.opengroup.osdu.ingest.provider.gcp.mapper.ISchemaDataMapperImpl_")
+  ISchemaDataMapper schemaDataMapper;
   @Inject
   ObjectMapper objectMapper;
 

@@ -17,9 +17,9 @@
 package org.opengroup.osdu.workflow.provider.interfaces;
 
 import javax.validation.ConstraintViolationException;
-import org.opengroup.osdu.core.common.exception.OsduUnauthorizedException;
 import org.opengroup.osdu.core.common.model.workflow.StartWorkflowRequest;
 import org.opengroup.osdu.core.common.model.workflow.StartWorkflowResponse;
+import org.opengroup.osdu.workflow.exception.OsduUnauthorizedException;
 import org.springframework.messaging.MessageHeaders;
 
 public interface WorkflowService {

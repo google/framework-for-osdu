@@ -17,10 +17,10 @@
 package org.opengroup.osdu.workflow.service;
 
 import lombok.RequiredArgsConstructor;
-import org.opengroup.osdu.core.common.model.DataType;
 import org.opengroup.osdu.core.common.model.WorkflowType;
 import org.opengroup.osdu.workflow.exception.IngestionStrategyNotFoundException;
 import org.opengroup.osdu.workflow.model.IngestionStrategy;
+import org.opengroup.osdu.workflow.property.DataTypeProperties;
 import org.opengroup.osdu.workflow.provider.interfaces.IngestionStrategyRepository;
 import org.opengroup.osdu.workflow.provider.interfaces.IngestionStrategyService;
 import org.springframework.stereotype.Service;
@@ -30,14 +30,17 @@ import org.springframework.stereotype.Service;
 public class IngestionStrategyServiceImpl implements IngestionStrategyService {
 
   final IngestionStrategyRepository ingestionStrategyRepository;
+  final DataTypeProperties dataTypeProperties;
 
   @Override
-  public String determineStrategy(WorkflowType workflowType, DataType dataType, String userId) {
+  public String determineStrategy(WorkflowType workflowType, String dataType, String userId) {
+
+    String defaultType = dataTypeProperties.getDefaultType();
 
     IngestionStrategy ingestionStrategy = ingestionStrategyRepository
         .findByWorkflowTypeAndDataTypeAndUserId(workflowType, dataType, userId);
 
-    if (ingestionStrategy == null && DataType.OPAQUE.equals(dataType)) {
+    if (ingestionStrategy == null && defaultType.equals(dataType)) {
       ingestionStrategy = ingestionStrategyRepository
           .findByWorkflowTypeAndDataTypeAndUserId(workflowType, null, userId);
     }
@@ -47,7 +50,7 @@ public class IngestionStrategyServiceImpl implements IngestionStrategyService {
           .findByWorkflowTypeAndDataTypeAndUserId(workflowType, dataType, null);
     }
 
-    if (ingestionStrategy == null && userId != null && DataType.OPAQUE.equals(dataType)) {
+    if (ingestionStrategy == null && userId != null && defaultType.equals(dataType)) {
       ingestionStrategy = ingestionStrategyRepository
           .findByWorkflowTypeAndDataTypeAndUserId(workflowType, null, null);
     }

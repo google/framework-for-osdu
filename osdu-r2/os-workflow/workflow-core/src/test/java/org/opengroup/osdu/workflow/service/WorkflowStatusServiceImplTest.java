@@ -34,10 +34,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.opengroup.osdu.core.common.model.Headers;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.workflow.ReplaceCamelCase;
 import org.opengroup.osdu.workflow.exception.WorkflowNotFoundException;
-import org.opengroup.osdu.workflow.mapper.HeadersMapper;
 import org.opengroup.osdu.workflow.model.GetStatusRequest;
 import org.opengroup.osdu.workflow.model.GetStatusResponse;
 import org.opengroup.osdu.workflow.model.UpdateStatusRequest;
@@ -57,8 +56,6 @@ class WorkflowStatusServiceImplTest {
   private static final String PARTITION = "partition";
   private static final String WORKFLOW_ID = "workflow-id";
 
-  @Spy
-  private HeadersMapper headersMapper = Mappers.getMapper(HeadersMapper.class);
   @Mock
   private AuthenticationService authenticationService;
   @Mock
@@ -70,7 +67,7 @@ class WorkflowStatusServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    workflowStatusService = new WorkflowStatusServiceImpl(headersMapper, authenticationService,
+    workflowStatusService = new WorkflowStatusServiceImpl(authenticationService,
         validationService, workflowStatusRepository);
   }
 
@@ -94,9 +91,8 @@ class WorkflowStatusServiceImplTest {
 
     // then
     then(workflowStatusResponse.getWorkflowStatusType()).isEqualTo(WorkflowStatusType.SUBMITTED);
-    InOrder inOrder = Mockito.inOrder(headersMapper, authenticationService, validationService,
+    InOrder inOrder = Mockito.inOrder(authenticationService, validationService,
         workflowStatusRepository);
-    inOrder.verify(headersMapper).toHeaders(headers);
     inOrder.verify(authenticationService).checkAuthentication(AUTHORIZATION_TOKEN, PARTITION);
     inOrder.verify(validationService).validateGetStatusRequest(request);
     inOrder.verify(workflowStatusRepository)
@@ -146,9 +142,8 @@ class WorkflowStatusServiceImplTest {
 
     // then
     then(updateStatusResponse.getWorkflowStatusType()).isEqualTo(WorkflowStatusType.RUNNING);
-    InOrder inOrder = Mockito.inOrder(headersMapper, authenticationService, validationService,
+    InOrder inOrder = Mockito.inOrder(authenticationService, validationService,
         workflowStatusRepository);
-    inOrder.verify(headersMapper).toHeaders(headers);
     inOrder.verify(authenticationService).checkAuthentication(AUTHORIZATION_TOKEN, PARTITION);
     inOrder.verify(validationService).validateUpdateStatusRequest(request);
     inOrder.verify(workflowStatusRepository)
@@ -158,8 +153,8 @@ class WorkflowStatusServiceImplTest {
 
   private MessageHeaders getMessageHeaders() {
     Map<String, Object> headers = new HashMap<>();
-    headers.put(Headers.AUTHORIZATION, AUTHORIZATION_TOKEN);
-    headers.put(Headers.PARTITION, PARTITION);
+    headers.put(DpsHeaders.AUTHORIZATION, AUTHORIZATION_TOKEN);
+    headers.put(DpsHeaders.DATA_PARTITION_ID, PARTITION);
 
     return new MessageHeaders(headers);
   }

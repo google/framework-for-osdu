@@ -24,13 +24,13 @@ import com.networknt.schema.ValidationMessage;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.opengroup.osdu.ingest.exception.OsduServerErrorException;
+import org.opengroup.osdu.ingest.exception.ServerErrorException;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class JsonValidationServiceImpl implements JsonValidationService {
+public class JsonValidationServiceImpl implements IJsonValidationService {
 
   @Override
   public Set<ValidationMessage> validate(JsonNode schema, JsonNode toValidate) {
@@ -39,7 +39,7 @@ public class JsonValidationServiceImpl implements JsonValidationService {
           .getSchema(schema)
           .validate(toValidate);
     } catch (JsonSchemaException e) {
-      throw new OsduServerErrorException(
+      throw new ServerErrorException(
           String.format("Error creating json validation schema from json object: %s", schema), e);
     }
   }

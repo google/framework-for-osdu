@@ -28,6 +28,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.Response;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.Test;
@@ -38,11 +40,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opengroup.osdu.core.common.model.file.FileLocationRequest;
 import org.opengroup.osdu.core.common.model.file.FileLocationResponse;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.ingest.ReplaceCamelCase;
-import org.opengroup.osdu.ingest.client.FileServiceClient;
-import org.opengroup.osdu.ingest.exception.OsduServerErrorException;
-import org.opengroup.osdu.ingest.model.Headers;
-import org.opengroup.osdu.ingest.provider.interfaces.FileIntegrationService;
+import org.opengroup.osdu.ingest.client.IFileServiceClient;
+import org.opengroup.osdu.ingest.exception.ServerErrorException;
+import org.opengroup.osdu.ingest.provider.interfaces.IFileIntegrationService;
 import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
@@ -57,12 +59,12 @@ class FileIntegrationServiceTest {
   private ObjectMapper mapper = new ObjectMapper();
 
   @Mock
-  private FileServiceClient fileServiceClient;
+  private IFileServiceClient fileServiceClient;
 
   @Captor
   ArgumentCaptor<FileLocationRequest> fileLocationRequestCaptor;
 
-  FileIntegrationService fileIntegrationService;
+  IFileIntegrationService fileIntegrationService;
 
   @BeforeEach
   void setUp() {
@@ -73,10 +75,10 @@ class FileIntegrationServiceTest {
   void shouldGetFileInfo() throws JsonProcessingException {
 
     // given
-    Headers requestHeaders = Headers.builder()
-        .authorizationToken(TEST_AUTH_TOKEN)
-        .partitionID(TEST_PARTITION)
-        .build();
+    Map<String, String> headersMap = new HashMap<>();
+    headersMap.put(DpsHeaders.AUTHORIZATION, TEST_AUTH_TOKEN);
+    headersMap.put(DpsHeaders.DATA_PARTITION_ID, TEST_PARTITION);
+    DpsHeaders requestHeaders = DpsHeaders.createFromMap(headersMap);
 
     FileLocationResponse fileLocationResponse = FileLocationResponse.builder().driver(GCP)
         .location(FILE_LOCATION)
@@ -105,10 +107,10 @@ class FileIntegrationServiceTest {
   void shouldThrowExceptionIfResponseIsEmpty() throws JsonProcessingException {
 
     // given
-    Headers requestHeaders = Headers.builder()
-        .authorizationToken(TEST_AUTH_TOKEN)
-        .partitionID(TEST_PARTITION)
-        .build();
+    Map<String, String> headersMap = new HashMap<>();
+    headersMap.put(DpsHeaders.AUTHORIZATION, TEST_AUTH_TOKEN);
+    headersMap.put(DpsHeaders.DATA_PARTITION_ID, TEST_PARTITION);
+    DpsHeaders requestHeaders = DpsHeaders.createFromMap(headersMap);
 
     FileLocationResponse fileLocationResponse = FileLocationResponse.builder().driver(null)
         .location(null)
@@ -126,7 +128,7 @@ class FileIntegrationServiceTest {
         .getFileInfo(FILE_ID, requestHeaders));
 
     // then
-    then(thrown).isInstanceOf(OsduServerErrorException.class);
+    then(thrown).isInstanceOf(ServerErrorException.class);
     then(thrown.getMessage()).isEqualTo("No file location in file service response");
   }
 }

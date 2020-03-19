@@ -16,30 +16,47 @@
 
 package org.opengroup.osdu.ingest.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.opengroup.osdu.core.common.model.file.FileLocationResponse;
-import org.opengroup.osdu.ingest.model.Headers;
-import org.opengroup.osdu.ingest.provider.interfaces.FileIntegrationService;
-import org.opengroup.osdu.ingest.provider.interfaces.WorkflowPayloadService;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
+import org.opengroup.osdu.ingest.model.IngestPayload;
+import org.opengroup.osdu.ingest.model.property.WorkflowProperties;
+import org.opengroup.osdu.ingest.provider.interfaces.IFileIntegrationService;
+import org.opengroup.osdu.ingest.provider.interfaces.IWorkflowPayloadService;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class WorkflowPayloadServiceImpl implements WorkflowPayloadService {
+public class WorkflowPayloadServiceImpl implements IWorkflowPayloadService {
 
-  final FileIntegrationService fileIntegrationService;
+  final WorkflowProperties workflowProperties;
+  final IFileIntegrationService fileIntegrationService;
+  final ObjectMapper objectMapper;
 
   @Override
-  public Map<String, Object> getContext(String fileId, Headers headers) {
+  public Map<String, Object> getContext(String fileId, DpsHeaders headers) {
 
     FileLocationResponse fileLocation = fileIntegrationService.getFileInfo(fileId, headers);
 
-    Map<String, Object> context = new HashMap<>();
-    context.put("FileID", fileId);
+    Map<String, Object> data = new HashMap<>();
+    data.put("FileID", fileId);
 
-    return context;
+    IngestPayload ingestPayload = IngestPayload.builder()
+        .acl(headers.getAcl())
+        .legalTags(headers.getLegalTags())
+        .authorizationToken(headers.getAuthorization())
+        .partitionID(headers.getPartitionIdWithFallbackToAccountId())
+        .appKey(workflowProperties.getAppKey())
+        .data(data)
+        .build();
+
+    return objectMapper
+        .convertValue(ingestPayload, new TypeReference<HashMap<String, Object>>() {
+        });
   }
 
 }

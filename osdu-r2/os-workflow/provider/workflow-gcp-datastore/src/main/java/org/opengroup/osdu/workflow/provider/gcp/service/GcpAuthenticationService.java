@@ -18,7 +18,7 @@ package org.opengroup.osdu.workflow.provider.gcp.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.opengroup.osdu.core.common.exception.OsduUnauthorizedException;
+import org.opengroup.osdu.workflow.exception.OsduUnauthorizedException;
 import org.opengroup.osdu.workflow.provider.interfaces.AuthenticationService;
 import org.springframework.stereotype.Service;
 

@@ -16,7 +16,8 @@
 
 package org.opengroup.osdu.workflow.provider.interfaces;
 
-import org.opengroup.osdu.core.common.exception.OsduUnauthorizedException;
+
+import org.opengroup.osdu.workflow.exception.OsduUnauthorizedException;
 
 public interface AuthenticationService {
 

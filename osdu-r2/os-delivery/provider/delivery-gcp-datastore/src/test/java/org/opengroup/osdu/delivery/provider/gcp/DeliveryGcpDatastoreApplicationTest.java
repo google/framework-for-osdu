@@ -33,20 +33,17 @@ import org.opengroup.osdu.delivery.provider.interfaces.LocationService;
 import org.opengroup.osdu.delivery.service.FileListServiceImpl;
 import org.opengroup.osdu.delivery.service.FileServiceImpl;
 import org.opengroup.osdu.delivery.service.LocationServiceImpl;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.function.context.FunctionCatalog;
 import org.springframework.cloud.function.context.config.RoutingFunction;
 import org.springframework.cloud.function.context.test.FunctionalSpringBootTest;
-import org.springframework.cloud.gcp.data.datastore.core.DatastoreTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)
-@FunctionalSpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class DeliveryGcpDatastoreApplicationTest {
+@FunctionalSpringBootTest
+class DeliveryGcpDatastoreApplicationTest {
 
   @Inject
   private FunctionCatalog catalog;

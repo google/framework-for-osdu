@@ -16,9 +16,9 @@
 
 package org.opengroup.osdu.ingest.provider.gcp.exception;
 
-import org.opengroup.osdu.core.common.exception.OsduException;
+import org.opengroup.osdu.core.common.exception.CoreException;
 
-public class SchemaMappingException extends OsduException {
+public class SchemaMappingException extends CoreException {
 
   public SchemaMappingException(String message) {
     super(message);

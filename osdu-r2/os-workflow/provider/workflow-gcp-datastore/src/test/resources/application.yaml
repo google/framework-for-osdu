@@ -29,7 +29,8 @@ osdu:
   workflow-service:
     url: https//test-worflow-service
     #start-workflow-endpoint: startWorkflowFunction
-
+  data-type:
+    default-type: opaque
 gcp:
   airflow:
     url: https://test-airflow

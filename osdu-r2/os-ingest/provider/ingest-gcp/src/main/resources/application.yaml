@@ -19,6 +19,5 @@ osdu:
   workflow-service:
     url: ${OSDU_WORKFLOW_SERVICE_URL}
     start-workflow-endpoint: startWorkflowFunction
-
-validation:
-  allowed-datatypes: well_log, opaque
+  data-type:
+    load-manifest-type: osdu

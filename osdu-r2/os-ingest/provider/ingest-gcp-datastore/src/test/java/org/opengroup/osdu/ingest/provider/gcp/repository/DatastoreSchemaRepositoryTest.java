@@ -31,9 +31,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opengroup.osdu.ingest.ReplaceCamelCase;
 import org.opengroup.osdu.ingest.model.SchemaData;
-import org.opengroup.osdu.ingest.provider.gcp.mapper.SchemaDataMapper;
+import org.opengroup.osdu.ingest.provider.gcp.mapper.ISchemaDataMapper;
 import org.opengroup.osdu.ingest.provider.gcp.model.entity.SchemaDataEntity;
-import org.opengroup.osdu.ingest.provider.interfaces.SchemaRepository;
+import org.opengroup.osdu.ingest.provider.interfaces.ISchemaRepository;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)
@@ -43,13 +43,13 @@ class DatastoreSchemaRepositoryTest {
   private static final String DRAFT_07_SCHEMA_PATH = "3-schemas/TinySchemaDraft7.json";
 
   @Mock
-  private SchemaDataMapper schemaDataMapper;
+  private ISchemaDataMapper schemaDataMapper;
   @Mock
-  private SchemaDataEntityRepository entityRepository;
+  private ISchemaDataEntityRepository entityRepository;
 
   private ObjectMapper objectMapper = new ObjectMapper();
 
-  private SchemaRepository schemaRepository;
+  private ISchemaRepository schemaRepository;
 
   @BeforeEach
   void setUp() {

@@ -30,7 +30,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.opengroup.osdu.core.common.model.DataType;
 import org.opengroup.osdu.core.common.model.WorkflowType;
 import org.opengroup.osdu.workflow.ReplaceCamelCase;
 import org.opengroup.osdu.workflow.model.IngestionStrategy;
@@ -73,7 +72,7 @@ class DatastoreIngestionStrategyRepositoryTest {
 
     // when
     IngestionStrategy ingestionStrategy = ingestionStrategyRepository
-        .findByWorkflowTypeAndDataTypeAndUserId(WorkflowType.INGEST, DataType.WELL_LOG, USER);
+        .findByWorkflowTypeAndDataTypeAndUserId(WorkflowType.INGEST, "well_log", USER);
 
     // then
     then(ingestionStrategy).isEqualTo(getIngestionStrategy());
@@ -89,7 +88,7 @@ class DatastoreIngestionStrategyRepositoryTest {
   void shouldReturnNullWhenNothingWasFound() {
     // when
     IngestionStrategy ingestionStrategy = ingestionStrategyRepository
-        .findByWorkflowTypeAndDataTypeAndUserId(WorkflowType.INGEST, DataType.WELL_LOG, USER);
+        .findByWorkflowTypeAndDataTypeAndUserId(WorkflowType.INGEST, "well_log", USER);
 
     // then
     then(ingestionStrategy).isNull();
@@ -104,7 +103,7 @@ class DatastoreIngestionStrategyRepositoryTest {
   private IngestionStrategyEntity getIngestionStrategyEntity() {
     return IngestionStrategyEntity.builder()
         .workflowType(WorkflowType.INGEST.name())
-        .dataType(DataType.WELL_LOG.name())
+        .dataType("well_log")
         .userId(USER)
         .build();
   }
@@ -112,7 +111,7 @@ class DatastoreIngestionStrategyRepositoryTest {
   private IngestionStrategy getIngestionStrategy() {
     return IngestionStrategy.builder()
         .workflowType(WorkflowType.INGEST)
-        .dataType(DataType.WELL_LOG)
+        .dataType("well_log")
         .userId(USER)
         .build();
   }

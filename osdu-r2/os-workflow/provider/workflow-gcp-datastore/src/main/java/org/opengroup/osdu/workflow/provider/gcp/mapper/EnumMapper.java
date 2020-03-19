@@ -16,7 +16,6 @@
 
 package org.opengroup.osdu.workflow.provider.gcp.mapper;
 
-import org.opengroup.osdu.core.common.model.DataType;
 import org.opengroup.osdu.core.common.model.WorkflowType;
 import org.opengroup.osdu.workflow.model.WorkflowStatusType;
 import org.springframework.stereotype.Component;
@@ -39,6 +38,7 @@ public class EnumMapper {
 
   /**
    * Map a lower case string to the {@link WorkflowType}
+   *
    * @param workflowType workflowType
    * @return {@link WorkflowType} constant
    */
@@ -47,31 +47,6 @@ public class EnumMapper {
       return null;
     }
     return WorkflowType.valueOf(workflowType.toUpperCase());
-  }
-
-  /**
-   * Map the {@link DataType} to a lower case string.
-   *
-   * @param dataType dataType
-   * @return lower case string
-   */
-  public String asString(DataType dataType) {
-    if (dataType == null) {
-      return null;
-    }
-    return dataType.name().toLowerCase();
-  }
-
-  /**
-   * Map a lower case string to the {@link DataType}
-   * @param dataType dataType
-   * @return {@link DataType} constant
-   */
-  public DataType toDataType(String dataType) {
-    if (dataType == null) {
-      return null;
-    }
-    return DataType.valueOf(dataType.toUpperCase());
   }
 
   /**
@@ -89,6 +64,7 @@ public class EnumMapper {
 
   /**
    * Map a lower case string to the {@link WorkflowStatusType}
+   *
    * @param workflowStatusType workflowStatusType
    * @return {@link WorkflowStatusType} constant
    */

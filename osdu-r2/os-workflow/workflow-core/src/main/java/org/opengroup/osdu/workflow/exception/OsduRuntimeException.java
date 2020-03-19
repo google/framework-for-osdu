@@ -16,8 +16,6 @@
 
 package org.opengroup.osdu.workflow.exception;
 
-import org.opengroup.osdu.core.common.exception.OsduException;
-
 public class OsduRuntimeException extends OsduException {
 
   public OsduRuntimeException(String message) {

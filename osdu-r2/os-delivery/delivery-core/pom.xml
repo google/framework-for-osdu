@@ -34,10 +34,6 @@
   <name>delivery-core</name>
   <description>Core project for the Delivery service</description>
 
-  <properties>
-    <os-core-common.version>0.0.5</os-core-common.version>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.springframework.cloud</groupId>

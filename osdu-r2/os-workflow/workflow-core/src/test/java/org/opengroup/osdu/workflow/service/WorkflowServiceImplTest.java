@@ -32,22 +32,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.opengroup.osdu.core.common.exception.OsduUnauthorizedException;
-import org.opengroup.osdu.core.common.model.DataType;
-import org.opengroup.osdu.core.common.model.Headers;
 import org.opengroup.osdu.core.common.model.WorkflowType;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.core.common.model.workflow.StartWorkflowRequest;
 import org.opengroup.osdu.core.common.model.workflow.StartWorkflowResponse;
 import org.opengroup.osdu.workflow.ReplaceCamelCase;
-import org.opengroup.osdu.workflow.mapper.HeadersMapper;
+import org.opengroup.osdu.workflow.exception.OsduUnauthorizedException;
 import org.opengroup.osdu.workflow.model.WorkflowStatus;
 import org.opengroup.osdu.workflow.model.WorkflowStatusType;
 import org.opengroup.osdu.workflow.provider.interfaces.AuthenticationService;
@@ -65,9 +61,8 @@ class WorkflowServiceImplTest {
   private static final String PARTITION = "partition";
   private static final String DAG_NAME = "dag-name";
   private static final String TEST_EXCEPTION = "test-exception";
+  private static final String DATA_TYPE = "test-type";
 
-  @Spy
-  private HeadersMapper headersMapper = Mappers.getMapper(HeadersMapper.class);
   @Mock
   private AuthenticationService authenticationService;
   @Mock
@@ -86,7 +81,7 @@ class WorkflowServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    workflowService = new WorkflowServiceImpl(headersMapper, authenticationService,
+    workflowService = new WorkflowServiceImpl(authenticationService,
         validationService, ingestionStrategyService, submitIngestService, workflowStatusRepository);
   }
 
@@ -98,11 +93,11 @@ class WorkflowServiceImplTest {
     context.put("key", "value");
     StartWorkflowRequest request = StartWorkflowRequest.builder()
         .workflowType(WorkflowType.INGEST)
-        .dataType(DataType.WELL_LOG)
+        .dataType(DATA_TYPE)
         .context(context).build();
     MessageHeaders headers = getMessageHeaders();
     given(ingestionStrategyService
-        .determineStrategy(eq(WorkflowType.INGEST), eq(DataType.WELL_LOG), isNull()))
+        .determineStrategy(eq(WorkflowType.INGEST), eq(DATA_TYPE), isNull()))
         .willReturn(DAG_NAME);
 
     // when
@@ -111,13 +106,12 @@ class WorkflowServiceImplTest {
 
     // then
     then(startWorkflowResponse.getWorkflowId()).isNotNull();
-    InOrder inOrder = Mockito.inOrder(headersMapper, authenticationService, validationService,
+    InOrder inOrder = Mockito.inOrder(authenticationService, validationService,
         ingestionStrategyService, submitIngestService, workflowStatusRepository);
-    inOrder.verify(headersMapper).toHeaders(headers);
     inOrder.verify(authenticationService).checkAuthentication(AUTHORIZATION_TOKEN, PARTITION);
     inOrder.verify(validationService).validateStartWorkflowRequest(request);
     inOrder.verify(ingestionStrategyService)
-        .determineStrategy(eq(WorkflowType.INGEST), eq(DataType.WELL_LOG), isNull());
+        .determineStrategy(eq(WorkflowType.INGEST), eq(DATA_TYPE), isNull());
     inOrder.verify(submitIngestService).submitIngest(eq(DAG_NAME), eq(context));
     inOrder.verify(workflowStatusRepository).saveWorkflowStatus(workflowStatusCaptor.capture());
     inOrder.verifyNoMoreInteractions();
@@ -137,11 +131,11 @@ class WorkflowServiceImplTest {
     context.put("key", "value");
     StartWorkflowRequest request = StartWorkflowRequest.builder()
         .workflowType(WorkflowType.INGEST)
-        .dataType(DataType.WELL_LOG)
+        .dataType(DATA_TYPE)
         .context(context).build();
     MessageHeaders headers = getMessageHeaders();
     given(ingestionStrategyService
-        .determineStrategy(eq(WorkflowType.INGEST), eq(DataType.WELL_LOG), isNull()))
+        .determineStrategy(eq(WorkflowType.INGEST), eq(DATA_TYPE), isNull()))
         .willReturn(DAG_NAME);
     doThrow(new OsduUnauthorizedException(TEST_EXCEPTION)).when(submitIngestService)
         .submitIngest(eq(
@@ -159,8 +153,8 @@ class WorkflowServiceImplTest {
 
   private MessageHeaders getMessageHeaders() {
     Map<String, Object> headers = new HashMap<>();
-    headers.put(Headers.AUTHORIZATION, AUTHORIZATION_TOKEN);
-    headers.put(Headers.PARTITION, PARTITION);
+    headers.put(DpsHeaders.AUTHORIZATION, AUTHORIZATION_TOKEN);
+    headers.put(DpsHeaders.DATA_PARTITION_ID, PARTITION);
 
     return new MessageHeaders(headers);
   }

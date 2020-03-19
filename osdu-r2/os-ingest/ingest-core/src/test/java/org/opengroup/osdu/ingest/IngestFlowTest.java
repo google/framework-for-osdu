@@ -23,7 +23,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.opengroup.osdu.ingest.ResourceUtils.getResource;
 import static org.opengroup.osdu.ingest.TestUtils.getFeignRequest;
-import static org.opengroup.osdu.ingest.model.Headers.AUTHORIZATION;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,37 +36,39 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.opengroup.osdu.core.common.exception.OsduBadRequestException;
-import org.opengroup.osdu.core.common.model.DataType;
 import org.opengroup.osdu.core.common.model.WorkflowType;
+import org.opengroup.osdu.core.common.model.entitlements.AuthorizationResponse;
 import org.opengroup.osdu.core.common.model.file.FileLocationRequest;
 import org.opengroup.osdu.core.common.model.file.FileLocationResponse;
+import org.opengroup.osdu.core.common.model.http.AppException;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.core.common.model.workflow.StartWorkflowRequest;
 import org.opengroup.osdu.core.common.model.workflow.StartWorkflowResponse;
-import org.opengroup.osdu.ingest.client.FileServiceClient;
-import org.opengroup.osdu.ingest.client.WorkflowServiceClient;
-import org.opengroup.osdu.ingest.model.Headers;
+import org.opengroup.osdu.core.common.provider.interfaces.IAuthorizationService;
+import org.opengroup.osdu.ingest.client.IFileServiceClient;
+import org.opengroup.osdu.ingest.client.IWorkflowServiceClient;
 import org.opengroup.osdu.ingest.model.SchemaData;
 import org.opengroup.osdu.ingest.model.SubmitRequest;
-import org.opengroup.osdu.ingest.model.SubmitResponse;
-import org.opengroup.osdu.ingest.model.WorkProductLoadManifest;
-import org.opengroup.osdu.ingest.provider.interfaces.AuthenticationService;
-import org.opengroup.osdu.ingest.provider.interfaces.SchemaRepository;
+import org.opengroup.osdu.ingest.provider.interfaces.ISchemaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest
 @AutoConfigureMockMvc
 @DisplayNameGeneration(ReplaceCamelCase.class)
 public class IngestFlowTest {
@@ -80,29 +83,34 @@ public class IngestFlowTest {
   private static final String LOAD_MANIFEST_SCHEMA_TITLE = "WorkProductLoadManifestStagedFiles";
   private static final String LOAD_MANIFEST_SCHEMA_PATH = "3-schemas/WorkProductLoadManifestStagedFiles.json";
   private static final String WELL_LOG_WP_PATH = "4-instances/4-work-products/load_log_8821_p0105_1980_comp_las.json";
+  private static final String WELL_LOG_DATA_TYPE = "WELL_LOG";
+  private static final String OSDU_DATA_TYPE = "osdu";
+  private static final String UNAUTHORIZED_MSG = "The user is not authorized to perform this action";
 
   @Autowired
   private MockMvc mockMvc;
-  private ObjectMapper mapper = new ObjectMapper();
+  @Autowired
+  private ObjectMapper mapper;
 
   @MockBean
-  private AuthenticationService authenticationService;
+  private IFileServiceClient fileServiceClient;
   @MockBean
-  private FileServiceClient fileServiceClient;
+  private IWorkflowServiceClient workflowServiceClient;
   @MockBean
-  private WorkflowServiceClient workflowServiceClient;
+  private ISchemaRepository schemaRepository;
   @MockBean
-  private SchemaRepository schemaRepository;
+  private IAuthorizationService authorizationService;
+
   @Captor
   private ArgumentCaptor<StartWorkflowRequest> startWorkflowRequestCaptor;
 
   @Test
   public void shouldPassIngestionFlow() throws Exception {
-
     // given
     HttpHeaders headers = getHttpHeaders();
-
-    SubmitRequest request = SubmitRequest.builder().dataType(DataType.WELL_LOG).fileId(FILE_ID)
+    SubmitRequest request = SubmitRequest.builder()
+        .dataType(WELL_LOG_DATA_TYPE)
+        .fileId(FILE_ID)
         .build();
 
     FileLocationResponse fileLocationResponse = FileLocationResponse.builder().driver(GCP)
@@ -127,21 +135,27 @@ public class IngestFlowTest {
     given(workflowServiceClient.startWorkflow(eq(TEST_AUTH), eq(PARTITION), any()))
         .willReturn(workflowResponse);
 
+    given(authorizationService.authorizeAny(any(), eq("service.storage.creator")))
+        .willReturn(AuthorizationResponse.builder()
+            .user("user@mail.com")
+            .build());
+
     // when
-    ResponseEntity result = (ResponseEntity) mockMvc
-        .perform(MockMvcRequestBuilders.post("/submitFunction")
+    mockMvc.perform(
+        post("/submit")
+            .contentType(MediaType.APPLICATION_JSON)
+            .characterEncoding(StandardCharsets.UTF_8.displayName())
+            .with(SecurityMockMvcRequestPostProcessors.csrf())
             .headers(headers)
             .content(mapper.writeValueAsString(request)))
         .andExpect(status().isOk())
-        .andReturn().getAsyncResult();
+        .andExpect(jsonPath("$.WorkflowID").value(WORKFLOW_ID))
+        .andReturn();
 
     // then
-    SubmitResponse response = (SubmitResponse) result.getBody();
-    then(Objects.requireNonNull(response).getWorkflowId()).isEqualTo(WORKFLOW_ID);
-
     verify(workflowServiceClient).startWorkflow(any(), any(), startWorkflowRequestCaptor.capture());
     then(startWorkflowRequestCaptor.getValue()).satisfies(workflowRequest -> {
-      then(workflowRequest.getDataType()).isEqualTo(DataType.WELL_LOG);
+      then(workflowRequest.getDataType()).isEqualTo(WELL_LOG_DATA_TYPE);
       then(workflowRequest.getWorkflowType()).isEqualTo(WorkflowType.INGEST);
     });
   }
@@ -151,16 +165,53 @@ public class IngestFlowTest {
     // given
     HttpHeaders headers = new HttpHeaders();
 
+    given(authorizationService.authorizeAny(any(), eq("service.storage.creator")))
+        .willReturn(AuthorizationResponse.builder()
+            .user("user@mail.com")
+            .build());
+
     // when
-    MvcResult mvcResult = mockMvc
-        .perform(MockMvcRequestBuilders.post("/submitFunction")
+    MvcResult mvcResult = mockMvc.perform(
+        post("/submit")
+            .contentType(MediaType.APPLICATION_JSON)
+            .characterEncoding(StandardCharsets.UTF_8.displayName())
+            .with(SecurityMockMvcRequestPostProcessors.csrf())
             .headers(headers)
             .content("{\"test\";\"test\"}"))
-        .andExpect(status().isBadRequest()).andReturn();
+        .andExpect(status().isBadRequest())
+        .andReturn();
 
     // then
     then(Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
-        .contains("Cannot convert JSON {\"test\";\"test\"}");
+        .contains("JSON parse error");
+  }
+
+  @Test
+  public void shouldFailIngestionFlowUnauthorized() throws Exception {
+    // given
+    HttpHeaders headers = new HttpHeaders();
+    SubmitRequest request = SubmitRequest.builder()
+        .dataType(WELL_LOG_DATA_TYPE)
+        .fileId(FILE_ID)
+        .build();
+
+    given(authorizationService.authorizeAny(any(), eq("service.storage.creator")))
+        .willThrow(AppException.createUnauthorized("test: viewer"));
+
+    // when
+    MvcResult mvcResult = mockMvc.perform(
+        post("/submit")
+            .contentType(MediaType.APPLICATION_JSON)
+            .characterEncoding(StandardCharsets.UTF_8.displayName())
+            .with(SecurityMockMvcRequestPostProcessors.csrf())
+            .headers(headers)
+            .content(mapper.writeValueAsString(request)))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.message").value(UNAUTHORIZED_MSG))
+        .andReturn();
+
+    // then
+    verify(authorizationService).authorizeAny(any(), eq("service.storage.creator"));
   }
 
   @Test
@@ -184,24 +235,27 @@ public class IngestFlowTest {
     given(workflowServiceClient.startWorkflow(eq(TEST_AUTH), eq(PARTITION), any()))
         .willReturn(workflowResponse);
 
+    given(authorizationService.authorizeAny(any(), eq("service.storage.creator")))
+        .willReturn(AuthorizationResponse.builder()
+            .user("user@mail.com")
+            .build());
+
     // when
-    String resource = getResource(WELL_LOG_WP_PATH);
-    WorkProductLoadManifest loadManifest1 = mapper
-        .readValue(resource, WorkProductLoadManifest.class);
-    ResponseEntity result = (ResponseEntity) mockMvc
-        .perform(MockMvcRequestBuilders.post("/submitWithManifestFunction")
+    mockMvc.perform(
+        post("/submitWithManifest")
+            .contentType(MediaType.APPLICATION_JSON)
+            .characterEncoding(StandardCharsets.UTF_8.displayName())
+            .with(SecurityMockMvcRequestPostProcessors.csrf())
             .headers(headers)
-            .content(resource))
+            .content(getResource(WELL_LOG_WP_PATH)))
         .andExpect(status().isOk())
-        .andReturn().getAsyncResult();
+        .andExpect(jsonPath("$.WorkflowID").value(WORKFLOW_ID))
+        .andReturn();
 
     // then
-    SubmitResponse response = (SubmitResponse) result.getBody();
-    then(Objects.requireNonNull(response).getWorkflowId()).isEqualTo(WORKFLOW_ID);
-
     verify(workflowServiceClient).startWorkflow(any(), any(), startWorkflowRequestCaptor.capture());
     then(startWorkflowRequestCaptor.getValue()).satisfies(workflowRequest -> {
-      then(workflowRequest.getDataType()).isEqualTo(DataType.OSDU);
+      then(workflowRequest.getDataType()).isEqualTo(OSDU_DATA_TYPE);
       then(workflowRequest.getWorkflowType()).isEqualTo(WorkflowType.OSDU);
     });
   }
@@ -218,25 +272,74 @@ public class IngestFlowTest {
     given(schemaRepository.findByTitle(LOAD_MANIFEST_SCHEMA_TITLE)).willReturn(
         schemaData);
 
+    given(authorizationService.authorizeAny(any(), eq("service.storage.creator")))
+        .willReturn(AuthorizationResponse.builder()
+            .user("user@mail.com")
+            .build());
+
     // when
-    Throwable thrown = (Throwable) mockMvc
-        .perform(MockMvcRequestBuilders.post("/submitWithManifestFunction")
+    MvcResult mvcResult = mockMvc.perform(
+        post("/submitWithManifest")
+            .contentType(MediaType.APPLICATION_JSON)
+            .characterEncoding(StandardCharsets.UTF_8.displayName())
+            .with(SecurityMockMvcRequestPostProcessors.csrf())
             .headers(headers)
             .content("{}"))
-        .andReturn().getAsyncResult();
+        .andExpect(status().isBadRequest()).andReturn();
+
+    mvcResult.getResponse();
+    // then
+    then(Objects.requireNonNull(mvcResult.getResolvedException()).getMessage())
+        .containsPattern("Failed to validate json from manifest (.*), validation result is (.*)");
+  }
+
+  @Test
+  public void shouldFailSubmitOsduManifestUnauthorized() throws Exception {
+    // given
+    HttpHeaders headers = new HttpHeaders();
+    SubmitRequest request = SubmitRequest.builder()
+        .dataType(WELL_LOG_DATA_TYPE)
+        .fileId(FILE_ID)
+        .build();
+
+    given(authorizationService.authorizeAny(any(), eq("service.storage.creator")))
+        .willThrow(AppException.createUnauthorized("test: viewer"));
+
+    // when
+    MvcResult mvcResult = mockMvc.perform(
+        post("/submitWithManifest")
+            .contentType(MediaType.APPLICATION_JSON)
+            .characterEncoding(StandardCharsets.UTF_8.displayName())
+            .with(SecurityMockMvcRequestPostProcessors.csrf())
+            .headers(headers)
+            .content(getResource(WELL_LOG_WP_PATH)))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.message").value(UNAUTHORIZED_MSG))
+        .andReturn();
 
     // then
-    then(thrown)
-        .isInstanceOf(OsduBadRequestException.class)
-        .hasMessageMatching(
-            "Failed to validate json from manifest (.*), validation result is (.*)");
+    verify(authorizationService).authorizeAny(any(), eq("service.storage.creator"));
   }
 
   private HttpHeaders getHttpHeaders() {
     HttpHeaders headers = new HttpHeaders();
-    headers.add(AUTHORIZATION, TEST_AUTH);
-    headers.add(Headers.PARTITION, PARTITION);
+    headers.add(DpsHeaders.AUTHORIZATION, TEST_AUTH);
+    headers.add(DpsHeaders.DATA_PARTITION_ID, PARTITION);
     return headers;
+  }
+
+  @TestConfiguration
+  @EnableWebSecurity
+  @EnableGlobalMethodSecurity(prePostEnabled = true)
+  public static class TestSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+
+      http.httpBasic().disable()
+          .csrf().disable();  //disable default authN. AuthN handled by endpoints proxy
+    }
+
   }
 
 }

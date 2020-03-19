@@ -16,7 +16,7 @@
 
 package org.opengroup.osdu.workflow.provider.interfaces;
 
-import org.opengroup.osdu.core.common.exception.OsduUnauthorizedException;
+import org.opengroup.osdu.workflow.exception.OsduUnauthorizedException;
 import org.opengroup.osdu.workflow.model.GetStatusRequest;
 import org.opengroup.osdu.workflow.model.GetStatusResponse;
 import org.opengroup.osdu.workflow.model.UpdateStatusRequest;

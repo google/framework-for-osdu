@@ -18,6 +18,7 @@ package org.opengroup.osdu.workflow.provider.gcp.service;
 
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.BDDAssertions.then;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -73,9 +74,10 @@ class SubmitIngestServiceTest {
     data.put("key", "value");
     given(airflowProperties.getUrl()).willReturn(TEST_AIRFLOW_URL);
     given(googleIapHelper.getIapClientId(eq(TEST_AIRFLOW_URL))).willReturn(TEST_CLIENT_ID);
-    given(googleIapHelper.buildIapRequest(anyString(), eq(TEST_CLIENT_ID), eq(data))).willReturn(httpRequest);
+    given(googleIapHelper.buildIapRequest(anyString(), eq(TEST_CLIENT_ID), anyMap()))
+        .willReturn(httpRequest);
     given(httpRequest.execute()).willReturn(httpResponse);
-    given(httpResponse.getContent()).willReturn(new ByteArrayInputStream( "test".getBytes() ));
+    given(httpResponse.getContent()).willReturn(new ByteArrayInputStream("test".getBytes()));
 
     // when
     submitIngestService.submitIngest("dag-name", data);
@@ -84,7 +86,7 @@ class SubmitIngestServiceTest {
     InOrder inOrder = Mockito.inOrder(airflowProperties, googleIapHelper);
     inOrder.verify(airflowProperties).getUrl();
     inOrder.verify(googleIapHelper).getIapClientId(eq(TEST_AIRFLOW_URL));
-    inOrder.verify(googleIapHelper).buildIapRequest(anyString(), anyString(), eq(data));
+    inOrder.verify(googleIapHelper).buildIapRequest(anyString(), anyString(), anyMap());
     inOrder.verifyNoMoreInteractions();
   }
 
@@ -96,7 +98,8 @@ class SubmitIngestServiceTest {
     data.put("key", "value");
     given(airflowProperties.getUrl()).willReturn(TEST_AIRFLOW_URL);
     given(googleIapHelper.getIapClientId(eq(TEST_AIRFLOW_URL))).willReturn(TEST_CLIENT_ID);
-    given(googleIapHelper.buildIapRequest(anyString(), eq(TEST_CLIENT_ID), eq(data))).willReturn(httpRequest);
+    given(googleIapHelper.buildIapRequest(anyString(), eq(TEST_CLIENT_ID), anyMap()))
+        .willReturn(httpRequest);
     given(httpRequest.execute()).willThrow(new IOException("test-exception"));
 
     // when
@@ -105,7 +108,7 @@ class SubmitIngestServiceTest {
     // then
     then(thrown).satisfies(exception -> {
       then(exception).isInstanceOf(OsduRuntimeException.class);
-      then(exception).hasMessage("Request execution exception");
+      then(exception).hasMessage("test-exception");
     });
   }
 
