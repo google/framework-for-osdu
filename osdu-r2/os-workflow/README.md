@@ -65,10 +65,10 @@ decides which DAG to run by the following three parameters:
 Upon a `/getWorkflow` request:
 
 1. Validate the incoming request.
-    * Verify the authorization token. If the token is missing or invalid, and then respond with the
-    `401 Unauthorized` status.
+    * Verify the authorization token. If the token is missing or invalid, respond with the `401
+    Unauthorized` status.
     * Verify the partition ID. If the partition ID is missing, invalid or doesn't have assigned user
-    groups, and then respond with the `400 Bad Request` status.
+    groups, respond with the `400 Bad Request` status.
 2. Query the database with the workflow ID received from the client.
     * Respond with the **404 Not Found** status if the requested workflow ID isn't found.
 3. Return the workflow job status to the user or application.

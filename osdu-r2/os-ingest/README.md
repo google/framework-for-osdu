@@ -45,10 +45,10 @@ shows this workflow.
 Upon a `/submit` request:
 
 1. Validate the incoming request.
-    * Verify the authentication token. If the token is missing or invalid, and then respond with the
-    `401 Unauthorized` status.
+    * Verify the authentication token. If the token is missing or invalid, respond with the `401
+    Unauthorized` status.
     * Verify the partition ID. If the partition ID is missing, invalid or doesn't have assigned user
-    groups, and then respond with the `400 Bad Request` status.
+    groups, respond with the `400 Bad Request` status.
     * Verify `FileID`. Respond with the `400 Bad request` status and the `Missing required field
     FileID` message if a `FileID` isn't provided.
     * Verify `DataType`. Respond with the `400 Bad request` status if the `DataType` is an empty
@@ -79,10 +79,10 @@ shows the workflow.
 The workflow is the following:
 
 1. Validate the incoming request.
-    * Verify the authentication token. If the token is missing or invalid, and then respond with the
-    `401 Unauthorized` status.
+    * Verify the authentication token. If the token is missing or invalid, respond with the `401
+    Unauthorized` status.
     * Verify the partition ID. If the partition ID is missing, invalid or doesn't have assigned user
-    groups, and then respond with the `400 Bad Request` status.
+    groups, respond with the `400 Bad Request` status.
     * Validate the manifest. If the manifest doesn't correspond to the OSDU
     `WorkProductLoadManifestStagedFiles` schema stored in the database, fail ingestion, and then
     respond with an HTTP error.
