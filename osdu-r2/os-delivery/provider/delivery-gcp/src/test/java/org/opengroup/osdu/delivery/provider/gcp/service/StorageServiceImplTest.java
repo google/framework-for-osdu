@@ -37,8 +37,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opengroup.osdu.core.common.exception.BadRequestException;
 import org.opengroup.osdu.delivery.ReplaceCamelCase;
-import org.opengroup.osdu.delivery.exception.OsduBadRequestException;
 import org.opengroup.osdu.delivery.model.SignedObject;
 import org.opengroup.osdu.delivery.model.SignedUrl;
 import org.opengroup.osdu.delivery.provider.gcp.TestUtils;
@@ -98,7 +98,7 @@ class StorageServiceImplTest {
 
     // then
     then(thrown)
-        .isInstanceOf(OsduBadRequestException.class)
+        .isInstanceOf(BadRequestException.class)
         .hasMessageContaining("The maximum filepath length is 1024 characters");
     verify(storageRepository, never()).createSignedObject(anyString(), anyString());
   }

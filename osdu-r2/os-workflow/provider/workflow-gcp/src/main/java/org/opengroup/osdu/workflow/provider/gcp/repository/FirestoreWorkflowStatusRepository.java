@@ -43,14 +43,13 @@ import org.opengroup.osdu.workflow.model.WorkflowStatusType;
 import org.opengroup.osdu.workflow.provider.gcp.exception.WorkflowStatusNotFoundException;
 import org.opengroup.osdu.workflow.provider.gcp.exception.WorkflowStatusNotUpdatedException;
 import org.opengroup.osdu.workflow.provider.gcp.exception.WorkflowStatusQueryException;
-import org.opengroup.osdu.workflow.provider.interfaces.WorkflowStatusRepository;
+import org.opengroup.osdu.workflow.provider.interfaces.IWorkflowStatusRepository;
 import org.springframework.stereotype.Repository;
 
-// TODO Will be moved to registry service
 @Repository
 @Slf4j
 @RequiredArgsConstructor
-public class FirestoreWorkflowStatusRepository implements WorkflowStatusRepository {
+public class FirestoreWorkflowStatusRepository implements IWorkflowStatusRepository {
 
   private static final String COLLECTION_NAME = "workflow-status";
 

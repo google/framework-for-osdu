@@ -40,7 +40,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.opengroup.osdu.workflow.exception.OsduRuntimeException;
+import org.opengroup.osdu.workflow.exception.RuntimeException;
 import org.opengroup.osdu.workflow.provider.gcp.exception.GoogleIamException;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +52,7 @@ public class GoogleIapHelper {
 
   /**
    * Fetch Google IAP client ID
+   *
    * @param url service URL
    * @return IAP client ID
    */
@@ -64,11 +65,12 @@ public class GoogleIapHelper {
           .parse(new URI(redirectLocation), StandardCharsets.UTF_8);
 
       return queryParameters.stream().filter(pair -> "client_id".equals(pair.getName())).findFirst()
-          .orElseThrow(() -> new OsduRuntimeException(
+          .orElseThrow(() -> new RuntimeException(
               String.format("No client_id found in redirect response to AirFlow - %s", url)))
           .getValue();
     } catch (IOException | URISyntaxException e) {
-      throw new OsduRuntimeException("Exception during get Google IAP client id", e);
+      throw new RuntimeException(
+          "Exception during get Google IAP client id. Check link to Workflow engine", e);
     }
   }
 

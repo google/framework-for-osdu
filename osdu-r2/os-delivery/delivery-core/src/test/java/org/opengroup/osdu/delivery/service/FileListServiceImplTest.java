@@ -34,24 +34,18 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.factory.Mappers;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opengroup.osdu.core.common.model.file.DriverType;
 import org.opengroup.osdu.core.common.model.file.FileListRequest;
 import org.opengroup.osdu.core.common.model.file.FileListResponse;
 import org.opengroup.osdu.core.common.model.file.FileLocation;
-import org.opengroup.osdu.delivery.exception.OsduUnauthorizedException;
-import org.opengroup.osdu.delivery.mapper.HeadersMapper;
-import org.opengroup.osdu.delivery.model.Headers;
-import org.opengroup.osdu.delivery.provider.interfaces.AuthenticationService;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.delivery.provider.interfaces.FileListService;
 import org.opengroup.osdu.delivery.provider.interfaces.FileLocationRepository;
 import org.opengroup.osdu.delivery.provider.interfaces.ValidationService;
-import org.springframework.messaging.MessageHeaders;
 
 @ExtendWith(MockitoExtension.class)
 class FileListServiceImplTest {
@@ -59,10 +53,6 @@ class FileListServiceImplTest {
   private static final String GCS_FOLDER = "gs://bucket/folder/";
   private static final String TEMP_USER = "temp-user";
 
-  @Spy
-  private HeadersMapper headersMapper = Mappers.getMapper(HeadersMapper.class);
-  @Mock
-  private AuthenticationService authenticationService;
   @Mock
   private ValidationService validationService;
   @Mock
@@ -72,8 +62,7 @@ class FileListServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    fileListService = new FileListServiceImpl(headersMapper, authenticationService,
-        validationService, fileLocationRepository);
+    fileListService = new FileListServiceImpl(validationService, fileLocationRepository);
   }
 
   @Test
@@ -87,7 +76,7 @@ class FileListServiceImplTest {
         .items((short) 5)
         .userID(TEMP_USER)
         .build();
-    MessageHeaders headers = getMessageHeaders();
+    DpsHeaders headers = getHeaders();
 
     given(fileLocationRepository.findAll(request)).willReturn(FileListResponse.builder()
         .content(Arrays.asList(
@@ -109,35 +98,9 @@ class FileListServiceImplTest {
         .build(), "content");
     then(response.getContent()).hasSize(2);
 
-    InOrder inOrder = Mockito.inOrder(headersMapper, authenticationService, validationService,
-        fileLocationRepository);
-    inOrder.verify(headersMapper).toHeaders(headers);
-    inOrder.verify(authenticationService).checkAuthentication(AUTHORIZATION_TOKEN, PARTITION);
+    InOrder inOrder = Mockito.inOrder(validationService, fileLocationRepository);
     inOrder.verify(validationService).validateFileListRequest(request);
     inOrder.verify(fileLocationRepository).findAll(request);
-    inOrder.verifyNoMoreInteractions();
-  }
-
-  @Test
-  void shouldThrowExceptionForGetFileListWhenCheckingAuthenticationIsFailed() {
-    // given
-    FileListRequest request = FileListRequest.builder()
-        .build();
-    MessageHeaders headers = getMessageHeaders();
-
-    willThrow(OsduUnauthorizedException.class).given(authenticationService)
-        .checkAuthentication(AUTHORIZATION_TOKEN, PARTITION);
-
-    // when
-    Throwable thrown = catchThrowable(() -> fileListService.getFileList(request, headers));
-
-    // then
-    then(thrown).isInstanceOf(OsduUnauthorizedException.class);
-
-    InOrder inOrder = Mockito.inOrder(headersMapper, authenticationService, validationService,
-        fileLocationRepository);
-    inOrder.verify(headersMapper).toHeaders(headers);
-    inOrder.verify(authenticationService).checkAuthentication(AUTHORIZATION_TOKEN, PARTITION);
     inOrder.verifyNoMoreInteractions();
   }
 
@@ -146,7 +109,7 @@ class FileListServiceImplTest {
     // given
     FileListRequest request = FileListRequest.builder()
         .build();
-    MessageHeaders headers = getMessageHeaders();
+    DpsHeaders headers = getHeaders();
 
     willThrow(ConstraintViolationException.class).given(validationService)
         .validateFileListRequest(request);
@@ -157,20 +120,17 @@ class FileListServiceImplTest {
     // then
     then(thrown).isInstanceOf(ConstraintViolationException.class);
 
-    InOrder inOrder = Mockito.inOrder(headersMapper, authenticationService, validationService,
-        fileLocationRepository);
-    inOrder.verify(headersMapper).toHeaders(headers);
-    inOrder.verify(authenticationService).checkAuthentication(AUTHORIZATION_TOKEN, PARTITION);
+    InOrder inOrder = Mockito.inOrder(validationService, fileLocationRepository);
     inOrder.verify(validationService).validateFileListRequest(request);
     inOrder.verifyNoMoreInteractions();
   }
 
-  private MessageHeaders getMessageHeaders() {
-    Map<String, Object> headers = new HashMap<>();
-    headers.put(Headers.AUTHORIZATION, AUTHORIZATION_TOKEN);
-    headers.put(Headers.PARTITION, PARTITION);
+  private DpsHeaders getHeaders() {
+    Map<String, String> headers = new HashMap<>();
+    headers.put(DpsHeaders.AUTHORIZATION, AUTHORIZATION_TOKEN);
+    headers.put(DpsHeaders.DATA_PARTITION_ID, PARTITION);
 
-    return new MessageHeaders(headers);
+    return DpsHeaders.createFromMap(headers);
   }
 
   private Date toDate(LocalDateTime dateTime) {

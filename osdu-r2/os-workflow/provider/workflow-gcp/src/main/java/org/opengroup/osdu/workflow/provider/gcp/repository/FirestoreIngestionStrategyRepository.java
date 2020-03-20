@@ -35,14 +35,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.core.common.model.WorkflowType;
 import org.opengroup.osdu.workflow.model.IngestionStrategy;
 import org.opengroup.osdu.workflow.provider.gcp.exception.IngestionStrategyQueryException;
-import org.opengroup.osdu.workflow.provider.interfaces.IngestionStrategyRepository;
+import org.opengroup.osdu.workflow.provider.interfaces.IIngestionStrategyRepository;
 import org.springframework.stereotype.Repository;
 
-// TODO Will be moved to registry service
 @Repository
 @Slf4j
 @RequiredArgsConstructor
-public class FirestoreIngestionStrategyRepository implements IngestionStrategyRepository {
+public class FirestoreIngestionStrategyRepository implements IIngestionStrategyRepository {
 
   private static final String COLLECTION_NAME = "ingestion-strategy";
 

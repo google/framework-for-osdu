@@ -16,9 +16,9 @@
 
 package org.opengroup.osdu.workflow.provider.gcp.exception;
 
-import org.opengroup.osdu.workflow.exception.OsduException;
+import org.opengroup.osdu.core.common.exception.CoreException;
 
-public class WorkflowStatusQueryException extends OsduException {
+public class WorkflowStatusQueryException extends CoreException {
 
   public WorkflowStatusQueryException(String message) {
     super(message);

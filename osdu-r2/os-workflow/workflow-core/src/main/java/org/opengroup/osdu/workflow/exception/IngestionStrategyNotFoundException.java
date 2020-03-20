@@ -16,7 +16,9 @@
 
 package org.opengroup.osdu.workflow.exception;
 
-public class IngestionStrategyNotFoundException extends OsduBadRequestException {
+import org.opengroup.osdu.core.common.exception.BadRequestException;
+
+public class IngestionStrategyNotFoundException extends BadRequestException {
 
   public IngestionStrategyNotFoundException(String message) {
     super(message);

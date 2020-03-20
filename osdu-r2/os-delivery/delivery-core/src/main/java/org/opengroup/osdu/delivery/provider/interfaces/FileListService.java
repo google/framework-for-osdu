@@ -19,8 +19,7 @@ package org.opengroup.osdu.delivery.provider.interfaces;
 import javax.validation.ConstraintViolationException;
 import org.opengroup.osdu.core.common.model.file.FileListRequest;
 import org.opengroup.osdu.core.common.model.file.FileListResponse;
-import org.opengroup.osdu.delivery.exception.OsduUnauthorizedException;
-import org.springframework.messaging.MessageHeaders;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 
 public interface FileListService {
 
@@ -30,11 +29,10 @@ public interface FileListService {
    * and potentially cleanup database.
    *
    * @param request location request
-   * @param messageHeaders message headers
+   * @param headers request headers
    * @return a paginated file location result.
-   * @throws OsduUnauthorizedException if token and partitionID are missing or, invalid
    * @throws ConstraintViolationException if request is invalid
    */
-  FileListResponse getFileList(FileListRequest request, MessageHeaders messageHeaders);
+  FileListResponse getFileList(FileListRequest request, DpsHeaders headers);
 
 }

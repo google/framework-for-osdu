@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
 public class UpdateStatusRequestValidatorWrapper
     implements ConstraintValidator<ValidUpdateStatusRequest, UpdateStatusRequest> {
 
-  final UpdateStatusRequestValidator updateStatusRequestValidator;
+  final IUpdateStatusRequestValidator updateStatusRequestValidator;
 
   @Override
   public boolean isValid(UpdateStatusRequest request, ConstraintValidatorContext context) {

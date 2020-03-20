@@ -16,9 +16,9 @@
 
 package org.opengroup.osdu.workflow.provider.gcp.exception;
 
-import org.opengroup.osdu.workflow.exception.OsduBadRequestException;
+import org.opengroup.osdu.core.common.exception.BadRequestException;
 
-public class WorkflowStatusNotUpdatedException extends OsduBadRequestException {
+public class WorkflowStatusNotUpdatedException extends BadRequestException {
 
   public WorkflowStatusNotUpdatedException(String message) {
     super(message);

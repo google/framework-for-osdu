@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.io.IOException;
 import lombok.experimental.UtilityClass;
-import org.opengroup.osdu.delivery.exception.OsduException;
+import org.opengroup.osdu.core.common.exception.CoreException;
 import org.opengroup.osdu.delivery.model.jackson.ForceStringDeserializer;
 
 @UtilityClass
@@ -54,7 +54,7 @@ public class JsonUtils {
     try {
       return mapper.readValue(value, clazz);
     } catch (IOException e) {
-      throw new OsduException("Could not convert json string to object. String: " + value, e);
+      throw new CoreException("Could not convert json string to object. String: " + value, e);
     }
   }
 
@@ -68,7 +68,7 @@ public class JsonUtils {
     try {
       return mapper.readValue(value, typeReference);
     } catch (IOException e) {
-      throw new OsduException("Could not convert json string to object. String: " + value, e);
+      throw new CoreException("Could not convert json string to object. String: " + value, e);
     }
   }
 
@@ -81,7 +81,7 @@ public class JsonUtils {
     try {
       return mapper.writeValueAsString(value);
     } catch (JsonProcessingException e) {
-      throw new OsduException("Could not convert object to JSON. Object: " + value, e);
+      throw new CoreException("Could not convert object to JSON. Object: " + value, e);
     }
   }
 

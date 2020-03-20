@@ -24,7 +24,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.opengroup.osdu.delivery.exception.OsduBadRequestException;
+import org.opengroup.osdu.core.common.exception.BadRequestException;
 import org.opengroup.osdu.delivery.model.SignedObject;
 import org.opengroup.osdu.delivery.model.SignedUrl;
 import org.opengroup.osdu.delivery.provider.gcp.model.constant.StorageConstant;
@@ -57,7 +57,7 @@ public class StorageServiceImpl implements StorageService {
         fileID, bucketName, filepath);
 
     if (filepath.length() > StorageConstant.GCS_MAX_FILEPATH) {
-      throw new OsduBadRequestException(format(
+      throw new BadRequestException(format(
           "The maximum filepath length is %s characters, but got a name with %s characters",
           StorageConstant.GCS_MAX_FILEPATH, filepath.length()));
     }

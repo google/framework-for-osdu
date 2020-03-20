@@ -16,11 +16,12 @@
 
 package org.opengroup.osdu.delivery.exception;
 
+import org.opengroup.osdu.core.common.exception.CoreException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class LocationAlreadyExistsException extends OsduException {
+public class LocationAlreadyExistsException extends CoreException {
 
   public LocationAlreadyExistsException(String message) {
     super(message);
