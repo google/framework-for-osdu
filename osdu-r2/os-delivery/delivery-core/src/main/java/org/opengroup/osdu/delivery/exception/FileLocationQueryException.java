@@ -16,7 +16,9 @@
 
 package org.opengroup.osdu.delivery.exception;
 
-public class FileLocationQueryException extends OsduException {
+import org.opengroup.osdu.core.common.exception.CoreException;
+
+public class FileLocationQueryException extends CoreException {
 
   public FileLocationQueryException(String message) {
     super(message);

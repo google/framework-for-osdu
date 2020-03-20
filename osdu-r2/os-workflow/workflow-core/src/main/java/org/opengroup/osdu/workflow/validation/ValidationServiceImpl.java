@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,14 +26,14 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.opengroup.osdu.core.common.model.workflow.StartWorkflowRequest;
 import org.opengroup.osdu.workflow.model.GetStatusRequest;
 import org.opengroup.osdu.workflow.model.UpdateStatusRequest;
-import org.opengroup.osdu.workflow.provider.interfaces.ValidationService;
-import org.opengroup.osdu.workflow.validation.group.ValidationSequence;
+import org.opengroup.osdu.workflow.provider.interfaces.IValidationService;
+import org.opengroup.osdu.workflow.validation.group.IValidationSequence;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ValidationServiceImpl implements ValidationService {
+public class ValidationServiceImpl implements IValidationService {
 
   final Validator validator;
 
@@ -54,7 +54,7 @@ public class ValidationServiceImpl implements ValidationService {
 
   private <T> void validate(T value, String errorMsg) {
     Set<ConstraintViolation<T>> constraintViolations =
-        validator.validate(value, ValidationSequence.class);
+        validator.validate(value, IValidationSequence.class);
     if (CollectionUtils.isNotEmpty(constraintViolations)) {
       throw new ConstraintViolationException(errorMsg, constraintViolations);
     }

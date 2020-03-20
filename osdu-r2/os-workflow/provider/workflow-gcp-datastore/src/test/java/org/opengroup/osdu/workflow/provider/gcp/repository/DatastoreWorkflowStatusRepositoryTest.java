@@ -43,9 +43,9 @@ import org.opengroup.osdu.workflow.model.WorkflowStatusType;
 import org.opengroup.osdu.workflow.provider.gcp.exception.WorkflowStatusNotFoundException;
 import org.opengroup.osdu.workflow.provider.gcp.exception.WorkflowStatusNotUpdatedException;
 import org.opengroup.osdu.workflow.provider.gcp.mapper.EnumMapper;
-import org.opengroup.osdu.workflow.provider.gcp.mapper.WorkflowStatusMapper;
+import org.opengroup.osdu.workflow.provider.gcp.mapper.IWorkflowStatusMapper;
 import org.opengroup.osdu.workflow.provider.gcp.model.WorkflowStatusEntity;
-import org.opengroup.osdu.workflow.provider.interfaces.WorkflowStatusRepository;
+import org.opengroup.osdu.workflow.provider.interfaces.IWorkflowStatusRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -58,11 +58,11 @@ class DatastoreWorkflowStatusRepositoryTest {
   private static final String USER = "user-1";
 
   @Spy
-  private WorkflowStatusMapper workflowStatusMapper = Mappers.getMapper(WorkflowStatusMapper.class);
+  private IWorkflowStatusMapper workflowStatusMapper = Mappers.getMapper(IWorkflowStatusMapper.class);
   @Mock
-  private WorkflowStatusEntityRepository workflowStatusEntityRepository;
+  private IWorkflowStatusEntityRepository workflowStatusEntityRepository;
 
-  private WorkflowStatusRepository workflowStatusRepository;
+  private IWorkflowStatusRepository workflowStatusRepository;
 
   @BeforeEach
   void setUp() {

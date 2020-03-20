@@ -21,8 +21,7 @@ import org.opengroup.osdu.core.common.model.file.FileLocationRequest;
 import org.opengroup.osdu.core.common.model.file.FileLocationResponse;
 import org.opengroup.osdu.core.common.model.file.LocationRequest;
 import org.opengroup.osdu.core.common.model.file.LocationResponse;
-import org.opengroup.osdu.delivery.exception.OsduUnauthorizedException;
-import org.springframework.messaging.MessageHeaders;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 
 public interface LocationService {
 
@@ -31,22 +30,19 @@ public interface LocationService {
    * which will be uploaded by calling party.
    *
    * @param request location request
-   * @param messageHeaders message headers
+   * @param headers request headers
    * @return location response that contains fileID and location
-   * @throws OsduUnauthorizedException if token and partitionID are missing or, invalid
    * @throws ConstraintViolationException if request is invalid
    */
-  LocationResponse getLocation(LocationRequest request, MessageHeaders messageHeaders);
+  LocationResponse getLocation(LocationRequest request, DpsHeaders headers);
 
   /**
    * GetFileLocation returns internal information about particular file, including Driver.
    *
    * @param request location request
-   * @param messageHeaders message headers
+   * @param headers request headers
    * @return file location response that contains driver and location.
-   * @throws OsduUnauthorizedException if token and partitionID are missing or, invalid
-   * @throws ConstraintViolationException if request is invalid
    */
-  FileLocationResponse getFileLocation(FileLocationRequest request, MessageHeaders messageHeaders);
+  FileLocationResponse getFileLocation(FileLocationRequest request, DpsHeaders headers);
 
 }

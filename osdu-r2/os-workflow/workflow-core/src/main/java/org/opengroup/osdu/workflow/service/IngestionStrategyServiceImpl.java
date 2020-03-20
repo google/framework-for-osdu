@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,16 +20,16 @@ import lombok.RequiredArgsConstructor;
 import org.opengroup.osdu.core.common.model.WorkflowType;
 import org.opengroup.osdu.workflow.exception.IngestionStrategyNotFoundException;
 import org.opengroup.osdu.workflow.model.IngestionStrategy;
-import org.opengroup.osdu.workflow.property.DataTypeProperties;
-import org.opengroup.osdu.workflow.provider.interfaces.IngestionStrategyRepository;
-import org.opengroup.osdu.workflow.provider.interfaces.IngestionStrategyService;
+import org.opengroup.osdu.workflow.model.property.DataTypeProperties;
+import org.opengroup.osdu.workflow.provider.interfaces.IIngestionStrategyRepository;
+import org.opengroup.osdu.workflow.provider.interfaces.IIngestionStrategyService;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class IngestionStrategyServiceImpl implements IngestionStrategyService {
+public class IngestionStrategyServiceImpl implements IIngestionStrategyService {
 
-  final IngestionStrategyRepository ingestionStrategyRepository;
+  final IIngestionStrategyRepository ingestionStrategyRepository;
   final DataTypeProperties dataTypeProperties;
 
   @Override

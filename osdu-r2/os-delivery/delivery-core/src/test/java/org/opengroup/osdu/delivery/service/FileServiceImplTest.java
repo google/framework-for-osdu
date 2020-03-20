@@ -28,9 +28,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opengroup.osdu.core.common.model.file.FileRequest;
-import org.opengroup.osdu.delivery.model.Headers;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.delivery.provider.interfaces.FileService;
-import org.springframework.messaging.MessageHeaders;
 
 @ExtendWith(MockitoExtension.class)
 class FileServiceImplTest {
@@ -47,7 +46,7 @@ class FileServiceImplTest {
     // given
     FileRequest request = FileRequest.builder()
         .build();
-    MessageHeaders headers = getMessageHeaders();
+    DpsHeaders headers = getHeaders();
 
     // when
     Throwable thrown = catchThrowable(() -> fileService.getFile(request, headers));
@@ -56,12 +55,12 @@ class FileServiceImplTest {
     then(thrown).isInstanceOf(UnsupportedOperationException.class);
   }
 
-  private MessageHeaders getMessageHeaders() {
-    Map<String, Object> headers = new HashMap<>();
-    headers.put(Headers.AUTHORIZATION, AUTHORIZATION_TOKEN);
-    headers.put(Headers.PARTITION, PARTITION);
+  private DpsHeaders getHeaders() {
+    Map<String, String> headers = new HashMap<>();
+    headers.put(DpsHeaders.AUTHORIZATION, AUTHORIZATION_TOKEN);
+    headers.put(DpsHeaders.DATA_PARTITION_ID, PARTITION);
 
-    return new MessageHeaders(headers);
+    return DpsHeaders.createFromMap(headers);
   }
 
 }

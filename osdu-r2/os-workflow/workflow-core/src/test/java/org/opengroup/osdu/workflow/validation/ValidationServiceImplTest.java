@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,7 +41,7 @@ import org.opengroup.osdu.workflow.config.RequestConstraintMappingContributor;
 import org.opengroup.osdu.workflow.model.GetStatusRequest;
 import org.opengroup.osdu.workflow.model.UpdateStatusRequest;
 import org.opengroup.osdu.workflow.model.WorkflowStatusType;
-import org.opengroup.osdu.workflow.provider.interfaces.ValidationService;
+import org.opengroup.osdu.workflow.provider.interfaces.IValidationService;
 
 @DisplayNameGeneration(ReplaceCamelCase.class)
 class ValidationServiceImplTest {
@@ -57,7 +57,7 @@ class ValidationServiceImplTest {
   private static final String DATA_TYPE = "test-type";
 
   private static Validator validator;
-  private ValidationService validationService;
+  private IValidationService validationService;
 
   @BeforeAll
   static void initAll() {
