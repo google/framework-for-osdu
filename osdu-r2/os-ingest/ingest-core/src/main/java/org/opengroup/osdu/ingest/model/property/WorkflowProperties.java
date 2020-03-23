@@ -38,9 +38,6 @@ public class WorkflowProperties {
   String url;
 
   @NotBlank
-  String startWorkflowEndpoint;
-
-  @NotBlank
   String appKey;
 
 }

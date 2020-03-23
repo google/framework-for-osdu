@@ -20,7 +20,7 @@ import org.opengroup.osdu.core.common.model.file.FileLocationResponse;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.ingest.exception.ServerErrorException;
 
-public interface IFileIntegrationService {
+public interface IDeliveryIntegrationService {
 
   /**
    * Fetch file location info.

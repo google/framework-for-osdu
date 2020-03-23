@@ -37,7 +37,7 @@ default_args = {
     # 'end_date': datetime(2016, 1, 1),
 }
 
-workflow_name = 'create_records'
+workflow_name = 'Default_ingest'
 dag = DAG(workflow_name, default_args=default_args, schedule_interval=timedelta(days=1))
 
 # comes from the experimental endpoint /api/experimental/dags/<DAG_NAME>/dag_runs  
