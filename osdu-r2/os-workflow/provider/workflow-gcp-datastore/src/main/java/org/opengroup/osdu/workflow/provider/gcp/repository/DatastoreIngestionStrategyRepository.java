@@ -18,30 +18,29 @@ package org.opengroup.osdu.workflow.provider.gcp.repository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.opengroup.osdu.core.common.model.DataType;
 import org.opengroup.osdu.core.common.model.WorkflowType;
 import org.opengroup.osdu.workflow.model.IngestionStrategy;
-import org.opengroup.osdu.workflow.provider.gcp.mapper.IngestionStrategyMapper;
+import org.opengroup.osdu.workflow.provider.gcp.mapper.IIngestionStrategyMapper;
 import org.opengroup.osdu.workflow.provider.gcp.model.IngestionStrategyEntity;
-import org.opengroup.osdu.workflow.provider.interfaces.IngestionStrategyRepository;
+import org.opengroup.osdu.workflow.provider.interfaces.IIngestionStrategyRepository;
 import org.springframework.stereotype.Repository;
 
-// TODO Will be moved to registry service
 @Repository
 @Slf4j
 @RequiredArgsConstructor
-public class DatastoreIngestionStrategyRepository implements IngestionStrategyRepository {
+public class DatastoreIngestionStrategyRepository implements IIngestionStrategyRepository {
 
-  final IngestionStrategyMapper ingestionStrategyMapper;
-  final IngestionStrategyEntityRepository ingestionStrategyEntityRepository;
+  final IIngestionStrategyMapper ingestionStrategyMapper;
+  final IIngestionStrategyEntityRepository ingestionStrategyEntityRepository;
 
   @Override
   public IngestionStrategy findByWorkflowTypeAndDataTypeAndUserId(WorkflowType workflowType,
-      DataType dataType, String userId) {
+      String dataType, String userId) {
     log.debug("Requesting dag selection. Workflow type : {}, Data type : {}, User id : {}",
         workflowType, dataType, userId);
     IngestionStrategyEntity entity = ingestionStrategyEntityRepository
-        .findByWorkflowTypeAndDataTypeAndUserId(asString(workflowType), asString(dataType), userId);
+        .findByWorkflowTypeAndDataTypeAndUserId(asString(workflowType), dataType,
+            userId);
     IngestionStrategy ingestionStrategy = ingestionStrategyMapper.toIngestionStrategy(entity);
     log.debug("Found dag : {}", ingestionStrategy);
     return ingestionStrategy;

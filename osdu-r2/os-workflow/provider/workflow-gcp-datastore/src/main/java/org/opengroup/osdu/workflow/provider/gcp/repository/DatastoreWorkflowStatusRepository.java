@@ -22,19 +22,18 @@ import org.opengroup.osdu.workflow.model.WorkflowStatus;
 import org.opengroup.osdu.workflow.model.WorkflowStatusType;
 import org.opengroup.osdu.workflow.provider.gcp.exception.WorkflowStatusNotFoundException;
 import org.opengroup.osdu.workflow.provider.gcp.exception.WorkflowStatusNotUpdatedException;
-import org.opengroup.osdu.workflow.provider.gcp.mapper.WorkflowStatusMapper;
+import org.opengroup.osdu.workflow.provider.gcp.mapper.IWorkflowStatusMapper;
 import org.opengroup.osdu.workflow.provider.gcp.model.WorkflowStatusEntity;
-import org.opengroup.osdu.workflow.provider.interfaces.WorkflowStatusRepository;
+import org.opengroup.osdu.workflow.provider.interfaces.IWorkflowStatusRepository;
 import org.springframework.stereotype.Repository;
 
-// TODO Will be moved to registry service
 @Repository
 @Slf4j
 @RequiredArgsConstructor
-public class DatastoreWorkflowStatusRepository implements WorkflowStatusRepository {
+public class DatastoreWorkflowStatusRepository implements IWorkflowStatusRepository {
 
-  final WorkflowStatusMapper workflowStatusMapper;
-  final WorkflowStatusEntityRepository workflowStatusEntityRepository;
+  final IWorkflowStatusMapper workflowStatusMapper;
+  final IWorkflowStatusEntityRepository workflowStatusEntityRepository;
 
   @Override
   public WorkflowStatus findWorkflowStatus(String workflowId) {

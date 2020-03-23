@@ -61,7 +61,7 @@ import org.opengroup.osdu.workflow.model.WorkflowStatusType;
 import org.opengroup.osdu.workflow.provider.gcp.exception.WorkflowStatusNotFoundException;
 import org.opengroup.osdu.workflow.provider.gcp.exception.WorkflowStatusNotUpdatedException;
 import org.opengroup.osdu.workflow.provider.gcp.exception.WorkflowStatusQueryException;
-import org.opengroup.osdu.workflow.provider.interfaces.WorkflowStatusRepository;
+import org.opengroup.osdu.workflow.provider.interfaces.IWorkflowStatusRepository;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)
@@ -78,7 +78,7 @@ class FirestoreWorkflowStatusRepositoryTest {
   private Firestore firestore = mock(Firestore.class, RETURNS_DEEP_STUBS);
   private WriteResult writeResult = mock(WriteResult.class, RETURNS_DEEP_STUBS);
 
-  private WorkflowStatusRepository workflowStatusRepository;
+  private IWorkflowStatusRepository workflowStatusRepository;
 
   @BeforeEach
   void setUp() {

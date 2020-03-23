@@ -27,6 +27,9 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 import lombok.SneakyThrows;
 import org.assertj.core.api.Condition;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 
 public final class TestUtils {
 
@@ -83,6 +86,40 @@ public final class TestUtils {
 
   public static String getUuidString() {
     return UUID.randomUUID().toString().replace("-", "");
+  }
+
+  public static Matcher<String> isValidUUID() {
+    return new UUIDMatcher();
+  }
+
+  public static Matcher<String> isValidSingedUrl() {
+    return new UrlMatcher();
+  }
+
+  public static class UUIDMatcher extends TypeSafeMatcher<String> {
+
+    @Override
+    protected boolean matchesSafely(String value) {
+      return isValidUuid(value);
+    }
+
+    @Override
+    public void describeTo(Description description) {
+      description.appendText("should be UUID");
+    }
+  }
+
+  public static class UrlMatcher extends TypeSafeMatcher<String> {
+
+    @Override
+    protected boolean matchesSafely(String value) {
+      return isValidSingedUrl(value);
+    }
+
+    @Override
+    public void describeTo(Description description) {
+      description.appendText("should be URL");
+    }
   }
 
 }

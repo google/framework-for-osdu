@@ -20,6 +20,8 @@ import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -28,10 +30,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opengroup.osdu.core.common.model.file.FileLocationResponse;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.ingest.ReplaceCamelCase;
-import org.opengroup.osdu.ingest.model.Headers;
-import org.opengroup.osdu.ingest.provider.interfaces.FileIntegrationService;
-import org.opengroup.osdu.ingest.provider.interfaces.WorkflowPayloadService;
+import org.opengroup.osdu.ingest.model.property.WorkflowProperties;
+import org.opengroup.osdu.ingest.provider.interfaces.IFileIntegrationService;
+import org.opengroup.osdu.ingest.provider.interfaces.IWorkflowPayloadService;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)
@@ -39,25 +42,32 @@ class WorkflowPayloadServiceTest {
 
   private static final String FILE_ID = "file-id";
 
-  @Mock
-  private FileIntegrationService fileIntegrationService;
+  private WorkflowProperties workflowProperties = WorkflowProperties.builder()
+      .appKey("test-app-key")
+      .build();
 
-  WorkflowPayloadService workflowPayloadService;
+  @Mock
+  private IFileIntegrationService fileIntegrationService;
+
+  private IWorkflowPayloadService workflowPayloadService;
 
   @BeforeEach
   void setUp() {
-    workflowPayloadService = new WorkflowPayloadServiceImpl(fileIntegrationService);
+    workflowPayloadService = new WorkflowPayloadServiceImpl(workflowProperties,
+        fileIntegrationService, new ObjectMapper());
   }
 
   @Test
-  void shouldSubmitIngestToWorkflowService() {
+  void shouldGenerateIngestContext() {
 
     // given
-    Headers headers = Headers.builder()
-        .partitionID("partition-id")
-        .acl("acl")
-        .legalTags("legal")
-        .build();
+    Map<String, String> headersMap = new HashMap<>();
+    headersMap.put(DpsHeaders.AUTHORIZATION, "test-auth");
+    headersMap.put(DpsHeaders.DATA_PARTITION_ID, "partition-id");
+    headersMap.put(DpsHeaders.ACL_HEADER, "acl");
+    headersMap.put(DpsHeaders.LEGAL_TAGS, "legal");
+    DpsHeaders headers = DpsHeaders.createFromMap(headersMap);
+
     FileLocationResponse fileLocation = FileLocationResponse.builder().location("location").build();
     given(fileIntegrationService.getFileInfo(eq(FILE_ID), eq(headers))).willReturn(fileLocation);
 
@@ -65,7 +75,12 @@ class WorkflowPayloadServiceTest {
     Map<String, Object> context = workflowPayloadService.getContext(FILE_ID, headers);
 
     // then
-    then(context.get("FileID")).isEqualTo(FILE_ID);
+    then(context.get("authorization")).isEqualTo("test-auth");
+    then(context.get("legal-tags")).isEqualTo("legal");
+    then(context.get("acl")).isEqualTo("acl");
+    then(context.get("data-partition-id")).isEqualTo("partition-id");
+    then(context.get("AppKey")).isEqualTo("test-app-key");
+    then(((Map<String, Object>)context.get("data")).get("FileID")).isEqualTo(FILE_ID);
   }
 
 }

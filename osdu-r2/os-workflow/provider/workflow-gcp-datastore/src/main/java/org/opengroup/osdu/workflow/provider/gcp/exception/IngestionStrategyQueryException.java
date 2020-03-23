@@ -16,9 +16,9 @@
 
 package org.opengroup.osdu.workflow.provider.gcp.exception;
 
-import org.opengroup.osdu.core.common.exception.OsduException;
+import org.opengroup.osdu.core.common.exception.CoreException;
 
-public class IngestionStrategyQueryException extends OsduException {
+public class IngestionStrategyQueryException extends CoreException {
 
   public IngestionStrategyQueryException(String message) {
     super(message);

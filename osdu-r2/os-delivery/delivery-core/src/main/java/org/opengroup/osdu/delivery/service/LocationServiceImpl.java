@@ -20,7 +20,6 @@ import static java.lang.String.format;
 
 import java.util.Date;
 import java.util.UUID;
-import javax.inject.Named;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.core.common.model.file.DriverType;
@@ -29,18 +28,15 @@ import org.opengroup.osdu.core.common.model.file.FileLocationRequest;
 import org.opengroup.osdu.core.common.model.file.FileLocationResponse;
 import org.opengroup.osdu.core.common.model.file.LocationRequest;
 import org.opengroup.osdu.core.common.model.file.LocationResponse;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.delivery.exception.FileLocationNotFoundException;
 import org.opengroup.osdu.delivery.exception.LocationAlreadyExistsException;
-import org.opengroup.osdu.delivery.mapper.HeadersMapper;
-import org.opengroup.osdu.delivery.model.Headers;
 import org.opengroup.osdu.delivery.model.SignedUrl;
-import org.opengroup.osdu.delivery.provider.interfaces.AuthenticationService;
 import org.opengroup.osdu.delivery.provider.interfaces.FileLocationRepository;
 import org.opengroup.osdu.delivery.provider.interfaces.LocationMapper;
 import org.opengroup.osdu.delivery.provider.interfaces.LocationService;
 import org.opengroup.osdu.delivery.provider.interfaces.StorageService;
 import org.opengroup.osdu.delivery.provider.interfaces.ValidationService;
-import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -48,30 +44,23 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class LocationServiceImpl implements LocationService {
 
-  @Named
-  final HeadersMapper headersMapper;
   final LocationMapper locationMapper;
-  final AuthenticationService authenticationService;
   final ValidationService validationService;
   final FileLocationRepository fileLocationRepository;
   final StorageService storageService;
 
   @Override
-  public LocationResponse getLocation(LocationRequest request, MessageHeaders messageHeaders) {
+  public LocationResponse getLocation(LocationRequest request, DpsHeaders headers) {
     log.debug("Request to create location for file upload with parameters : {}, and headers, {}",
-        request, messageHeaders);
-    Headers headers = headersMapper.toHeaders(messageHeaders);
-
-    authenticationService.checkAuthentication(headers.getAuthorizationToken(),
-        headers.getPartitionID());
+        request, headers);
     validationService.validateLocationRequest(request);
     checkExisting(request);
 
     String fileID = getFileID(request);
 
     log.debug("Create the empty blob in bucket. FileID : {}", fileID);
-    SignedUrl signedUrl = storageService.createSignedUrl(fileID, headers.getAuthorizationToken(),
-        headers.getPartitionID());
+    SignedUrl signedUrl = storageService.createSignedUrl(fileID, headers.getAuthorization(),
+        headers.getPartitionIdWithFallbackToAccountId());
     log.debug("Signed URL for fileID = {} : {}", fileID, signedUrl);
 
     FileLocation fileLocation = FileLocation.builder()
@@ -91,14 +80,9 @@ public class LocationServiceImpl implements LocationService {
   }
 
   @Override
-  public FileLocationResponse getFileLocation(FileLocationRequest request,
-      MessageHeaders messageHeaders) {
+  public FileLocationResponse getFileLocation(FileLocationRequest request, DpsHeaders headers) {
     log.debug("Request file location with parameters : {}, and headers, {}",
-        request, messageHeaders);
-    Headers headers = headersMapper.toHeaders(messageHeaders);
-
-    authenticationService.checkAuthentication(headers.getAuthorizationToken(),
-        headers.getPartitionID());
+        request, headers);
     validationService.validateFileLocationRequest(request);
 
     String fileID = request.getFileID();

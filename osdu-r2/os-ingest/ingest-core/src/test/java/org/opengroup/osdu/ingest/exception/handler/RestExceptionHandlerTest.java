@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
 import org.opengroup.osdu.ingest.ReplaceCamelCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,12 +44,14 @@ class RestExceptionHandlerTest {
   private WebRequest webRequest;
   @Mock
   private ConstraintViolation<String> constraintViolation;
+  @Mock
+  private JaxRsDpsLog logger;
 
   RestExceptionHandler restExceptionHandler;
 
   @BeforeEach
   void setUp() {
-    restExceptionHandler = new RestExceptionHandler();
+    restExceptionHandler = new RestExceptionHandler(logger);
   }
 
   @Test

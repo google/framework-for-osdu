@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,47 +16,35 @@
 
 package org.opengroup.osdu.workflow.service;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
-import javax.inject.Named;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.ObjectUtils;
-import org.opengroup.osdu.core.common.model.Headers;
+import lombok.extern.slf4j.Slf4j;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.core.common.model.workflow.StartWorkflowRequest;
 import org.opengroup.osdu.core.common.model.workflow.StartWorkflowResponse;
-import org.opengroup.osdu.workflow.mapper.HeadersMapper;
 import org.opengroup.osdu.workflow.model.WorkflowStatus;
 import org.opengroup.osdu.workflow.model.WorkflowStatusType;
-import org.opengroup.osdu.workflow.provider.interfaces.AuthenticationService;
-import org.opengroup.osdu.workflow.provider.interfaces.IngestionStrategyService;
-import org.opengroup.osdu.workflow.provider.interfaces.SubmitIngestService;
-import org.opengroup.osdu.workflow.provider.interfaces.ValidationService;
-import org.opengroup.osdu.workflow.provider.interfaces.WorkflowService;
-import org.opengroup.osdu.workflow.provider.interfaces.WorkflowStatusRepository;
-import org.springframework.messaging.MessageHeaders;
+import org.opengroup.osdu.workflow.provider.interfaces.IIngestionStrategyService;
+import org.opengroup.osdu.workflow.provider.interfaces.ISubmitIngestService;
+import org.opengroup.osdu.workflow.provider.interfaces.IValidationService;
+import org.opengroup.osdu.workflow.provider.interfaces.IWorkflowService;
+import org.opengroup.osdu.workflow.provider.interfaces.IWorkflowStatusRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class WorkflowServiceImpl implements WorkflowService {
+@Slf4j
+public class WorkflowServiceImpl implements IWorkflowService {
 
-  @Named
-  final HeadersMapper headersMapper;
-  final AuthenticationService authenticationService;
-  final ValidationService validationService;
-  final IngestionStrategyService ingestionStrategyService;
-  final SubmitIngestService submitIngestService;
-  final WorkflowStatusRepository workflowStatusRepository;
+  final IValidationService validationService;
+  final IIngestionStrategyService ingestionStrategyService;
+  final ISubmitIngestService submitIngestService;
+  final IWorkflowStatusRepository workflowStatusRepository;
 
   @Override
-  public StartWorkflowResponse startWorkflow(StartWorkflowRequest request,
-      MessageHeaders messageHeaders) {
+  public StartWorkflowResponse startWorkflow(StartWorkflowRequest request, DpsHeaders headers) {
+    log.debug("Start Workflow with payload - {} and headers - {}", request, headers);
 
-    Headers headers = headersMapper.toHeaders(messageHeaders);
-
-    authenticationService.checkAuthentication(headers.getAuthorizationToken(),
-        headers.getPartitionID());
     validationService.validateStartWorkflowRequest(request);
 
     // TODO will be populated after authorization came
@@ -65,12 +53,10 @@ public class WorkflowServiceImpl implements WorkflowService {
     String strategyName = ingestionStrategyService.determineStrategy(request.getWorkflowType(),
         request.getDataType(), userId);
 
-    Map<String, Object> context = ObjectUtils.defaultIfNull(request.getContext(), new HashMap<>());
-
     String workflowId = UUID.randomUUID().toString();
     String airflowRunId = UUID.randomUUID().toString();
 
-    submitIngestService.submitIngest(strategyName, context);
+    submitIngestService.submitIngest(strategyName, request.getContext());
 
     workflowStatusRepository.saveWorkflowStatus(WorkflowStatus.builder()
         .workflowId(workflowId)

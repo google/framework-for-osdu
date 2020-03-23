@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,26 +28,21 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.factory.Mappers;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.opengroup.osdu.core.common.model.Headers;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.workflow.ReplaceCamelCase;
 import org.opengroup.osdu.workflow.exception.WorkflowNotFoundException;
-import org.opengroup.osdu.workflow.mapper.HeadersMapper;
 import org.opengroup.osdu.workflow.model.GetStatusRequest;
 import org.opengroup.osdu.workflow.model.GetStatusResponse;
 import org.opengroup.osdu.workflow.model.UpdateStatusRequest;
 import org.opengroup.osdu.workflow.model.UpdateStatusResponse;
 import org.opengroup.osdu.workflow.model.WorkflowStatus;
 import org.opengroup.osdu.workflow.model.WorkflowStatusType;
-import org.opengroup.osdu.workflow.provider.interfaces.AuthenticationService;
-import org.opengroup.osdu.workflow.provider.interfaces.ValidationService;
-import org.opengroup.osdu.workflow.provider.interfaces.WorkflowStatusRepository;
-import org.springframework.messaging.MessageHeaders;
+import org.opengroup.osdu.workflow.provider.interfaces.IValidationService;
+import org.opengroup.osdu.workflow.provider.interfaces.IWorkflowStatusRepository;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)
@@ -57,28 +52,24 @@ class WorkflowStatusServiceImplTest {
   private static final String PARTITION = "partition";
   private static final String WORKFLOW_ID = "workflow-id";
 
-  @Spy
-  private HeadersMapper headersMapper = Mappers.getMapper(HeadersMapper.class);
   @Mock
-  private AuthenticationService authenticationService;
+  private IValidationService validationService;
   @Mock
-  private ValidationService validationService;
-  @Mock
-  private WorkflowStatusRepository workflowStatusRepository;
+  private IWorkflowStatusRepository workflowStatusRepository;
 
   WorkflowStatusServiceImpl workflowStatusService;
 
   @BeforeEach
   void setUp() {
-    workflowStatusService = new WorkflowStatusServiceImpl(headersMapper, authenticationService,
-        validationService, workflowStatusRepository);
+    workflowStatusService = new WorkflowStatusServiceImpl(validationService,
+        workflowStatusRepository);
   }
 
   @Test
   void shouldGetWorkflowStatus() {
 
     // given
-    MessageHeaders headers = getMessageHeaders();
+    DpsHeaders headers = getMessageHeaders();
     GetStatusRequest request = GetStatusRequest.builder().workflowId(WORKFLOW_ID).build();
 
     WorkflowStatus workflowStatus = WorkflowStatus.builder()
@@ -94,10 +85,8 @@ class WorkflowStatusServiceImplTest {
 
     // then
     then(workflowStatusResponse.getWorkflowStatusType()).isEqualTo(WorkflowStatusType.SUBMITTED);
-    InOrder inOrder = Mockito.inOrder(headersMapper, authenticationService, validationService,
+    InOrder inOrder = Mockito.inOrder(validationService,
         workflowStatusRepository);
-    inOrder.verify(headersMapper).toHeaders(headers);
-    inOrder.verify(authenticationService).checkAuthentication(AUTHORIZATION_TOKEN, PARTITION);
     inOrder.verify(validationService).validateGetStatusRequest(request);
     inOrder.verify(workflowStatusRepository)
         .findWorkflowStatus(eq(WORKFLOW_ID));
@@ -108,7 +97,7 @@ class WorkflowStatusServiceImplTest {
   void shouldThrowExceptionIfThereIsNoWorkflow() {
 
     // given
-    MessageHeaders headers = getMessageHeaders();
+    DpsHeaders headers = getMessageHeaders();
     GetStatusRequest request = GetStatusRequest.builder().workflowId(WORKFLOW_ID).build();
 
     given(workflowStatusRepository.findWorkflowStatus(eq(WORKFLOW_ID))).willReturn(null);
@@ -125,7 +114,7 @@ class WorkflowStatusServiceImplTest {
   void shouldUpdateWorkflowStatus() {
 
     // given
-    MessageHeaders headers = getMessageHeaders();
+    DpsHeaders headers = getMessageHeaders();
 
     UpdateStatusRequest request = UpdateStatusRequest.builder()
         .workflowId(WORKFLOW_ID)
@@ -146,21 +135,19 @@ class WorkflowStatusServiceImplTest {
 
     // then
     then(updateStatusResponse.getWorkflowStatusType()).isEqualTo(WorkflowStatusType.RUNNING);
-    InOrder inOrder = Mockito.inOrder(headersMapper, authenticationService, validationService,
+    InOrder inOrder = Mockito.inOrder(validationService,
         workflowStatusRepository);
-    inOrder.verify(headersMapper).toHeaders(headers);
-    inOrder.verify(authenticationService).checkAuthentication(AUTHORIZATION_TOKEN, PARTITION);
     inOrder.verify(validationService).validateUpdateStatusRequest(request);
     inOrder.verify(workflowStatusRepository)
         .updateWorkflowStatus(eq(WORKFLOW_ID), eq(WorkflowStatusType.RUNNING));
     inOrder.verifyNoMoreInteractions();
   }
 
-  private MessageHeaders getMessageHeaders() {
-    Map<String, Object> headers = new HashMap<>();
-    headers.put(Headers.AUTHORIZATION, AUTHORIZATION_TOKEN);
-    headers.put(Headers.PARTITION, PARTITION);
+  private DpsHeaders getMessageHeaders() {
+    Map<String, String> headers = new HashMap<>();
+    headers.put(DpsHeaders.AUTHORIZATION, AUTHORIZATION_TOKEN);
+    headers.put(DpsHeaders.DATA_PARTITION_ID, PARTITION);
 
-    return new MessageHeaders(headers);
+    return DpsHeaders.createFromMap(headers);
   }
 }

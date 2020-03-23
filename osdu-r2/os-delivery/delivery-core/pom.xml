@@ -34,27 +34,25 @@
   <name>delivery-core</name>
   <description>Core project for the Delivery service</description>
 
-  <properties>
-    <os-core-common.version>0.0.5</os-core-common.version>
-  </properties>
-
   <dependencies>
     <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-function-web</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.hibernate.validator</groupId>
-      <artifactId>hibernate-validator</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.opengroup.osdu</groupId>
-      <artifactId>os-core-common</artifactId>
-      <version>${os-core-common.version}</version>
-    </dependency>
+
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-openfeign</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-test</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

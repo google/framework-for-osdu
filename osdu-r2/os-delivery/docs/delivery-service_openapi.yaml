@@ -21,7 +21,7 @@ info:
     The OpenDES Delivery service provides internal and external APIs to request file location data, such as an individual signed URL per file.
 
 servers:
-  - url: amer-demo28-test.apigee.net/os-delivery
+  - url: amer-demo28-test.apigee.net/os-file
     description: Test server
 
 paths:
@@ -52,7 +52,7 @@ paths:
   /getFileLocation:
     post:
       description: |
-        Returns file "Location" and "Driver".
+        Returns file `Location` and `Driver`.
       security:
         - bearerAuth: []
       parameters:

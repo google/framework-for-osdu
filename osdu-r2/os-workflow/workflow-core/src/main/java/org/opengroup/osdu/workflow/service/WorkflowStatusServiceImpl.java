@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,45 +16,33 @@
 
 package org.opengroup.osdu.workflow.service;
 
-import javax.inject.Named;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.opengroup.osdu.core.common.model.Headers;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.workflow.exception.WorkflowNotFoundException;
-import org.opengroup.osdu.workflow.mapper.HeadersMapper;
 import org.opengroup.osdu.workflow.model.GetStatusRequest;
 import org.opengroup.osdu.workflow.model.GetStatusResponse;
 import org.opengroup.osdu.workflow.model.UpdateStatusRequest;
 import org.opengroup.osdu.workflow.model.UpdateStatusResponse;
 import org.opengroup.osdu.workflow.model.WorkflowStatus;
-import org.opengroup.osdu.workflow.provider.interfaces.AuthenticationService;
-import org.opengroup.osdu.workflow.provider.interfaces.ValidationService;
-import org.opengroup.osdu.workflow.provider.interfaces.WorkflowStatusRepository;
-import org.opengroup.osdu.workflow.provider.interfaces.WorkflowStatusService;
-import org.springframework.messaging.MessageHeaders;
+import org.opengroup.osdu.workflow.provider.interfaces.IValidationService;
+import org.opengroup.osdu.workflow.provider.interfaces.IWorkflowStatusRepository;
+import org.opengroup.osdu.workflow.provider.interfaces.IWorkflowStatusService;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class WorkflowStatusServiceImpl implements WorkflowStatusService {
+public class WorkflowStatusServiceImpl implements IWorkflowStatusService {
 
-  @Named
-  final HeadersMapper headersMapper;
-  final AuthenticationService authenticationService;
-  final ValidationService validationService;
-  final WorkflowStatusRepository workflowStatusRepository;
+  final IValidationService validationService;
+  final IWorkflowStatusRepository workflowStatusRepository;
 
   @Override
-  public GetStatusResponse getWorkflowStatus(GetStatusRequest request,
-      MessageHeaders messageHeaders) {
+  public GetStatusResponse getWorkflowStatus(GetStatusRequest request, DpsHeaders headers) {
     log.debug("Request get workflow status with parameters : {}, and headers, {}", request,
-        messageHeaders);
+        headers);
 
-    Headers headers = headersMapper.toHeaders(messageHeaders);
-
-    authenticationService.checkAuthentication(headers.getAuthorizationToken(),
-        headers.getPartitionID());
     validationService.validateGetStatusRequest(request);
 
     WorkflowStatus workflowStatus = workflowStatusRepository
@@ -74,19 +62,14 @@ public class WorkflowStatusServiceImpl implements WorkflowStatusService {
 
   @Override
   public UpdateStatusResponse updateWorkflowStatus(UpdateStatusRequest request,
-      MessageHeaders messageHeaders) {
+      DpsHeaders headers) {
     log.debug("Request update workflow status with parameters : {}, and headers, {}", request,
-        messageHeaders);
+        headers);
 
-    Headers headers = headersMapper.toHeaders(messageHeaders);
-
-    authenticationService.checkAuthentication(headers.getAuthorizationToken(),
-        headers.getPartitionID());
     validationService.validateUpdateStatusRequest(request);
 
     WorkflowStatus workflowStatus = workflowStatusRepository
         .updateWorkflowStatus(request.getWorkflowId(), request.getWorkflowStatusType());
-
 
     UpdateStatusResponse response = UpdateStatusResponse.builder()
         .workflowId(workflowStatus.getWorkflowId())

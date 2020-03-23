@@ -16,9 +16,9 @@
 
 package org.opengroup.osdu.workflow.provider.gcp.exception;
 
-import org.opengroup.osdu.core.common.exception.OsduBadRequestException;
+import org.opengroup.osdu.core.common.exception.BadRequestException;
 
-public class WorkflowStatusNotFoundException extends OsduBadRequestException {
+public class WorkflowStatusNotFoundException extends BadRequestException {
 
   public WorkflowStatusNotFoundException(String message) {
     super(message);

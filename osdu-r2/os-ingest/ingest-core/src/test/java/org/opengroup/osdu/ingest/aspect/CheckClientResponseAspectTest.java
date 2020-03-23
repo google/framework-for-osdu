@@ -33,13 +33,13 @@ import org.junit.jupiter.params.aggregator.ArgumentsAccessor;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.opengroup.osdu.core.common.exception.OsduBadRequestException;
-import org.opengroup.osdu.core.common.exception.OsduException;
-import org.opengroup.osdu.core.common.exception.OsduNotFoundException;
-import org.opengroup.osdu.core.common.exception.OsduUnauthorizedException;
+import org.opengroup.osdu.core.common.exception.BadRequestException;
+import org.opengroup.osdu.core.common.exception.CoreException;
+import org.opengroup.osdu.core.common.exception.NotFoundException;
+import org.opengroup.osdu.core.common.exception.UnauthorizedException;
 import org.opengroup.osdu.ingest.ReplaceCamelCase;
-import org.opengroup.osdu.ingest.exception.OsduForbiddenException;
-import org.opengroup.osdu.ingest.exception.OsduServerErrorException;
+import org.opengroup.osdu.ingest.exception.ForbiddenException;
+import org.opengroup.osdu.ingest.exception.ServerErrorException;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)
@@ -91,12 +91,12 @@ public class CheckClientResponseAspectTest {
   static Stream<Arguments> filesListRequestProvider() {
 
     return Stream.of(
-        arguments(400, "Bad request", OsduBadRequestException.class),
-        arguments(401, "Unauthorized", OsduUnauthorizedException.class),
-        arguments(403, "Bad Forbidden", OsduForbiddenException.class),
-        arguments(404, "Not found", OsduNotFoundException.class),
-        arguments(408, "Request timeout", OsduException.class),
-        arguments(500, "Internal server error", OsduServerErrorException.class)
+        arguments(400, "Bad request", BadRequestException.class),
+        arguments(401, "Unauthorized", UnauthorizedException.class),
+        arguments(403, "Bad Forbidden", ForbiddenException.class),
+        arguments(404, "Not found", NotFoundException.class),
+        arguments(408, "Request timeout", CoreException.class),
+        arguments(500, "Internal server error", ServerErrorException.class)
     );
   }
 

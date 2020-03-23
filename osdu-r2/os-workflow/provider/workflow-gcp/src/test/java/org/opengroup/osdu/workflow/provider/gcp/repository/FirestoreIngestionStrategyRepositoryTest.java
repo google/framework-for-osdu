@@ -43,12 +43,11 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.opengroup.osdu.core.common.model.DataType;
 import org.opengroup.osdu.core.common.model.WorkflowType;
 import org.opengroup.osdu.workflow.ReplaceCamelCase;
 import org.opengroup.osdu.workflow.model.IngestionStrategy;
 import org.opengroup.osdu.workflow.provider.gcp.exception.IngestionStrategyQueryException;
-import org.opengroup.osdu.workflow.provider.interfaces.IngestionStrategyRepository;
+import org.opengroup.osdu.workflow.provider.interfaces.IIngestionStrategyRepository;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)
@@ -60,7 +59,7 @@ class FirestoreIngestionStrategyRepositoryTest {
   private QueryDocumentSnapshot qDocSnap = mock(QueryDocumentSnapshot.class);
   private Firestore firestore = mock(Firestore.class, RETURNS_DEEP_STUBS);
 
-  private IngestionStrategyRepository ingestionStrategyRepository;
+  private IIngestionStrategyRepository ingestionStrategyRepository;
 
   @BeforeEach
   void setUp() {
@@ -80,7 +79,7 @@ class FirestoreIngestionStrategyRepositoryTest {
 
       given(firestore.collection(COLLECTION_NAME)
           .whereEqualTo(WORKFLOW_TYPE, WorkflowType.INGEST)
-          .whereEqualTo(DATA_TYPE, DataType.WELL_LOG)
+          .whereEqualTo(DATA_TYPE, "well_log")
           .whereEqualTo(USER_ID, USER)
           .get())
           .willReturn(queryFuture);
@@ -89,7 +88,7 @@ class FirestoreIngestionStrategyRepositoryTest {
 
       // when
       IngestionStrategy IngestionStrategy = ingestionStrategyRepository
-          .findByWorkflowTypeAndDataTypeAndUserId(WorkflowType.INGEST, DataType.WELL_LOG, USER);
+          .findByWorkflowTypeAndDataTypeAndUserId(WorkflowType.INGEST, "well_log", USER);
 
       // then
       then(IngestionStrategy).isNotNull();
@@ -103,21 +102,21 @@ class FirestoreIngestionStrategyRepositoryTest {
 
       given(firestore.collection(COLLECTION_NAME)
           .whereEqualTo(WORKFLOW_TYPE, WorkflowType.INGEST)
-          .whereEqualTo(DATA_TYPE, DataType.WELL_LOG)
+          .whereEqualTo(DATA_TYPE, "well_log")
           .whereEqualTo(USER_ID, USER).get())
           .willReturn(queryFuture);
 
       // when
       Throwable thrown = catchThrowable(
           () -> ingestionStrategyRepository.findByWorkflowTypeAndDataTypeAndUserId(
-              WorkflowType.INGEST, DataType.WELL_LOG, USER));
+              WorkflowType.INGEST, "well_log", USER));
 
       // then
       then(thrown)
           .isInstanceOf(IngestionStrategyQueryException.class)
           .hasRootCauseInstanceOf(IllegalArgumentException.class)
           .hasMessage(
-              "Failed to find a dag by Workflow type - INGEST, Data type - WELL_LOG and User id - user-1");
+              "Failed to find a dag by Workflow type - INGEST, Data type - well_log and User id - user-1");
     }
 
     @Test
@@ -127,7 +126,7 @@ class FirestoreIngestionStrategyRepositoryTest {
 
       given(firestore.collection(COLLECTION_NAME)
           .whereEqualTo(WORKFLOW_TYPE, WorkflowType.INGEST)
-          .whereEqualTo(DATA_TYPE, DataType.WELL_LOG)
+          .whereEqualTo(DATA_TYPE, "well_log")
           .whereEqualTo(USER_ID, USER).get())
           .willReturn(queryFuture);
       willThrow(new InterruptedException("Failed future")).given(queryFuture).get();
@@ -135,14 +134,14 @@ class FirestoreIngestionStrategyRepositoryTest {
       // when
       Throwable thrown = catchThrowable(
           () -> ingestionStrategyRepository.findByWorkflowTypeAndDataTypeAndUserId(
-              WorkflowType.INGEST, DataType.WELL_LOG, USER));
+              WorkflowType.INGEST, "well_log", USER));
 
       // then
       then(thrown)
           .isInstanceOf(IngestionStrategyQueryException.class)
           .hasRootCauseInstanceOf(InterruptedException.class)
           .hasMessage(
-              "Failed to find a dag by Workflow type - INGEST, Data type - WELL_LOG and User id - user-1");
+              "Failed to find a dag by Workflow type - INGEST, Data type - well_log and User id - user-1");
     }
 
     @Test
@@ -155,20 +154,20 @@ class FirestoreIngestionStrategyRepositoryTest {
 
       given(firestore.collection(COLLECTION_NAME)
           .whereEqualTo(WORKFLOW_TYPE, WorkflowType.INGEST)
-          .whereEqualTo(DATA_TYPE, DataType.WELL_LOG)
+          .whereEqualTo(DATA_TYPE, "well_log")
           .whereEqualTo(USER_ID, USER).get())
           .willReturn(queryFuture);
 
       // when
       Throwable thrown = catchThrowable(
           () -> ingestionStrategyRepository.findByWorkflowTypeAndDataTypeAndUserId(
-              WorkflowType.INGEST, DataType.WELL_LOG, USER));
+              WorkflowType.INGEST, "well_log", USER));
 
       // then
       then(thrown)
           .isInstanceOf(IngestionStrategyQueryException.class)
           .hasMessage(
-              "Find dag selection returned 2 documents(s), expected 1, query by Workflow type - INGEST, Data type - WELL_LOG and User id - user-1");
+              "Find dag selection returned 2 documents(s), expected 1, query by Workflow type - INGEST, Data type - well_log and User id - user-1");
     }
 
     @Test
@@ -181,14 +180,14 @@ class FirestoreIngestionStrategyRepositoryTest {
 
       given(firestore.collection(COLLECTION_NAME)
           .whereEqualTo(WORKFLOW_TYPE, WorkflowType.INGEST)
-          .whereEqualTo(DATA_TYPE, DataType.WELL_LOG)
+          .whereEqualTo(DATA_TYPE, "well_log")
           .whereEqualTo(USER_ID, USER).get())
           .willReturn(queryFuture);
 
       // when
       IngestionStrategy IngestionStrategy = ingestionStrategyRepository
           .findByWorkflowTypeAndDataTypeAndUserId(
-              WorkflowType.INGEST, DataType.WELL_LOG, USER);
+              WorkflowType.INGEST, "well_log", USER);
 
       // then
       then(IngestionStrategy).isNull();
@@ -199,14 +198,14 @@ class FirestoreIngestionStrategyRepositoryTest {
   private IngestionStrategy getIngestionStrategy() {
     return IngestionStrategy.builder()
         .workflowType(WorkflowType.INGEST)
-        .dataType(DataType.WELL_LOG)
+        .dataType("well_log")
         .userId(USER)
         .build();
   }
 
   private void givenDocSnap(DocumentSnapshot qDocSnap, IngestionStrategy strategy) {
     given(qDocSnap.getString(WORKFLOW_TYPE)).willReturn(strategy.getWorkflowType().name());
-    given(qDocSnap.getString(DATA_TYPE)).willReturn(strategy.getDataType().name());
+    given(qDocSnap.getString(DATA_TYPE)).willReturn(strategy.getDataType());
     given(qDocSnap.getString(USER_ID)).willReturn(strategy.getUserId());
     given(qDocSnap.getString(DAG_NAME)).willReturn(strategy.getDagName());
   }

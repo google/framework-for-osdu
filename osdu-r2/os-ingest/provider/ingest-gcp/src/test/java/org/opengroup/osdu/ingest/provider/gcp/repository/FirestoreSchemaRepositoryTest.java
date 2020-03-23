@@ -46,9 +46,9 @@ import org.opengroup.osdu.ingest.ReplaceCamelCase;
 import org.opengroup.osdu.ingest.exception.SchemaDataQueryException;
 import org.opengroup.osdu.ingest.model.SchemaData;
 import org.opengroup.osdu.ingest.model.SchemaData.Fields;
-import org.opengroup.osdu.ingest.provider.gcp.mapper.SchemaDataMapper;
+import org.opengroup.osdu.ingest.provider.gcp.mapper.ISchemaDataMapper;
 import org.opengroup.osdu.ingest.provider.gcp.model.dto.SchemaDataDto;
-import org.opengroup.osdu.ingest.provider.interfaces.SchemaRepository;
+import org.opengroup.osdu.ingest.provider.interfaces.ISchemaRepository;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)
@@ -63,11 +63,11 @@ class FirestoreSchemaRepositoryTest {
   @Mock(answer = Answers.RETURNS_DEEP_STUBS)
   private Firestore firestore;
   @Mock
-  private SchemaDataMapper schemaDataMapper;
+  private ISchemaDataMapper schemaDataMapper;
 
   private ObjectMapper objectMapper = new ObjectMapper();
 
-  private SchemaRepository schemaRepository;
+  private ISchemaRepository schemaRepository;
 
   @BeforeEach
   void setUp() {

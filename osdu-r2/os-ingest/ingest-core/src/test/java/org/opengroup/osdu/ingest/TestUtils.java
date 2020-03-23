@@ -24,7 +24,7 @@ import java.util.HashMap;
 public class TestUtils {
 
   public static Request getFeignRequest() {
-    return Request.create(HttpMethod.POST, "http://test-url", new HashMap<>(), Body.empty());
+    return Request.create(HttpMethod.POST, "http://test-url", new HashMap<>(), Body.empty(), null);
   }
 
 }

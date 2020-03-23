@@ -45,13 +45,11 @@ import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opengroup.osdu.core.common.model.file.DriverType;
@@ -60,22 +58,18 @@ import org.opengroup.osdu.core.common.model.file.FileLocationRequest;
 import org.opengroup.osdu.core.common.model.file.FileLocationResponse;
 import org.opengroup.osdu.core.common.model.file.LocationRequest;
 import org.opengroup.osdu.core.common.model.file.LocationResponse;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.delivery.ReplaceCamelCase;
 import org.opengroup.osdu.delivery.TestUtils;
 import org.opengroup.osdu.delivery.exception.FileLocationNotFoundException;
 import org.opengroup.osdu.delivery.exception.LocationAlreadyExistsException;
-import org.opengroup.osdu.delivery.exception.OsduUnauthorizedException;
-import org.opengroup.osdu.delivery.mapper.HeadersMapper;
-import org.opengroup.osdu.delivery.model.Headers;
 import org.opengroup.osdu.delivery.model.SignedUrl;
-import org.opengroup.osdu.delivery.provider.interfaces.AuthenticationService;
 import org.opengroup.osdu.delivery.provider.interfaces.FileLocationRepository;
 import org.opengroup.osdu.delivery.provider.interfaces.LocationMapper;
 import org.opengroup.osdu.delivery.provider.interfaces.LocationService;
 import org.opengroup.osdu.delivery.provider.interfaces.StorageService;
 import org.opengroup.osdu.delivery.provider.interfaces.ValidationService;
 import org.opengroup.osdu.delivery.util.JsonUtils;
-import org.springframework.messaging.MessageHeaders;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)
@@ -83,12 +77,8 @@ class LocationServiceImplTest {
 
   private static final String SIGNED_URL_KEY = "SignedURL";
 
-  @Spy
-  private HeadersMapper headersMapper = Mappers.getMapper(HeadersMapper.class);
   @Mock
   private LocationMapper locationMapper;
-  @Mock
-  private AuthenticationService authenticationService;
   @Mock
   private ValidationService validationService;
   @Mock
@@ -105,8 +95,8 @@ class LocationServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    locationService = new LocationServiceImpl(headersMapper, locationMapper, authenticationService,
-        validationService, fileLocationRepository, storageService);
+    locationService = new LocationServiceImpl(locationMapper, validationService,
+        fileLocationRepository, storageService);
   }
 
   @Nested
@@ -117,7 +107,7 @@ class LocationServiceImplTest {
       // given
       LocationRequest request = LocationRequest.builder()
           .build();
-      MessageHeaders headers = getMessageHeaders();
+      DpsHeaders headers = getHeaders();
 
       given(storageService.createSignedUrl(anyString(), eq(AUTHORIZATION_TOKEN), eq(PARTITION)))
           .willReturn(getSignedUrl());
@@ -134,10 +124,7 @@ class LocationServiceImplTest {
           .hasSize(1)
           .hasEntrySatisfying(SIGNED_URL_KEY, SIGNED_URL_CONDITION);
 
-      InOrder inOrder = Mockito.inOrder(headersMapper, authenticationService, validationService,
-          fileLocationRepository, storageService);
-      inOrder.verify(headersMapper).toHeaders(headers);
-      inOrder.verify(authenticationService).checkAuthentication(AUTHORIZATION_TOKEN, PARTITION);
+      InOrder inOrder = Mockito.inOrder(validationService, fileLocationRepository, storageService);
       inOrder.verify(validationService).validateLocationRequest(request);
       inOrder.verify(fileLocationRepository).findByFileID(isNull());
       inOrder.verify(storageService)
@@ -162,7 +149,7 @@ class LocationServiceImplTest {
       LocationRequest request = LocationRequest.builder()
           .fileID(FILE_ID)
           .build();
-      MessageHeaders headers = getMessageHeaders();
+      DpsHeaders headers = getHeaders();
 
       given(storageService.createSignedUrl(FILE_ID, AUTHORIZATION_TOKEN, PARTITION))
           .willReturn(getSignedUrl());
@@ -179,10 +166,7 @@ class LocationServiceImplTest {
           .hasSize(1)
           .hasEntrySatisfying(SIGNED_URL_KEY, SIGNED_URL_CONDITION);
 
-      InOrder inOrder = Mockito.inOrder(headersMapper, authenticationService, validationService,
-          fileLocationRepository, storageService);
-      inOrder.verify(headersMapper).toHeaders(headers);
-      inOrder.verify(authenticationService).checkAuthentication(AUTHORIZATION_TOKEN, PARTITION);
+      InOrder inOrder = Mockito.inOrder(validationService, fileLocationRepository, storageService);
       inOrder.verify(validationService).validateLocationRequest(request);
       inOrder.verify(fileLocationRepository).findByFileID(FILE_ID);
       inOrder.verify(storageService).createSignedUrl(FILE_ID, AUTHORIZATION_TOKEN, PARTITION);
@@ -199,35 +183,12 @@ class LocationServiceImplTest {
     }
 
     @Test
-    void shouldThrowExceptionForGetLocationWhenCheckingAuthenticationIsFailed() {
-      // given
-      LocationRequest request = LocationRequest.builder()
-          .build();
-      MessageHeaders headers = getMessageHeaders();
-
-      willThrow(OsduUnauthorizedException.class).given(authenticationService)
-          .checkAuthentication(AUTHORIZATION_TOKEN, PARTITION);
-
-      // when
-      Throwable thrown = catchThrowable(() -> locationService.getLocation(request, headers));
-
-      // then
-      then(thrown).isInstanceOf(OsduUnauthorizedException.class);
-
-      InOrder inOrder = Mockito.inOrder(headersMapper, authenticationService, validationService,
-          fileLocationRepository, storageService);
-      inOrder.verify(headersMapper).toHeaders(headers);
-      inOrder.verify(authenticationService).checkAuthentication(AUTHORIZATION_TOKEN, PARTITION);
-      inOrder.verifyNoMoreInteractions();
-    }
-
-    @Test
     void shouldThrowExceptionWhenGetLocationRequestIsInvalid() {
       // given
       LocationRequest request = LocationRequest.builder()
           .fileID("^&$%%id.")
           .build();
-      MessageHeaders headers = getMessageHeaders();
+      DpsHeaders headers = getHeaders();
 
       willThrow(ConstraintViolationException.class).given(validationService)
           .validateLocationRequest(request);
@@ -238,10 +199,7 @@ class LocationServiceImplTest {
       // then
       then(thrown).isInstanceOf(ConstraintViolationException.class);
 
-      InOrder inOrder = Mockito.inOrder(headersMapper, authenticationService, validationService,
-          fileLocationRepository, storageService);
-      inOrder.verify(headersMapper).toHeaders(headers);
-      inOrder.verify(authenticationService).checkAuthentication(AUTHORIZATION_TOKEN, PARTITION);
+      InOrder inOrder = Mockito.inOrder(validationService, fileLocationRepository, storageService);
       inOrder.verify(validationService).validateLocationRequest(request);
       inOrder.verifyNoMoreInteractions();
     }
@@ -252,7 +210,7 @@ class LocationServiceImplTest {
       LocationRequest request = LocationRequest.builder()
           .fileID(FILE_ID)
           .build();
-      MessageHeaders headers = getMessageHeaders();
+      DpsHeaders headers = getHeaders();
 
       given(fileLocationRepository.findByFileID(FILE_ID)).willReturn(FileLocation.builder().build());
 
@@ -262,10 +220,7 @@ class LocationServiceImplTest {
       // then
       then(thrown).isInstanceOf(LocationAlreadyExistsException.class);
 
-      InOrder inOrder = Mockito.inOrder(headersMapper, authenticationService, validationService,
-          fileLocationRepository, storageService);
-      inOrder.verify(headersMapper).toHeaders(headers);
-      inOrder.verify(authenticationService).checkAuthentication(AUTHORIZATION_TOKEN, PARTITION);
+      InOrder inOrder = Mockito.inOrder(validationService, fileLocationRepository, storageService);
       inOrder.verify(validationService).validateLocationRequest(request);
       inOrder.verify(fileLocationRepository).findByFileID(FILE_ID);
       inOrder.verifyNoMoreInteractions();
@@ -286,7 +241,7 @@ class LocationServiceImplTest {
       FileLocationRequest request = FileLocationRequest.builder()
           .fileID(FILE_ID)
           .build();
-      MessageHeaders headers = getMessageHeaders();
+      DpsHeaders headers = getHeaders();
 
       given(fileLocationRepository.findByFileID(FILE_ID)).willReturn(getFileLocation());
 
@@ -299,36 +254,12 @@ class LocationServiceImplTest {
     }
 
     @Test
-    void shouldThrowExceptionForGetFileLocationWhenCheckingAuthenticationIsFailed() {
-      // given
-      FileLocationRequest request = FileLocationRequest.builder()
-          .fileID(FILE_ID)
-          .build();
-      MessageHeaders headers = getMessageHeaders();
-
-      willThrow(OsduUnauthorizedException.class).given(authenticationService)
-          .checkAuthentication(AUTHORIZATION_TOKEN, PARTITION);
-
-      // when
-      Throwable thrown = catchThrowable(() -> locationService.getFileLocation(request, headers));
-
-      // then
-      then(thrown).isInstanceOf(OsduUnauthorizedException.class);
-
-      InOrder inOrder = Mockito.inOrder(headersMapper, authenticationService, validationService,
-          fileLocationRepository, storageService);
-      inOrder.verify(headersMapper).toHeaders(headers);
-      inOrder.verify(authenticationService).checkAuthentication(AUTHORIZATION_TOKEN, PARTITION);
-      inOrder.verifyNoMoreInteractions();
-    }
-
-    @Test
     void shouldThrowExceptionWhenFileLocationRequestIsInvalid() {
       // given
       FileLocationRequest request = FileLocationRequest.builder()
           .fileID(FILE_ID)
           .build();
-      MessageHeaders headers = getMessageHeaders();
+      DpsHeaders headers = getHeaders();
 
       willThrow(ConstraintViolationException.class).given(validationService)
           .validateFileLocationRequest(request);
@@ -339,10 +270,7 @@ class LocationServiceImplTest {
       // then
       then(thrown).isInstanceOf(ConstraintViolationException.class);
 
-      InOrder inOrder = Mockito.inOrder(headersMapper, authenticationService, validationService,
-          fileLocationRepository, storageService);
-      inOrder.verify(headersMapper).toHeaders(headers);
-      inOrder.verify(authenticationService).checkAuthentication(AUTHORIZATION_TOKEN, PARTITION);
+      InOrder inOrder = Mockito.inOrder(validationService, fileLocationRepository, storageService);
       inOrder.verify(validationService).validateFileLocationRequest(request);
       inOrder.verifyNoMoreInteractions();
     }
@@ -353,7 +281,7 @@ class LocationServiceImplTest {
       FileLocationRequest request = FileLocationRequest.builder()
           .fileID(FILE_ID)
           .build();
-      MessageHeaders headers = getMessageHeaders();
+      DpsHeaders headers = getHeaders();
 
       // when
       Throwable thrown = catchThrowable(() -> locationService.getFileLocation(request, headers));
@@ -363,10 +291,7 @@ class LocationServiceImplTest {
           .isInstanceOf(FileLocationNotFoundException.class)
           .hasMessage("Not found location for fileID : " + FILE_ID);
 
-      InOrder inOrder = Mockito.inOrder(headersMapper, authenticationService, validationService,
-          fileLocationRepository, storageService);
-      inOrder.verify(headersMapper).toHeaders(headers);
-      inOrder.verify(authenticationService).checkAuthentication(AUTHORIZATION_TOKEN, PARTITION);
+      InOrder inOrder = Mockito.inOrder(validationService, fileLocationRepository, storageService);
       inOrder.verify(validationService).validateFileLocationRequest(request);
       inOrder.verify(fileLocationRepository).findByFileID(FILE_ID);
       inOrder.verifyNoMoreInteractions();
@@ -374,12 +299,12 @@ class LocationServiceImplTest {
 
   }
 
-  private MessageHeaders getMessageHeaders() {
-    Map<String, Object> headers = new HashMap<>();
-    headers.put(Headers.AUTHORIZATION, AUTHORIZATION_TOKEN);
-    headers.put(Headers.PARTITION, PARTITION);
+  private DpsHeaders getHeaders() {
+    Map<String, String> headers = new HashMap<>();
+    headers.put(DpsHeaders.AUTHORIZATION, AUTHORIZATION_TOKEN);
+    headers.put(DpsHeaders.DATA_PARTITION_ID, PARTITION);
 
-    return new MessageHeaders(headers);
+    return DpsHeaders.createFromMap(headers);
   }
 
   private SignedUrl getSignedUrl() {

@@ -21,23 +21,27 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpResponse;
+import com.google.api.client.http.HttpResponseException;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.opengroup.osdu.workflow.exception.OsduRuntimeException;
+import org.opengroup.osdu.workflow.exception.IntegrationException;
+import org.opengroup.osdu.workflow.exception.RuntimeException;
 import org.opengroup.osdu.workflow.provider.gcp.property.AirflowProperties;
-import org.opengroup.osdu.workflow.provider.interfaces.SubmitIngestService;
+import org.opengroup.osdu.workflow.provider.interfaces.ISubmitIngestService;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class SubmitIngestServiceImpl implements SubmitIngestService {
+public class SubmitIngestServiceImpl implements ISubmitIngestService {
 
   final AirflowProperties airflowProperties;
   final GoogleIapHelper googleIapHelper;
+  private static final String AIRFLOW_PAYLOAD_PARAMETER_NAME = "conf";
 
   @Override
   public boolean submitIngest(String dagName, Map<String, Object> data) {
@@ -46,15 +50,19 @@ public class SubmitIngestServiceImpl implements SubmitIngestService {
       String airflowUrl = airflowProperties.getUrl();
       String iapClientId = googleIapHelper.getIapClientId(airflowUrl);
       String webServerUrl = format("%s/api/experimental/dags/%s/dag_runs", airflowUrl, dagName);
-      HttpRequest request = googleIapHelper.buildIapRequest(webServerUrl, iapClientId, data);
+
+      HttpRequest request = googleIapHelper.buildIapRequest(webServerUrl, iapClientId,
+          Collections.singletonMap(AIRFLOW_PAYLOAD_PARAMETER_NAME, data));
       HttpResponse response = request.execute();
 
       String airflowResponse = IOUtils.toString(response.getContent(), UTF_8);
       log.debug("Airflow response - " + airflowResponse);
 
       return true;
+    } catch (HttpResponseException e) {
+      throw new IntegrationException("Airflow request fail", e);
     } catch (IOException e) {
-      throw new OsduRuntimeException("Request execution exception", e);
+      throw new RuntimeException(e.getMessage(), e);
     }
   }
 }
