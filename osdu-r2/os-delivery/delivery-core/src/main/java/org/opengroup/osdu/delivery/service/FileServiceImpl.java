@@ -20,8 +20,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.core.common.model.file.FileRequest;
 import org.opengroup.osdu.core.common.model.file.FileResponse;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.delivery.provider.interfaces.FileService;
-import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -30,8 +30,8 @@ import org.springframework.stereotype.Service;
 public class FileServiceImpl implements FileService {
 
   @Override
-  public FileResponse getFile(FileRequest request, MessageHeaders messageHeaders) {
-    log.debug("Request file with : {}, and headers, {}", request, messageHeaders);
+  public FileResponse getFile(FileRequest request, DpsHeaders headers) {
+    log.debug("Request file with : {}, and headers, {}", request, headers);
     log.debug("File result :");
     throw new UnsupportedOperationException("It will be implemented in future iterations.");
   }

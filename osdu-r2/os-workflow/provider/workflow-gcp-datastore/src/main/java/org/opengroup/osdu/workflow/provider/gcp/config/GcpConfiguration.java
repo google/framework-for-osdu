@@ -16,12 +16,12 @@
 
 package org.opengroup.osdu.workflow.provider.gcp.config;
 
-import org.opengroup.osdu.workflow.provider.gcp.GcpPackageMarker;
+import org.opengroup.osdu.workflow.provider.gcp.IGcpPackageMarker;
 import org.springframework.cloud.gcp.data.datastore.repository.config.EnableDatastoreRepositories;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableDatastoreRepositories(basePackageClasses = GcpPackageMarker.class)
+@EnableDatastoreRepositories(basePackageClasses = IGcpPackageMarker.class)
 public class GcpConfiguration {
 
 }

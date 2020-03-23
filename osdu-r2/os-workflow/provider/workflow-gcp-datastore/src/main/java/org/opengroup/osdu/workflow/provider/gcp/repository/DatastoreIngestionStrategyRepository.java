@@ -20,19 +20,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.core.common.model.WorkflowType;
 import org.opengroup.osdu.workflow.model.IngestionStrategy;
-import org.opengroup.osdu.workflow.provider.gcp.mapper.IngestionStrategyMapper;
+import org.opengroup.osdu.workflow.provider.gcp.mapper.IIngestionStrategyMapper;
 import org.opengroup.osdu.workflow.provider.gcp.model.IngestionStrategyEntity;
-import org.opengroup.osdu.workflow.provider.interfaces.IngestionStrategyRepository;
+import org.opengroup.osdu.workflow.provider.interfaces.IIngestionStrategyRepository;
 import org.springframework.stereotype.Repository;
 
-// TODO Will be moved to registry service
 @Repository
 @Slf4j
 @RequiredArgsConstructor
-public class DatastoreIngestionStrategyRepository implements IngestionStrategyRepository {
+public class DatastoreIngestionStrategyRepository implements IIngestionStrategyRepository {
 
-  final IngestionStrategyMapper ingestionStrategyMapper;
-  final IngestionStrategyEntityRepository ingestionStrategyEntityRepository;
+  final IIngestionStrategyMapper ingestionStrategyMapper;
+  final IIngestionStrategyEntityRepository ingestionStrategyEntityRepository;
 
   @Override
   public IngestionStrategy findByWorkflowTypeAndDataTypeAndUserId(WorkflowType workflowType,

@@ -16,7 +16,9 @@
 
 package org.opengroup.osdu.workflow.exception;
 
-public class IntegrationException extends OsduException {
+import org.opengroup.osdu.core.common.exception.CoreException;
+
+public class IntegrationException extends CoreException {
 
   public IntegrationException(String message) {
     super(message);

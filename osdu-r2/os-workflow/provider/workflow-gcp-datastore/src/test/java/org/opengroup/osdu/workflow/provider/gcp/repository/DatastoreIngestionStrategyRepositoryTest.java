@@ -34,9 +34,9 @@ import org.opengroup.osdu.core.common.model.WorkflowType;
 import org.opengroup.osdu.workflow.ReplaceCamelCase;
 import org.opengroup.osdu.workflow.model.IngestionStrategy;
 import org.opengroup.osdu.workflow.provider.gcp.mapper.EnumMapper;
-import org.opengroup.osdu.workflow.provider.gcp.mapper.IngestionStrategyMapper;
+import org.opengroup.osdu.workflow.provider.gcp.mapper.IIngestionStrategyMapper;
 import org.opengroup.osdu.workflow.provider.gcp.model.IngestionStrategyEntity;
-import org.opengroup.osdu.workflow.provider.interfaces.IngestionStrategyRepository;
+import org.opengroup.osdu.workflow.provider.interfaces.IIngestionStrategyRepository;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,11 +48,12 @@ class DatastoreIngestionStrategyRepositoryTest {
   private static final String USER = "user-1";
 
   @Spy
-  private IngestionStrategyMapper ingestionStrategyMapper = Mappers.getMapper(IngestionStrategyMapper.class);
+  private IIngestionStrategyMapper ingestionStrategyMapper = Mappers.getMapper(
+      IIngestionStrategyMapper.class);
   @Mock
-  private IngestionStrategyEntityRepository ingestionStrategyEntityRepository;
+  private IIngestionStrategyEntityRepository ingestionStrategyEntityRepository;
 
-  private IngestionStrategyRepository ingestionStrategyRepository;
+  private IIngestionStrategyRepository ingestionStrategyRepository;
 
   @BeforeEach
   void setUp() {

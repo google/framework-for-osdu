@@ -39,7 +39,7 @@ import org.opengroup.osdu.workflow.ReplaceCamelCase;
 import org.opengroup.osdu.workflow.config.RequestConstraintMappingContributor;
 import org.opengroup.osdu.workflow.model.UpdateStatusRequest;
 import org.opengroup.osdu.workflow.model.WorkflowStatusType;
-import org.opengroup.osdu.workflow.provider.interfaces.ValidationService;
+import org.opengroup.osdu.workflow.provider.interfaces.IValidationService;
 import org.opengroup.osdu.workflow.validation.CommonUpdateStatusRequestValidator;
 import org.opengroup.osdu.workflow.validation.UpdateStatusRequestValidatorWrapper;
 import org.opengroup.osdu.workflow.validation.ValidationServiceImpl;
@@ -52,7 +52,7 @@ class GcpValidationServiceTest {
   private static final String WORKFLOW_ID = "workflow-id";
 
   private static Validator validator;
-  private ValidationService validationService;
+  private IValidationService validationService;
 
   @BeforeAll
   static void initAll() {

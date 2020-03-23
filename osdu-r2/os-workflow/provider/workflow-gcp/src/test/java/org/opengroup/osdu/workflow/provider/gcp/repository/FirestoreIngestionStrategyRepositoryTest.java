@@ -47,7 +47,7 @@ import org.opengroup.osdu.core.common.model.WorkflowType;
 import org.opengroup.osdu.workflow.ReplaceCamelCase;
 import org.opengroup.osdu.workflow.model.IngestionStrategy;
 import org.opengroup.osdu.workflow.provider.gcp.exception.IngestionStrategyQueryException;
-import org.opengroup.osdu.workflow.provider.interfaces.IngestionStrategyRepository;
+import org.opengroup.osdu.workflow.provider.interfaces.IIngestionStrategyRepository;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)
@@ -59,7 +59,7 @@ class FirestoreIngestionStrategyRepositoryTest {
   private QueryDocumentSnapshot qDocSnap = mock(QueryDocumentSnapshot.class);
   private Firestore firestore = mock(Firestore.class, RETURNS_DEEP_STUBS);
 
-  private IngestionStrategyRepository ingestionStrategyRepository;
+  private IIngestionStrategyRepository ingestionStrategyRepository;
 
   @BeforeEach
   void setUp() {

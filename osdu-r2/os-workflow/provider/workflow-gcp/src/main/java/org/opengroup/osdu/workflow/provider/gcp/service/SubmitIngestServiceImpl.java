@@ -29,15 +29,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.opengroup.osdu.workflow.exception.IntegrationException;
-import org.opengroup.osdu.workflow.exception.OsduRuntimeException;
+import org.opengroup.osdu.workflow.exception.RuntimeException;
 import org.opengroup.osdu.workflow.provider.gcp.property.AirflowProperties;
-import org.opengroup.osdu.workflow.provider.interfaces.SubmitIngestService;
+import org.opengroup.osdu.workflow.provider.interfaces.ISubmitIngestService;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class SubmitIngestServiceImpl implements SubmitIngestService {
+public class SubmitIngestServiceImpl implements ISubmitIngestService {
 
   final AirflowProperties airflowProperties;
   final GoogleIapHelper googleIapHelper;
@@ -62,7 +62,7 @@ public class SubmitIngestServiceImpl implements SubmitIngestService {
     } catch (HttpResponseException e) {
       throw new IntegrationException("Airflow request fail", e);
     } catch (IOException e) {
-      throw new OsduRuntimeException(e.getMessage(), e);
+      throw new RuntimeException(e.getMessage(), e);
     }
   }
 }

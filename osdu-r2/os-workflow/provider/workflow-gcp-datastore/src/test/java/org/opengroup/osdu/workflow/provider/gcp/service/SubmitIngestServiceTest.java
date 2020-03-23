@@ -37,9 +37,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opengroup.osdu.workflow.ReplaceCamelCase;
-import org.opengroup.osdu.workflow.exception.OsduRuntimeException;
+import org.opengroup.osdu.workflow.exception.RuntimeException;
 import org.opengroup.osdu.workflow.provider.gcp.property.AirflowProperties;
-import org.opengroup.osdu.workflow.provider.interfaces.SubmitIngestService;
+import org.opengroup.osdu.workflow.provider.interfaces.ISubmitIngestService;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)
@@ -59,7 +59,7 @@ class SubmitIngestServiceTest {
   @Mock
   private HttpResponse httpResponse;
 
-  SubmitIngestService submitIngestService;
+  ISubmitIngestService submitIngestService;
 
   @BeforeEach
   void setUp() {
@@ -107,7 +107,7 @@ class SubmitIngestServiceTest {
 
     // then
     then(thrown).satisfies(exception -> {
-      then(exception).isInstanceOf(OsduRuntimeException.class);
+      then(exception).isInstanceOf(RuntimeException.class);
       then(exception).hasMessage("test-exception");
     });
   }
