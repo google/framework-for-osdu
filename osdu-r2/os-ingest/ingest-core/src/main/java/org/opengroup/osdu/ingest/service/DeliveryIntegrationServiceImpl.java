@@ -24,17 +24,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.core.common.model.file.FileLocationRequest;
 import org.opengroup.osdu.core.common.model.file.FileLocationResponse;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
-import org.opengroup.osdu.ingest.client.IFileServiceClient;
+import org.opengroup.osdu.ingest.client.IDeliveryServiceClient;
 import org.opengroup.osdu.ingest.exception.ServerErrorException;
-import org.opengroup.osdu.ingest.provider.interfaces.IFileIntegrationService;
+import org.opengroup.osdu.ingest.provider.interfaces.IDeliveryIntegrationService;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class FileIntegrationServiceImpl implements IFileIntegrationService {
+public class DeliveryIntegrationServiceImpl implements IDeliveryIntegrationService {
 
-  final IFileServiceClient fileServiceClient;
+  final IDeliveryServiceClient deliveryServiceClient;
   final ObjectMapper objectMapper;
 
   @Override
@@ -45,7 +45,7 @@ public class FileIntegrationServiceImpl implements IFileIntegrationService {
 
     log.debug("Send file location request to file service, request - {}", request);
 
-    try (Response response = fileServiceClient
+    try (Response response = deliveryServiceClient
         .getFileLocation(commonHeaders.getAuthorization(), commonHeaders.getPartitionIdWithFallbackToAccountId(),
             request)) {
 

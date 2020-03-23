@@ -26,11 +26,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-@FeignClient(url = "${osdu.file-service.url}", name = "file-service")
-public interface IFileServiceClient {
+@FeignClient(url = "${osdu.delivery-service.url}", name = "delivery-service")
+public interface IDeliveryServiceClient {
 
   @CheckClientResponse
-  @PostMapping("${osdu.file-service.get-file-location-endpoint}")
+  @PostMapping("/getFileLocation")
   feign.Response getFileLocation(@RequestHeader(AUTHORIZATION) String authToken,
       @RequestHeader(DATA_PARTITION_ID) String partition,
       @RequestBody FileLocationRequest fileLocationRequest);

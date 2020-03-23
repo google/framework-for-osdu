@@ -33,7 +33,7 @@ import org.opengroup.osdu.core.common.model.file.FileLocationResponse;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.ingest.ReplaceCamelCase;
 import org.opengroup.osdu.ingest.model.property.WorkflowProperties;
-import org.opengroup.osdu.ingest.provider.interfaces.IFileIntegrationService;
+import org.opengroup.osdu.ingest.provider.interfaces.IDeliveryIntegrationService;
 import org.opengroup.osdu.ingest.provider.interfaces.IWorkflowPayloadService;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,14 +47,14 @@ class WorkflowPayloadServiceTest {
       .build();
 
   @Mock
-  private IFileIntegrationService fileIntegrationService;
+  private IDeliveryIntegrationService deliveryIntegrationService;
 
   private IWorkflowPayloadService workflowPayloadService;
 
   @BeforeEach
   void setUp() {
     workflowPayloadService = new WorkflowPayloadServiceImpl(workflowProperties,
-        fileIntegrationService, new ObjectMapper());
+        deliveryIntegrationService, new ObjectMapper());
   }
 
   @Test
@@ -69,7 +69,7 @@ class WorkflowPayloadServiceTest {
     DpsHeaders headers = DpsHeaders.createFromMap(headersMap);
 
     FileLocationResponse fileLocation = FileLocationResponse.builder().location("location").build();
-    given(fileIntegrationService.getFileInfo(eq(FILE_ID), eq(headers))).willReturn(fileLocation);
+    given(deliveryIntegrationService.getFileInfo(eq(FILE_ID), eq(headers))).willReturn(fileLocation);
 
     // when
     Map<String, Object> context = workflowPayloadService.getContext(FILE_ID, headers);

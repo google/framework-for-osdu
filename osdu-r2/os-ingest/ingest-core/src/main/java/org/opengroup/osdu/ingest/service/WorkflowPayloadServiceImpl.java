@@ -25,7 +25,7 @@ import org.opengroup.osdu.core.common.model.file.FileLocationResponse;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.ingest.model.IngestPayload;
 import org.opengroup.osdu.ingest.model.property.WorkflowProperties;
-import org.opengroup.osdu.ingest.provider.interfaces.IFileIntegrationService;
+import org.opengroup.osdu.ingest.provider.interfaces.IDeliveryIntegrationService;
 import org.opengroup.osdu.ingest.provider.interfaces.IWorkflowPayloadService;
 import org.springframework.stereotype.Service;
 
@@ -34,13 +34,13 @@ import org.springframework.stereotype.Service;
 public class WorkflowPayloadServiceImpl implements IWorkflowPayloadService {
 
   final WorkflowProperties workflowProperties;
-  final IFileIntegrationService fileIntegrationService;
+  final IDeliveryIntegrationService deliveryIntegrationService;
   final ObjectMapper objectMapper;
 
   @Override
   public Map<String, Object> getContext(String fileId, DpsHeaders headers) {
 
-    FileLocationResponse fileLocation = fileIntegrationService.getFileInfo(fileId, headers);
+    FileLocationResponse fileLocation = deliveryIntegrationService.getFileInfo(fileId, headers);
 
     Map<String, Object> data = new HashMap<>();
     data.put("FileID", fileId);
