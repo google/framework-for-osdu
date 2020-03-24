@@ -38,7 +38,7 @@ The Workflow service in the OSDU R2 Prototype defines the following workflows:
 The ingestion workflow starts by a call to the `/startWorkflow` API endpoint. The following diagram
 shows the workflow.
 
-![OSDU R2 WorkflowService startWorkflow](/uploads/d2122ae7e53a234d92b87552e5d6b5b1/OSDU_R2_Workflow_Service_startWorkflow_API.png)
+![OSDU R2 Workflow Service startWorkflow API](/uploads/d2122ae7e53a234d92b87552e5d6b5b1/OSDU_R2_Workflow_Service_startWorkflow_API.png)
 
 Upon a `/startWorkflow` request:
 
@@ -62,7 +62,9 @@ decides which DAG to run by the following three parameters:
 
 ### Get workflow status
 
-Upon a `/getWorkflow` request:
+The delivery of an ingestion workflow status starts upon a call to the `/getStatus` API endpoint.
+
+Upon a `/getStatus` request:
 
 1. Validate the incoming request.
     * Verify the authorization token. If the token is missing or invalid, respond with the `401
@@ -76,8 +78,8 @@ Upon a `/getWorkflow` request:
 ### Update workflow status
 
 Once an ingestion workflow has started and a file is ingested, the Apache Airflow DAGs send a new
-status to the Workflow service. The ingestion workflow status can be set to **running**,
-**finished**, or **failed**.
+status to the Workflow service, which updates the status in the database. The ingestion workflow
+status can be set to **running**, **finished**, or **failed**.
 
 Upon an `/updateWorkflowStatus` request:
 
@@ -131,7 +133,7 @@ determine which DAG to run.
 | Context      | `List`   | Data required to run a DAG, provided as list of key-value pairs |
 
 > The Context may include a file location, ACL and legal tags, and the Airflow run ID. The
-> `/startWorkflow` passes the Context to Airflow without modifying it.
+> **/startWorkflow API** passes the Context to Airflow without modifying it.
 
 #### Response body
 
@@ -163,7 +165,7 @@ If the workflow ID isn't found in the database, the `404 Not Found` status is re
 ### POST /updateWorkflowStatus
 
 The `/updateWorkflowStatus` API endpoint updates the status of a workflow job. This endpoint is not
-available for external requests. This endpoint is necessary to let Apache Airflow DAGs update the
+available for external requests. The endpoint is necessary to let Apache Airflow DAGs update the
 workflow status.
 
 #### Request body
