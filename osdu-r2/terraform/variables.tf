@@ -38,7 +38,7 @@ variable "enable_iam" {
   description = "Enable management of IAM role bindings. Requires Project IAM Admin role or equivalent for Terraform service account"
 }
 
-variable "entitlement-service" {
- type         = string
- description  = "Your OpenDES entitlements API URL, e.g. https://example.com/entitlements/v1"
+variable "entitlement_service" {
+  type        = string
+  description = "Your OpenDES entitlements API URL, e.g. https://example.com/entitlements/v1"
 }

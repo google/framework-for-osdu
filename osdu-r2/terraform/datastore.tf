@@ -11,7 +11,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-resource "google_datastore_index" "file-index" {
+resource "google_datastore_index" "file_index" {
   kind = "file-locations"
   properties {
     name      = "CreatedBy"

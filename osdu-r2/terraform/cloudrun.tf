@@ -18,7 +18,7 @@ locals {
   )}"
 }
 
-resource "google_cloud_run_service" "os-delivery" {
+resource "google_cloud_run_service" "delivery" {
   name     = "os-delivery"
   location = var.region
 
@@ -28,7 +28,7 @@ resource "google_cloud_run_service" "os-delivery" {
         image = "gcr.io/${var.gcr_project}/os-delivery/delivery-gcp-datastore:latest"
         env {
           name  = "FILE_LOCATION_BUCKET_NAME"
-          value = google_storage_bucket.osdu-file-bucket.name
+          value = google_storage_bucket.osdu_file_bucket.name
         }
         env {
           name  = "FILE_LOCATION_USER_ID"
@@ -36,7 +36,7 @@ resource "google_cloud_run_service" "os-delivery" {
         }
         env {
           name  = "OSDU_ENTITLEMENTS_URL"
-          value = var.entitlement-service
+          value = var.entitlement_service
         }
         resources {
           limits = local.limits
@@ -55,7 +55,7 @@ resource "google_cloud_run_service" "os-delivery" {
   depends_on = [google_project_service.api]
 }
 
-resource "google_cloud_run_service" "os-workflow" {
+resource "google_cloud_run_service" "workflow" {
   name     = "os-workflow"
   location = var.region
 
@@ -65,11 +65,11 @@ resource "google_cloud_run_service" "os-workflow" {
         image = "gcr.io/${var.gcr_project}/os-workflow/workflow-gcp-datastore:latest"
         env {
           name  = "GCP_AIRFLOW_URL"
-          value = google_composer_environment.osdu-gcp.config.0.airflow_uri
+          value = google_composer_environment.osdu_gcp.config.0.airflow_uri
         }
         env {
           name  = "OSDU_ENTITLEMENTS_URL"
-          value = var.entitlement-service
+          value = var.entitlement_service
         }
         resources {
           limits = local.limits
@@ -88,7 +88,7 @@ resource "google_cloud_run_service" "os-workflow" {
   depends_on = [google_project_service.api]
 }
 
-resource "google_cloud_run_service" "os-ingest" {
+resource "google_cloud_run_service" "ingest" {
   name     = "os-ingest"
   location = var.region
 
@@ -98,15 +98,15 @@ resource "google_cloud_run_service" "os-ingest" {
         image = "gcr.io/${var.gcr_project}/os-ingest/ingest-gcp-datastore:latest"
         env {
           name  = "OSDU_DELIVERY_SERVICE_URL"
-          value = google_cloud_run_service.os-delivery.status[0].url
+          value = google_cloud_run_service.delivery.status[0].url
         }
         env {
           name  = "OSDU_WORKFLOW_SERVICE_URL"
-          value = google_cloud_run_service.os-workflow.status[0].url
+          value = google_cloud_run_service.workflow.status[0].url
         }
         env {
           name  = "OSDU_ENTITLEMENTS_URL"
-          value = var.entitlement-service
+          value = var.entitlement_service
         }
         resources {
           limits = local.limits
@@ -125,41 +125,41 @@ resource "google_cloud_run_service" "os-ingest" {
   depends_on = [google_project_service.api]
 }
 
-resource "google_cloud_run_service_iam_member" "delivery-iam" {
-  location = google_cloud_run_service.os-delivery.location
-  project  = google_cloud_run_service.os-delivery.project
-  service  = google_cloud_run_service.os-delivery.name
+resource "google_cloud_run_service_iam_member" "delivery_iam" {
+  location = google_cloud_run_service.delivery.location
+  project  = google_cloud_run_service.delivery.project
+  service  = google_cloud_run_service.delivery.name
   role     = "roles/run.invoker"
   member   = "allUsers"
 }
 
-resource "google_cloud_run_service_iam_member" "ingest-iam" {
-  location = google_cloud_run_service.os-ingest.location
-  project  = google_cloud_run_service.os-ingest.project
-  service  = google_cloud_run_service.os-ingest.name
+resource "google_cloud_run_service_iam_member" "ingest_iam" {
+  location = google_cloud_run_service.ingest.location
+  project  = google_cloud_run_service.ingest.project
+  service  = google_cloud_run_service.ingest.name
   role     = "roles/run.invoker"
   member   = "allUsers"
 }
 
-resource "google_cloud_run_service_iam_member" "workflow-iam" {
-  location = google_cloud_run_service.os-workflow.location
-  project  = google_cloud_run_service.os-workflow.project
-  service  = google_cloud_run_service.os-workflow.name
+resource "google_cloud_run_service_iam_member" "workflow_iam" {
+  location = google_cloud_run_service.workflow.location
+  project  = google_cloud_run_service.workflow.project
+  service  = google_cloud_run_service.workflow.name
   role     = "roles/run.invoker"
   member   = "allUsers"
 }
 
-output "os-delivery-url" {
-  value       = google_cloud_run_service.os-delivery.status[0].url
+output "delivery_url" {
+  value       = google_cloud_run_service.delivery.status[0].url
   description = "OS-Delivery Cloud Run URL"
 }
 
-output "os-ingest-url" {
-  value       = google_cloud_run_service.os-ingest.status[0].url
+output "ingest_url" {
+  value       = google_cloud_run_service.ingest.status[0].url
   description = "OS-Ingest Cloud Run URL"
 }
 
-output "os-workflow-url" {
-  value       = google_cloud_run_service.os-workflow.status[0].url
+output "workflow_url" {
+  value       = google_cloud_run_service.workflow.status[0].url
   description = "OS-Workflow Cloud Run URL"
 }

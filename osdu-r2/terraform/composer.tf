@@ -11,7 +11,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-resource "google_composer_environment" "osdu-gcp" {
+resource "google_composer_environment" "osdu_gcp" {
   name   = "osdu-gcp"
   region = var.region
   config {
@@ -26,12 +26,12 @@ resource "google_storage_bucket_object" "dags" {
   for_each = fileset("${path.module}/../os-dags/", "**")
   name     = "dags/${each.value}"
   source   = "${path.module}/../os-dags/${each.value}"
-  bucket   = element(split("/", google_composer_environment.osdu-gcp.config.0.dag_gcs_prefix), 2)
+  bucket   = element(split("/", google_composer_environment.osdu_gcp.config.0.dag_gcs_prefix), 2)
 }
 
 resource "google_storage_bucket_object" "osdu_api" {
   for_each = fileset("${path.module}/../os-python-sdk/osdu_api/", "**")
   name     = "dags/osdu_api/${each.value}"
   source   = "${path.module}/../os-python-sdk/osdu_api/${each.value}"
-  bucket   = element(split("/", google_composer_environment.osdu-gcp.config.0.dag_gcs_prefix), 2)
+  bucket   = element(split("/", google_composer_environment.osdu_gcp.config.0.dag_gcs_prefix), 2)
 }
