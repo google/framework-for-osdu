@@ -1,0 +1,130 @@
+[
+  {
+    "entity": {
+      "key": {
+        "partitionId": {
+          "projectId": "{{ project_id }}",
+          "namespaceId": "odes-namespace"
+        },
+        "path": [
+          {
+            "kind": "ingestion-strategy",
+            "id": "5635008819625984"
+          }
+        ]
+      },
+      "properties": {
+        "DataType": {
+          "stringValue": "well_log"
+        },
+        "DAGName": {
+          "stringValue": "Well_log_ingest"
+        },
+        "UserID": {
+          "nullValue": null
+        },
+        "WorkflowType": {
+          "stringValue": "ingest"
+        }
+      }
+    },
+    "cursor": "ClMSTWoZc35hMmJhMDdhY2E1OC1lbmVyZ3ktb3NkdXIfCxISaW5nZXN0aW9uLXN0cmF0ZWd5GICAgNiroIEKDKIBDm9kZXMtbmFtZXNwYWNlGAAgAA==",
+    "version": "1583239539134163"
+  },
+  {
+    "entity": {
+      "key": {
+        "partitionId": {
+          "projectId": "{{ project_id }}",
+          "namespaceId": "odes-namespace"
+        },
+        "path": [
+          {
+            "kind": "ingestion-strategy",
+            "id": "5638358357245952"
+          }
+        ]
+      },
+      "properties": {
+        "DataType": {
+          "stringValue": "osdu"
+        },
+        "DAGName": {
+          "stringValue": "Osdu_ingest"
+        },
+        "UserID": {
+          "nullValue": null
+        },
+        "WorkflowType": {
+          "stringValue": "osdu"
+        }
+      }
+    },
+    "cursor": "ClMSTWoZc35hMmJhMDdhY2E1OC1lbmVyZ3ktb3NkdXIfCxISaW5nZXN0aW9uLXN0cmF0ZWd5GICAgNjpgYIKDKIBDm9kZXMtbmFtZXNwYWNlGAAgAA==",
+    "version": "1582626974932982"
+  },
+  {
+    "entity": {
+      "key": {
+        "partitionId": {
+          "projectId": "{{ project_id }}",
+          "namespaceId": "odes-namespace"
+        },
+        "path": [
+          {
+            "kind": "ingestion-strategy",
+            "id": "5643280054222848"
+          }
+        ]
+      },
+      "properties": {
+        "WorkflowType": {
+          "stringValue": "ingest"
+        },
+        "DataType": {
+          "stringValue": "well_log"
+        },
+        "DAGName": {
+          "stringValue": "Other_log_ingest"
+        },
+        "UserID": {
+          "stringValue": "User1"
+        }
+      }
+    },
+    "cursor": "ClMSTWoZc35hMmJhMDdhY2E1OC1lbmVyZ3ktb3NkdXIfCxISaW5nZXN0aW9uLXN0cmF0ZWd5GICAgLiIkYMKDKIBDm9kZXMtbmFtZXNwYWNlGAAgAA==",
+    "version": "1582627143609132"
+  },
+  {
+    "entity": {
+      "key": {
+        "partitionId": {
+          "projectId": "{{ project_id }}",
+          "namespaceId": "odes-namespace"
+        },
+        "path": [
+          {
+            "kind": "ingestion-strategy",
+            "id": "5675594515742720"
+          }
+        ]
+      },
+      "properties": {
+        "WorkflowType": {
+          "stringValue": "ingest"
+        },
+        "DataType": {
+          "nullValue": null
+        },
+        "DAGName": {
+          "stringValue": "Default_ingest"
+        },
+        "UserID": {
+          "nullValue": null
+        }
+      }
+    },
+    "cursor": "ClMSTWoZc35hMmJhMDdhY2E1OC1lbmVyZ3ktb3NkdXIfCxISaW5nZXN0aW9uLXN0cmF0ZWd5GICAgJjFvYoKDKIBDm9kZXMtbmFtZXNwYWNlGAAgAA==",
+    "version": "1582627689748405"
+  }
+]

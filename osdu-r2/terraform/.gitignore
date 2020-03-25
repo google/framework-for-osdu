@@ -1,0 +1,18 @@
+# from https://github.com/github/gitignore/blob/master/Terraform.gitignore
+# LICENSE - Creative Commons Zero 1.0
+
+**/.terraform/*
+
+*tfstate
+*.tfstate.*
+
+crash.log
+
+*.tfvars
+
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+*tfplan*
