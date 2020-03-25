@@ -11,7 +11,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-resource "google_storage_bucket" "osdu-file-bucket" {
+resource "google_storage_bucket" "osdu_file_bucket" {
   name          = "${var.project}-osdu-file"
   location      = var.region
   storage_class = "STANDARD"
@@ -21,8 +21,8 @@ resource "google_storage_bucket" "osdu-file-bucket" {
   }
 }
 
-resource "google_storage_bucket_iam_member" "osdu-sa" {
-  bucket = google_storage_bucket.osdu-file-bucket.name
-  role = "roles/storage.admin"
+resource "google_storage_bucket_iam_member" "osdu_sa" {
+  bucket = google_storage_bucket.osdu_file_bucket.name
+  role   = "roles/storage.admin"
   member = "serviceAccount:${google_service_account.osdu_service_account.email}"
 }
