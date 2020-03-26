@@ -1,4 +1,5 @@
 // Copyright 2017-2019, Schlumberger
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,12 +40,12 @@ public class ConversionRecord {
     public String getRecordId() {
         if (this.recordJsonObject == null) {
             throw new AppException(HttpStatus.SC_INTERNAL_SERVER_ERROR, "error", "record does not exist");
-        }        
+        }
         JsonElement recordId = this.recordJsonObject.get("id");
         if (recordId == null || recordId.getAsString().isEmpty()) {
             throw new AppException(HttpStatus.SC_INTERNAL_SERVER_ERROR, "error", "record does not have id");
         }
         return recordId.getAsString();
-    }    
+    }
 }
 
