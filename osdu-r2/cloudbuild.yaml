@@ -45,7 +45,7 @@ steps:
       '.'
     ]
   - name: 'gcr.io/cloud-builders/docker'
-    dir: os-ingest
+    dir: os-workflow
     args: [
       'build',
       '--build-arg', 'PROVIDER_NAME=${_PROVIDER_NAME}',

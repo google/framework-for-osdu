@@ -42,14 +42,14 @@ import org.opengroup.osdu.core.common.model.file.FileLocationRequest;
 import org.opengroup.osdu.core.common.model.file.FileLocationResponse;
 import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.ingest.ReplaceCamelCase;
-import org.opengroup.osdu.ingest.client.IFileServiceClient;
+import org.opengroup.osdu.ingest.client.IDeliveryServiceClient;
 import org.opengroup.osdu.ingest.exception.ServerErrorException;
-import org.opengroup.osdu.ingest.provider.interfaces.IFileIntegrationService;
+import org.opengroup.osdu.ingest.provider.interfaces.IDeliveryIntegrationService;
 import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)
-class FileIntegrationServiceTest {
+class DeliveryIntegrationServiceTest {
 
   private static final String FILE_LOCATION = "file-location";
   private static final String GCP = "GCP";
@@ -59,16 +59,16 @@ class FileIntegrationServiceTest {
   private ObjectMapper mapper = new ObjectMapper();
 
   @Mock
-  private IFileServiceClient fileServiceClient;
+  private IDeliveryServiceClient fileServiceClient;
 
   @Captor
   ArgumentCaptor<FileLocationRequest> fileLocationRequestCaptor;
 
-  IFileIntegrationService fileIntegrationService;
+  IDeliveryIntegrationService deliveryIntegrationService;
 
   @BeforeEach
   void setUp() {
-    fileIntegrationService = new FileIntegrationServiceImpl(fileServiceClient, mapper);
+    deliveryIntegrationService = new DeliveryIntegrationServiceImpl(fileServiceClient, mapper);
   }
 
   @Test
@@ -92,7 +92,7 @@ class FileIntegrationServiceTest {
         .willReturn(response);
 
     // when
-    FileLocationResponse fileLocationResponseActual = fileIntegrationService
+    FileLocationResponse fileLocationResponseActual = deliveryIntegrationService
         .getFileInfo(FILE_ID, requestHeaders);
 
     // then
@@ -124,7 +124,7 @@ class FileIntegrationServiceTest {
         .willReturn(response);
 
     // when
-    Throwable thrown = catchThrowable(() -> fileIntegrationService
+    Throwable thrown = catchThrowable(() -> deliveryIntegrationService
         .getFileInfo(FILE_ID, requestHeaders));
 
     // then

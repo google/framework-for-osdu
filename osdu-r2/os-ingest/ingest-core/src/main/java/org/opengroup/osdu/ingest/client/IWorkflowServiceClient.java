@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 public interface IWorkflowServiceClient {
 
   @CheckClientResponse
-  @PostMapping("${osdu.workflow-service.start-workflow-endpoint}")
+  @PostMapping("/startWorkflow")
   feign.Response startWorkflow(@RequestHeader(AUTHORIZATION) String authToken,
       @RequestHeader(DATA_PARTITION_ID) String partition,
       @RequestBody StartWorkflowRequest startWorkflowRequest);

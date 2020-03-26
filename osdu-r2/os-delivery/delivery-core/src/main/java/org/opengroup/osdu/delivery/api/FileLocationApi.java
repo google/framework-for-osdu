@@ -43,7 +43,7 @@ public class FileLocationApi {
   final LocationService locationService;
 
   // TODO: Create the permission for os-delivery and change pre authorize annotation
-  @PostMapping("getLocation")
+  @PostMapping("/getLocation")
   @PreAuthorize("@authorizationFilter.hasPermission('" + StorageRole.CREATOR + "')")
   public LocationResponse getLocation(@RequestBody LocationRequest request) {
     log.debug("Location request received with following body : {} and headers : {}",
@@ -54,7 +54,7 @@ public class FileLocationApi {
   }
 
   // TODO: Create the permission for os-delivery and change pre authorize annotation
-  @PostMapping("getFileLocation")
+  @PostMapping("/getFileLocation")
   @PreAuthorize("@authorizationFilter.hasPermission('" + StorageRole.CREATOR + "')")
   public FileLocationResponse getFileLocation(@RequestBody FileLocationRequest request) {
     log.debug("File location request received with following body : {} and headers : {}",

@@ -1,4 +1,5 @@
 // Copyright 2017-2019, Schlumberger
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,6 +36,6 @@ public final class Constants {
 
     //headers needed to call storage and get converted data
     public static final String SLB_FRAME_OF_REFERENCE_VALUE = "units=SI;crs=wgs84;elevation=msl;azimuth=true north;dates=utc;";
-    
-    
+
+
 }

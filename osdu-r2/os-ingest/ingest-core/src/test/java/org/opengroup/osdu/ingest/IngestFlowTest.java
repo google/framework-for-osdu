@@ -45,7 +45,7 @@ import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.core.common.model.workflow.StartWorkflowRequest;
 import org.opengroup.osdu.core.common.model.workflow.StartWorkflowResponse;
 import org.opengroup.osdu.core.common.provider.interfaces.IAuthorizationService;
-import org.opengroup.osdu.ingest.client.IFileServiceClient;
+import org.opengroup.osdu.ingest.client.IDeliveryServiceClient;
 import org.opengroup.osdu.ingest.client.IWorkflowServiceClient;
 import org.opengroup.osdu.ingest.model.SchemaData;
 import org.opengroup.osdu.ingest.model.SubmitRequest;
@@ -93,7 +93,7 @@ public class IngestFlowTest {
   private ObjectMapper mapper;
 
   @MockBean
-  private IFileServiceClient fileServiceClient;
+  private IDeliveryServiceClient deliveryServiceClient;
   @MockBean
   private IWorkflowServiceClient workflowServiceClient;
   @MockBean
@@ -120,7 +120,7 @@ public class IngestFlowTest {
         .request(getFeignRequest())
         .status(HttpStatus.OK.value()).build();
 
-    given(fileServiceClient.getFileLocation(eq(TEST_AUTH), eq(PARTITION),
+    given(deliveryServiceClient.getFileLocation(eq(TEST_AUTH), eq(PARTITION),
         eq(FileLocationRequest.builder().fileID(FILE_ID).build())))
         .willReturn(fileResponse);
 

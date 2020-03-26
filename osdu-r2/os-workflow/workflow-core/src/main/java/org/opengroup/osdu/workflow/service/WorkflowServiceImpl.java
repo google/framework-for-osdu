@@ -47,8 +47,7 @@ public class WorkflowServiceImpl implements IWorkflowService {
 
     validationService.validateStartWorkflowRequest(request);
 
-    // TODO will be populated after authorization came
-    String userId = null;
+    String userId = headers.getUserEmail();
 
     String strategyName = ingestionStrategyService.determineStrategy(request.getWorkflowType(),
         request.getDataType(), userId);

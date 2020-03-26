@@ -41,7 +41,7 @@ public class FileApi {
   final FileService fileService;
 
   // TODO: Create the permission for os-delivery and change pre authorize annotation
-  @PostMapping("getFile")
+  @PostMapping("/getFile")
   @PreAuthorize("@authorizationFilter.hasPermission('" + StorageRole.CREATOR + "')")
   public FileResponse getFile(@RequestBody FileRequest request) {
     log.debug("Get file request received, with following parameters: {}", request);
