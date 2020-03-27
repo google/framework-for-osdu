@@ -45,8 +45,8 @@ public class GetLocationGcpTests extends BaseFileService {
     /**
      * File service paths
      */
-    String getLocation = factoriesHolder.remoteFactoryCreator().getFileService("getLocationFunction");
-    String getFileLocation = factoriesHolder.remoteFactoryCreator().getFileService("getFileLocationFunction");
+    String getLocation = factoriesHolder.remoteFactoryCreator().getFileService("getLocation");
+    String getFileLocation = factoriesHolder.remoteFactoryCreator().getFileService("getFileLocation");
 
     @Test(dataProvider = "testedData", dataProviderClass = DataProviders.class)
     @Description("Valid flow send request with the unique id and with auth token")

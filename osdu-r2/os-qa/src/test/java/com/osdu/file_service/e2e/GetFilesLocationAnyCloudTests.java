@@ -48,9 +48,9 @@ public class GetFilesLocationAnyCloudTests extends BaseFileService {
     /**
      * File service paths
      */
-    String getLocation = factoriesHolder.remoteFactoryCreator().getFileService("getLocationFunction");
-    String getFileLocation = factoriesHolder.remoteFactoryCreator().getFileService("getFileLocationFunction");
-    String getFilesListFunction = factoriesHolder.remoteFactoryCreator().getFileService("getFileListFunction");
+    String getLocation = factoriesHolder.remoteFactoryCreator().getFileService("getLocation");
+    String getFileLocation = factoriesHolder.remoteFactoryCreator().getFileService("getFileLocation");
+    String getFilesListFunction = factoriesHolder.remoteFactoryCreator().getFileService("getFileList");
 
     @SneakyThrows
     @Test(dataProvider = "testedData", dataProviderClass = DataProviders.class)

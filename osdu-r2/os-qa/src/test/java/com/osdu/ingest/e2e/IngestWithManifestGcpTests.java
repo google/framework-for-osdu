@@ -53,10 +53,10 @@ public class IngestWithManifestGcpTests extends BaseIngestService { //todo::::  
     /**
      * Services paths
      */
-    String submitFunction = factoriesHolder.remoteFactoryCreator().getIngest("submitWithManifestFunction");
+    String submitFunction = factoriesHolder.remoteFactoryCreator().getIngest("submitWithManifest");
 
-    String getWorkflowStatus = factoriesHolder.remoteFactoryCreator().getWorkflowService("getStatusFunction");
-    String startWorkflow = factoriesHolder.remoteFactoryCreator().getWorkflowService("startWorkflowFunction");
+    String getWorkflowStatus = factoriesHolder.remoteFactoryCreator().getWorkflowService("getStatus");
+    String startWorkflow = factoriesHolder.remoteFactoryCreator().getWorkflowService("startWorkflow");
 
     @Test(dataProvider = "testedData", dataProviderClass = DataProviders.class)
     @Description("Verify required dag was called")

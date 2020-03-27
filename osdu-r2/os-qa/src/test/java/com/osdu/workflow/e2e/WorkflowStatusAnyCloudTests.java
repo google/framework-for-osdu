@@ -40,7 +40,7 @@ public class WorkflowStatusAnyCloudTests extends BaseWorkflowService {
     /**
      * Services paths
      */
-    String getWorkflowStatus = factoriesHolder.remoteFactoryCreator().getWorkflowService("getStatusFunction");
+    String getWorkflowStatus = factoriesHolder.remoteFactoryCreator().getWorkflowService("getStatus");
 
     @Test(dataProvider = "testedData", dataProviderClass = DataProviders.class)
     @Description("Send request with all required fields and without auth token")
