@@ -5,21 +5,22 @@
 * [Introduction](#introduction)
 * [System interactions](#system-interactions)
 * [Validations](#validations)
-* [API](#api)
+* [API](#delivery-api)
     * [POST /delivery](#post-delivery)
     * [POST /getLocation](#post-getlocation)
     * [POST /getFileLocation](#post-getfilelocation)
     * [POST /getFileList](#post-getfilelist)
 * [Service Provider Interfaces](#service-provider-interfaces)
 * [GCP implementation](#gcp-implementation)
-    * [Persistence layer](#persistence-layer)
 * [Datastore](#datastore)
-* [Firestore](#firestore)
+* [Firestore](#firestore-collections)
 
 ## Introduction
 
-The OSDU R2 Delivery service provides internal and external APIs to let the application or user
-fetch any records from the system or request file location data.
+The OSDU R2 Delivery service provides internal and external API endpoints to let the application or
+user fetch any records from the system or request file location data.  For example, users can
+request generation of an individual signed URL per file. Using a signed URL, OSDU R2 users will be
+able to upload their files to the system.
 
 The current implementation of the Delivery service supports only cloud platform-specific locations.
 The future implementations might allow the use of on-premises locations.
@@ -44,11 +45,8 @@ Upon a `/delivery` request:
 1. Verify the incoming request.
     * Verify the authentication token. Fail delivery if the token is missing or invalid, and then
     respond with the `401 Unauthorized` status.
-    * Verify the partition ID. Fail delivery if the partition ID is missing, invalid or doesn't have
-    assigned user groups, and then respond with the `400 Bad Request` status.
-    * Verify the file ID if it's passed in the request body. Fail signed URL generation if the file
-    ID is invalid or if this ID has already been created, and then respond with the `400 Bad
-    Request` status.
+    * Verify the partition ID. Fail delivery if the partition ID is missing or invalid or doesn't
+    have assigned user groups, and then respond with the `400 Bad Request` status.
 2. For each SRN in the request:
    * Find the _SRN to DELFI record ID_ mapping in the database.
        * If there's no record for the current SRN in the database, set the processing result status
@@ -89,13 +87,15 @@ Upon a request to get a location for a file:
     ID is invalid or if this ID has already been created. Respond with `400 Bad Request` status
     and the `Location for fileID {ID} already exists` message.
 2. Generate a new Universally Unique Identifier (UUID) for the file if a file ID wasn't provided.
-3. Generate a signed URL with the write access for that object.
-    * By the signed URL, the user or application will upload their file for ingestion.
+3. Create an empty object in storage, and then generate a signed URL with the write access for that
+object. By the signed URL, the user or application will upload their file for ingestion. The
+generated signed URL has a maximum duration of 7 days.
+    * By the signed URL, the user or application will upload their file.
     * The generated signed URL has the maximum duration of 7 days.
     > How signed URLs are generated depends on the cloud platform.
 4. Create a record with file data in the database. The record will contain a key-value pair with the
 file ID as the key and object as the value. For more information on the record, consult the
-[Firestore](#firestore) section.
+[Firestore](#firestore-collections) section.
 5. Return the signed URL and file ID to the application or user.
 
 ### File location delivery
@@ -133,8 +133,7 @@ Upon request from another OSDU R2 service:
 ## Database interactions
 
 During each workflow, the Delivery service queries the database. For more information about the file
-records in the database, consult a dedicated section [file-locations collection](#collections) in
-this document.
+records in the database, consult the [file-locations collection](#firestore-collections) section.
 
 ## Validations
 
@@ -145,7 +144,7 @@ However, the Delivery service in the OSDU R2 Prototype doesn't perform any verif
 file upload happened or whether the user started ingestion after uploading a file. In future OSDU
 implementations, the Delivery service will be able to check if file uploads did happen.
 
-## API
+## Delivery API
 
 The Delivery service's API includes the following three methods in the OSDU R2 Prototype:
 
@@ -156,7 +155,7 @@ The Delivery service's API includes the following three methods in the OSDU R2 P
 
 General considerations related to querying the Delivery API:
 
-* Each endpoint must receive the authentication token in header. Example:
+* Each endpoint must receive the authentication bearer token in the "Authorization" header. Example:
 `"Authorization": "Bearer {token}"`
 * Each endpoint must receive a DELFI partition ID in header. Example:
 `"Partition-Id": "default-partition"`
@@ -181,20 +180,28 @@ related SRNs for WPCs and Files must also be included in the list.
 
 Example request for master data:
 
-```json
-{
-  "SRNS": ["srn:master-data/Wellbore:2221:"],
-  "TargetRegionID": "test"
-}
+```sh
+curl --location --request POST 'https://{path}/delivery' \
+    --header 'Authorization: Bearer {token}' \
+    --header 'Content-Type: application/json' \
+    --header 'Partition-Id: {assigned DELFI partition ID}' \
+    --data-raw '{
+      "SRNS": ["srn:master-data/Wellbore:2221:"],
+      "TargetRegionID": "test"
+    }'
 ```
 
 Example request for a file:
 
-```json
-{
-  "SRNS": ["srn:file/las2:c589ade1b53111e99047c99b225c8828:1"],
-  "TargetRegionID": "test"
-}
+```sh
+curl --location --request POST 'https://{path}/delivery' \
+    --header 'Authorization: Bearer {token}' \
+    --header 'Content-Type: application/json' \
+    --header 'Partition-Id: {assigned DELFI partition ID}' \
+    --data-raw '{
+      "SRNS": ["srn:file/las2:c589ade1b53111e99047c99b225c8828:1"],
+      "TargetRegionID": "test"
+    }'
 ```
 
 #### Response body
@@ -290,11 +297,11 @@ and returns it to the user so they upload a file for ingestion by that location.
 
 > **Note**: The `FileID` must correspond to the regular expression: `^[\w,\s-]+(\.\w+)?$`.
 
-**Example**:
+Request example:
 
 ```sh
 curl --location --request POST 'https://{path}/getLocation' \
-    --header 'Authorization: {token}' \
+    --header 'Authorization: Bearer {token}' \
     --header 'Content-Type: application/json' \
     --header 'Partition-Id: {DELFI partition ID}' \
     --data-raw '{
@@ -316,7 +323,7 @@ The Delivery service returns the following data.
 > files for OSDU ingestion. The landing zone consists of the `Driver` and `Location` properties,
 > which are stored in the database for each file upload request.
 
-Example:
+Response example:
 
 ```json
 {
@@ -342,13 +349,13 @@ not be returning files that belong to other users.
 | -------- | -------- | ----------------------------- |
 | FileID   | `String` | ID of the file to be ingested |
 
-**Example**:
+Request example:
 
 ```sh
 curl --location --request POST 'https://{path}/getFileLocation' \
-    --header 'Authorization: {token}' \
+    --header 'Authorization: Bearer {token}' \
     --header 'Content-Type: application/json' \
-    --header 'Partition-Id: {DELFI partition ID}' \
+    --header 'Partition-Id: {assigned DELFI partition ID}' \
     --data-raw '{
         "FileID": "8900a83f-18c6-4b1d-8f38-309a208779cc"
     }'
@@ -383,12 +390,12 @@ after the file upload.
 
 > **Note**: The `UserID` property isn't supported in the OSDU R2 Prototype.
 
-**Example**:
+Request example:
 
 ```sh
 curl --location --request POST 'https://{path}/getFileList' \
-    --header 'Authorization: {token}' \
-    --header 'Partition-Id: {DELFI partition ID}' \
+    --header 'Authorization: Bearer {token}' \
+    --header 'Partition-Id: {assigned DELFI partition ID}' \
     --header 'Content-Type: application/json' \
     --data-raw '{
         "PageNum": 0,
@@ -412,7 +419,7 @@ A paginated result of the records stored in the database.
 
 Each file record contains the following properties: `FileID`, `Driver`, `Location`, `CreatedAt`,
 `CreatedBy`. For more information the returned properties, consult the [Firestore
-collections](#collections) section.
+collections](#firestore-collections) section.
 
 Response example:
 
@@ -482,7 +489,7 @@ implementation that's already available in the project.
 * The Cloud Datastore implementation is located in the **provider/delivery-gcp-datastore** folder.
 * The Cloud Firestore implementation is located in the **provider/delivery-gcp** folder.
 
-To learn more about available collections, follow to the [Firestore collections](#collections)
+To learn more about available collections, follow to the [Firestore collections](#firestore-collections)
 section.
 
 ## Datastore
@@ -491,14 +498,12 @@ The service account for Delivery service must have the `datastore.indexes.*` per
 predefined **roles/datastore.indexAdmin** and **roles/datastore.owner** roles include the required
 permission.
 
-## Firestore
+## Firestore collections
 
-The GCP implementation of the Delivery service uses Cloud Firestore with the following
-[collections](#collections) and [indexes](#indexes).
+The GCP implementation of the Delivery service uses Cloud Firestore with the following collections
+and indexes.
 
-### Collections
-
-`file-locations`
+### `file-locations` collection
 
 | Field     | Type     | Description                                                               |
 | --------- | -------- | ------------------------------------------------------------------------- |
