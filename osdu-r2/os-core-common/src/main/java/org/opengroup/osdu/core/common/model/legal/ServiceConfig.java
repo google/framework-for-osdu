@@ -1,3 +1,20 @@
+/*
+ * Copyright 2020 Google LLC
+ * Copyright 2017-2019, Schlumberger
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.opengroup.osdu.core.common.model.legal;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -17,14 +34,14 @@ public class ServiceConfig {
     public static final String LEGAL_EDITOR = "service.legal.editor";
     public static final String LEGAL_USER = "service.legal.user";
     public static final String LEGAL_CRON = "cron.job";
-    
+
     // Spring security adds prefix to roles
     public static final String PREFIX = "ROLE_";
     public static final String ROLE_LEGAL_ADMIN = PREFIX + LEGAL_ADMIN;
     public static final String ROLE_LEGAL_EDITOR = PREFIX + LEGAL_EDITOR;
     public static final String ROLE_LEGAL_USER = PREFIX + LEGAL_USER;
     public static final String ROLE_LEGAL_CRON = PREFIX + LEGAL_CRON;
-    
+
     @Value("${AUTHORIZE_API:null}")
     public String AUTHORIZE_API;
 
