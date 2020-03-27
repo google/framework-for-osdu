@@ -1,5 +1,6 @@
 /*
  * Copyright 2020 Google LLC
+ * Copyright 2017-2019, Schlumberger
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +23,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.opengroup.osdu.core.common.model.DataType;
 import org.opengroup.osdu.core.common.model.WorkflowType;
 
 @Data
@@ -35,7 +35,7 @@ public class StartWorkflowRequest {
   WorkflowType workflowType;
 
   @JsonProperty("DataType")
-  DataType dataType;
+  String dataType;
 
   @JsonProperty("Context")
   Map<String, Object> context;

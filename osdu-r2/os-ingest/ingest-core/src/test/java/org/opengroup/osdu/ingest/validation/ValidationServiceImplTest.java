@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 import com.networknt.schema.ValidationMessage;
 import com.networknt.schema.ValidatorTypeCode;
@@ -40,14 +39,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.opengroup.osdu.core.common.exception.OsduBadRequestException;
-import org.opengroup.osdu.core.common.model.DataType;
+import org.opengroup.osdu.core.common.exception.BadRequestException;
 import org.opengroup.osdu.ingest.ReplaceCamelCase;
 import org.opengroup.osdu.ingest.model.SubmitRequest;
 import org.opengroup.osdu.ingest.model.WorkProductLoadManifest;
-import org.opengroup.osdu.ingest.property.DataTypeValidationProperties;
-import org.opengroup.osdu.ingest.provider.interfaces.ValidationService;
-import org.opengroup.osdu.ingest.validation.schema.LoadManifestValidationService;
+import org.opengroup.osdu.ingest.provider.interfaces.IValidationService;
+import org.opengroup.osdu.ingest.validation.schema.ILoadManifestValidationService;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)
@@ -55,14 +52,11 @@ class ValidationServiceImplTest {
 
   private static final String FILE_ID = "file-id";
 
-  private static DataTypeValidationProperties dataTypeValidationProperties = mock(
-      DataTypeValidationProperties.class);
-
   @Mock
-  private LoadManifestValidationService loadManifestValidationService;
+  private ILoadManifestValidationService loadManifestValidationService;
 
   private static Validator validator;
-  private ValidationService validationService;
+  private IValidationService validationService;
 
   @BeforeAll
   static void initAll() {
@@ -79,8 +73,6 @@ class ValidationServiceImplTest {
   @BeforeEach
   void setUp() {
     validationService = new ValidationServiceImpl(validator, loadManifestValidationService);
-    given(dataTypeValidationProperties.getAllowedDataTypes())
-        .willReturn(Collections.singletonList(DataType.WELL_LOG));
   }
 
   @Nested
@@ -91,7 +83,7 @@ class ValidationServiceImplTest {
       // given
       SubmitRequest request = SubmitRequest.builder()
           .fileId(FILE_ID)
-          .dataType(DataType.WELL_LOG)
+          .dataType("WELL_LOG")
           .build();
 
       // when
@@ -118,27 +110,10 @@ class ValidationServiceImplTest {
     }
 
     @Test
-    void shouldFailValidationIfWrongDataType() {
-      // given
-      SubmitRequest request = SubmitRequest.builder()
-          .fileId(FILE_ID)
-          .dataType(DataType.OSDU)
-          .build();
-
-      // when
-      Throwable thrown = catchThrowable(() -> validationService.validateSubmitRequest(request));
-
-      // then
-      assertThat(thrown)
-          .isInstanceOf(ConstraintViolationException.class)
-          .hasMessage("Invalid Submit request");
-    }
-
-    @Test
     void shouldFailValidationIfNoFileId() {
       // given
       SubmitRequest request = SubmitRequest.builder()
-          .dataType(DataType.WELL_LOG)
+          .dataType("WELL_LOG")
           .build();
 
       // when
@@ -175,7 +150,8 @@ class ValidationServiceImplTest {
       // given
       WorkProductLoadManifest loadManifest = WorkProductLoadManifest.builder()
           .build();
-      ValidationMessage message = ValidationMessage.of("type", ValidatorTypeCode.TYPE, "$.WorkProduct", "null", "object");
+      ValidationMessage message = ValidationMessage
+          .of("type", ValidatorTypeCode.TYPE, "$.WorkProduct", "null", "object");
       given(loadManifestValidationService.validateManifest(loadManifest))
           .willReturn(Collections.singleton(message));
 
@@ -184,7 +160,7 @@ class ValidationServiceImplTest {
 
       // then
       then(thrown)
-          .isInstanceOf(OsduBadRequestException.class)
+          .isInstanceOf(BadRequestException.class)
           .hasMessageMatching("Failed to validate json from manifest (.*), validation result is (.*)");
     }
 
@@ -198,7 +174,7 @@ class ValidationServiceImplTest {
     @Override
     public <T extends ConstraintValidator<?, ?>> T getInstance(Class<T> key) {
       if (SubmitRequestValidator.class.equals(key)) {
-        return (T) new SubmitRequestValidator(dataTypeValidationProperties);
+        return (T) new SubmitRequestValidator();
       }
 
       return constraintValidatorFactory.getInstance(key);

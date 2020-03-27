@@ -39,15 +39,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.opengroup.osdu.core.common.model.DataType;
 import org.opengroup.osdu.core.common.model.WorkflowType;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.core.common.model.workflow.StartWorkflowRequest;
 import org.opengroup.osdu.core.common.model.workflow.StartWorkflowResponse;
 import org.opengroup.osdu.ingest.ReplaceCamelCase;
-import org.opengroup.osdu.ingest.client.WorkflowServiceClient;
-import org.opengroup.osdu.ingest.exception.OsduServerErrorException;
-import org.opengroup.osdu.ingest.model.Headers;
-import org.opengroup.osdu.ingest.provider.interfaces.WorkflowIntegrationService;
+import org.opengroup.osdu.ingest.client.IWorkflowServiceClient;
+import org.opengroup.osdu.ingest.exception.ServerErrorException;
+import org.opengroup.osdu.ingest.provider.interfaces.IWorkflowIntegrationService;
 import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,12 +60,12 @@ class WorkflowIntegrationServiceTest {
   private ObjectMapper mapper = new ObjectMapper();
 
   @Mock
-  private WorkflowServiceClient workflowServiceClient;
+  private IWorkflowServiceClient workflowServiceClient;
 
   @Captor
   ArgumentCaptor<StartWorkflowRequest> workflowRequestCaptor;
 
-  WorkflowIntegrationService workflowIntegrationService;
+  IWorkflowIntegrationService workflowIntegrationService;
 
   @BeforeEach
   void setUp() {
@@ -77,10 +76,10 @@ class WorkflowIntegrationServiceTest {
   void shouldSubmitIngestToWorkflowService() throws JsonProcessingException {
 
     // given
-    Headers requestHeaders = Headers.builder()
-        .authorizationToken(TEST_AUTH_TOKEN)
-        .partitionID(TEST_PARTITION)
-        .build();
+    Map<String, String> headersMap = new HashMap<>();
+    headersMap.put(DpsHeaders.AUTHORIZATION, TEST_AUTH_TOKEN);
+    headersMap.put(DpsHeaders.DATA_PARTITION_ID, TEST_PARTITION);
+    DpsHeaders requestHeaders = DpsHeaders.createFromMap(headersMap);
 
     StartWorkflowResponse startWorkflowResponse = StartWorkflowResponse.builder()
         .workflowId(WORKFLOW_ID).build();
@@ -97,7 +96,7 @@ class WorkflowIntegrationServiceTest {
 
     // when
     String workflowId = workflowIntegrationService
-        .submitIngestToWorkflowService(WorkflowType.INGEST, DataType.WELL_LOG, context,
+        .submitIngestToWorkflowService(WorkflowType.INGEST, "WELL_LOG", context,
             requestHeaders);
 
     // then
@@ -106,7 +105,7 @@ class WorkflowIntegrationServiceTest {
         .startWorkflow(anyString(), anyString(), workflowRequestCaptor.capture());
     then(workflowRequestCaptor.getValue()).satisfies(request -> {
       then(request.getContext()).containsEntry("key", "value");
-      then(request.getDataType()).isEqualTo(DataType.WELL_LOG);
+      then(request.getDataType()).isEqualTo("WELL_LOG");
       then(request.getWorkflowType()).isEqualTo(WorkflowType.INGEST);
     });
   }
@@ -115,10 +114,10 @@ class WorkflowIntegrationServiceTest {
   void shouldThrowExceptionIfResponseIsEmpty() throws JsonProcessingException {
 
     // given
-    Headers requestHeaders = Headers.builder()
-        .authorizationToken(TEST_AUTH_TOKEN)
-        .partitionID(TEST_PARTITION)
-        .build();
+    Map<String, String> headersMap = new HashMap<>();
+    headersMap.put(DpsHeaders.AUTHORIZATION, TEST_AUTH_TOKEN);
+    headersMap.put(DpsHeaders.DATA_PARTITION_ID, TEST_PARTITION);
+    DpsHeaders requestHeaders = DpsHeaders.createFromMap(headersMap);
 
     StartWorkflowResponse startWorkflowResponse = StartWorkflowResponse.builder().workflowId(null)
         .build();
@@ -135,11 +134,11 @@ class WorkflowIntegrationServiceTest {
 
     // when
     Throwable thrown = catchThrowable(() -> workflowIntegrationService
-        .submitIngestToWorkflowService(WorkflowType.INGEST, DataType.WELL_LOG, context,
+        .submitIngestToWorkflowService(WorkflowType.INGEST, "WELL_LOG", context,
             requestHeaders));
 
     // then
-    then(thrown).isInstanceOf(OsduServerErrorException.class);
+    then(thrown).isInstanceOf(ServerErrorException.class);
     then(thrown.getMessage()).isEqualTo("No workflow id in workflow service response");
   }
 }

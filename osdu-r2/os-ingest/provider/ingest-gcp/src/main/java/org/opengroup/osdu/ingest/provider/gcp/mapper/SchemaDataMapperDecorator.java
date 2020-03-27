@@ -26,17 +26,21 @@ import org.opengroup.osdu.ingest.provider.gcp.exception.SchemaMappingException;
 import org.opengroup.osdu.ingest.provider.gcp.model.dto.SchemaDataDto;
 
 @Slf4j
-public abstract class SchemaDataMapperDecorator implements SchemaDataMapper {
+public abstract class SchemaDataMapperDecorator implements ISchemaDataMapper {
 
   @Inject
-  @Named("org.opengroup.osdu.ingest.provider.gcp.mapper.SchemaDataMapperImpl_")
-  SchemaDataMapper schemaDataMapper;
+  @Named("org.opengroup.osdu.ingest.provider.gcp.mapper.ISchemaDataMapperImpl_")
+  ISchemaDataMapper schemaDataMapper;
   @Inject
   ObjectMapper objectMapper;
 
   @Override
   public SchemaData schemaDataDtoToSchemaData(SchemaDataDto schemaDataDto) {
     log.debug("Request to map schemaDataDto to schemaData : {} ", schemaDataDto);
+    if (schemaDataDto == null) {
+      return null;
+    }
+
     SchemaData schemaData = schemaDataMapper.schemaDataDtoToSchemaData(schemaDataDto);
 
     try {

@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opengroup.osdu.ingest.ReplaceCamelCase;
-import org.opengroup.osdu.ingest.exception.OsduServerErrorException;
+import org.opengroup.osdu.ingest.exception.ServerErrorException;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)
@@ -37,7 +37,7 @@ class JsonValidationServiceImplTest {
   private static final String DRAFT_06_SCHEMA_PATH = "3-schemas/TinySchemaDraft6.json";
 
   private ObjectMapper objectMapper = new ObjectMapper();
-  private JsonValidationService jsonValidationService = new JsonValidationServiceImpl();
+  private IJsonValidationService jsonValidationService = new JsonValidationServiceImpl();
 
   @Test
   void shouldValidateObjectByProvidedSchema() throws Exception {
@@ -63,7 +63,7 @@ class JsonValidationServiceImplTest {
 
     // then
     then(thrown)
-        .isInstanceOf(OsduServerErrorException.class)
+        .isInstanceOf(ServerErrorException.class)
         .hasMessageMatching("Error creating json validation schema from json object: (.*)");
   }
 

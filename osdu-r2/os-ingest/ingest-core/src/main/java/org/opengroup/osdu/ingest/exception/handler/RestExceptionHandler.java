@@ -22,20 +22,28 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
+import org.opengroup.osdu.core.common.model.http.AppException;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+@RequiredArgsConstructor
+@Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
-@Slf4j
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
+
+  final JaxRsDpsLog log;
 
   @ExceptionHandler({JsonParseException.class, IllegalStateException.class,
       MismatchedInputException.class})
@@ -58,7 +66,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
       errors.add(violation.getPropertyPath() + ": " + violation.getMessage());
     }
-    log.error("Constraint exception: {}", errors);
+    log.error("Constraint exception: " + errors);
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
     ApiError apiError = ApiError.builder()
@@ -67,6 +75,43 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         .errors(errors)
         .build();
     return handleExceptionInternal(ex, apiError, headers, HttpStatus.BAD_REQUEST, request);
+  }
+
+  @ExceptionHandler(AppException.class)
+  protected ResponseEntity<Object> handleAppException(AppException e) {
+    return this.getErrorResponse(e);
+  }
+
+  @Override
+  protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
+      HttpHeaders headers, HttpStatus status, WebRequest request) {
+    ApiError apiError = ApiError.builder()
+        .status(status)
+        .message(ex.getLocalizedMessage())
+        .build();
+    return handleExceptionInternal(ex, apiError, headers, status, request);
+  }
+
+
+  private ResponseEntity<Object> getErrorResponse(AppException e) {
+
+    String exceptionMsg = e.getOriginalException() != null
+        ? e.getOriginalException().getMessage()
+        : e.getError().getMessage();
+
+    if (e.getError().getCode() > 499) {
+      this.log.error(exceptionMsg, e);
+    } else {
+      this.log.warning(exceptionMsg, e);
+    }
+
+    // Support for non standard HttpStatus Codes
+    HttpStatus httpStatus = HttpStatus.resolve(e.getError().getCode());
+    if (httpStatus == null) {
+      return ResponseEntity.status(e.getError().getCode()).body(e);
+    } else {
+      return new ResponseEntity<>(e.getError(), httpStatus);
+    }
   }
 
 }

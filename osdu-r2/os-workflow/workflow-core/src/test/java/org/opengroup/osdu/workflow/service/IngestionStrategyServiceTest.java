@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,13 +29,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.opengroup.osdu.core.common.model.DataType;
 import org.opengroup.osdu.core.common.model.WorkflowType;
 import org.opengroup.osdu.workflow.ReplaceCamelCase;
 import org.opengroup.osdu.workflow.exception.IngestionStrategyNotFoundException;
 import org.opengroup.osdu.workflow.model.IngestionStrategy;
-import org.opengroup.osdu.workflow.provider.interfaces.IngestionStrategyService;
-import org.opengroup.osdu.workflow.provider.interfaces.IngestionStrategyRepository;
+import org.opengroup.osdu.workflow.model.property.DataTypeProperties;
+import org.opengroup.osdu.workflow.provider.interfaces.IIngestionStrategyRepository;
+import org.opengroup.osdu.workflow.provider.interfaces.IIngestionStrategyService;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(ReplaceCamelCase.class)
@@ -46,47 +46,56 @@ class IngestionStrategyServiceTest {
   private static final String DEFAULT_INGEST_PY = "Default_ingest.py";
   private static final String WELL_LOG_INGEST_PY = "Well_log_ingest.py";
   private static final String OTHER_LOG_INGEST_PY = "Other_log_ingest.py";
+  private static final String DEFAULT_DATA_TYPE = "default-type";
+  private static final String OTHER_DATA_TYPE = "test-type";
 
   @Mock
-  private IngestionStrategyRepository ingestionStrategyRepository;
+  private IIngestionStrategyRepository ingestionStrategyRepository;
 
-  IngestionStrategyService ingestionStrategyService;
+  @Mock
+  private DataTypeProperties dataTypeProperties;
+
+  IIngestionStrategyService ingestionStrategyService;
 
   @BeforeEach
   void setUp() {
-    ingestionStrategyService = new IngestionStrategyServiceImpl(ingestionStrategyRepository);
+    ingestionStrategyService = new IngestionStrategyServiceImpl(ingestionStrategyRepository,
+        dataTypeProperties);
     // default repo answer
     given(ingestionStrategyRepository.findByWorkflowTypeAndDataTypeAndUserId(any(),
         any(), any())).willReturn(null);
+    given(dataTypeProperties.getDefaultType()).willReturn(DEFAULT_DATA_TYPE);
   }
 
   @Test
   void shouldUseOpaqueDataTypeAsDefault() {
 
     // given
-    given(ingestionStrategyRepository.findByWorkflowTypeAndDataTypeAndUserId(eq(WorkflowType.INGEST),
-        isNull(), isNull()))
+    given(
+        ingestionStrategyRepository.findByWorkflowTypeAndDataTypeAndUserId(eq(WorkflowType.INGEST),
+            isNull(), isNull()))
         .willReturn(IngestionStrategy.builder().dagName(DEFAULT_INGEST_PY).build());
 
     // when
     String dagName = ingestionStrategyService
-        .determineStrategy(WorkflowType.INGEST, DataType.OPAQUE, USER_1);
+        .determineStrategy(WorkflowType.INGEST, DEFAULT_DATA_TYPE, USER_1);
 
     // then
     then(dagName).isEqualTo(DEFAULT_INGEST_PY);
   }
 
   @Test
-  void shouldDetermineDAgSpecifiedForUser() {
+  void shouldDetermineDagSpecifiedForUser() {
 
     // given
-    given(ingestionStrategyRepository.findByWorkflowTypeAndDataTypeAndUserId(eq(WorkflowType.INGEST),
-        eq(DataType.WELL_LOG), eq(USER_1)))
+    given(
+        ingestionStrategyRepository.findByWorkflowTypeAndDataTypeAndUserId(eq(WorkflowType.INGEST),
+            eq(OTHER_DATA_TYPE), eq(USER_1)))
         .willReturn(IngestionStrategy.builder().dagName(OTHER_LOG_INGEST_PY).build());
 
     // when
     String dagName = ingestionStrategyService
-        .determineStrategy(WorkflowType.INGEST, DataType.WELL_LOG, USER_1);
+        .determineStrategy(WorkflowType.INGEST, OTHER_DATA_TYPE, USER_1);
 
     // then
     then(dagName).isEqualTo(OTHER_LOG_INGEST_PY);
@@ -96,13 +105,14 @@ class IngestionStrategyServiceTest {
   void shouldUseCommonDagIfUserIsNotMatched() {
 
     // given
-    given(ingestionStrategyRepository.findByWorkflowTypeAndDataTypeAndUserId(eq(WorkflowType.INGEST),
-        eq(DataType.WELL_LOG), isNull()))
+    given(
+        ingestionStrategyRepository.findByWorkflowTypeAndDataTypeAndUserId(eq(WorkflowType.INGEST),
+            eq(OTHER_DATA_TYPE), isNull()))
         .willReturn(IngestionStrategy.builder().dagName(WELL_LOG_INGEST_PY).build());
 
     // when
     String dagName = ingestionStrategyService
-        .determineStrategy(WorkflowType.INGEST, DataType.WELL_LOG, USER_2);
+        .determineStrategy(WorkflowType.INGEST, OTHER_DATA_TYPE, USER_2);
 
     // then
     then(dagName).isEqualTo(WELL_LOG_INGEST_PY);
@@ -113,7 +123,7 @@ class IngestionStrategyServiceTest {
 
     // when
     Throwable thrown = catchThrowable(() -> ingestionStrategyService
-        .determineStrategy(WorkflowType.INGEST, DataType.WELL_LOG, null));
+        .determineStrategy(WorkflowType.INGEST, OTHER_DATA_TYPE, null));
 
     // then
     then(thrown).isInstanceOf(IngestionStrategyNotFoundException.class);

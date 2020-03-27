@@ -17,49 +17,37 @@
 package org.opengroup.osdu.ingest.service;
 
 import java.util.Map;
-import javax.inject.Named;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.core.common.model.WorkflowType;
-import org.opengroup.osdu.ingest.mapper.HeadersMapper;
-import org.opengroup.osdu.ingest.model.Headers;
+import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.ingest.model.SubmitRequest;
 import org.opengroup.osdu.ingest.model.SubmitResponse;
-import org.opengroup.osdu.ingest.provider.interfaces.AuthenticationService;
-import org.opengroup.osdu.ingest.provider.interfaces.SubmitService;
-import org.opengroup.osdu.ingest.provider.interfaces.ValidationService;
-import org.opengroup.osdu.ingest.provider.interfaces.WorkflowIntegrationService;
-import org.opengroup.osdu.ingest.provider.interfaces.WorkflowPayloadService;
-import org.springframework.messaging.MessageHeaders;
+import org.opengroup.osdu.ingest.provider.interfaces.ISubmitService;
+import org.opengroup.osdu.ingest.provider.interfaces.IValidationService;
+import org.opengroup.osdu.ingest.provider.interfaces.IWorkflowIntegrationService;
+import org.opengroup.osdu.ingest.provider.interfaces.IWorkflowPayloadService;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class SubmitServiceImpl implements SubmitService {
+public class SubmitServiceImpl implements ISubmitService {
 
-  @Named
-  final HeadersMapper headersMapper;
-  final AuthenticationService authenticationService;
-  final WorkflowIntegrationService workflowIntegrationService;
-  final ValidationService validationService;
-  final WorkflowPayloadService workflowPayloadService;
+  final IWorkflowIntegrationService workflowIntegrationService;
+  final IValidationService validationService;
+  final IWorkflowPayloadService workflowPayloadService;
 
   @Override
-  public SubmitResponse submit(SubmitRequest request, MessageHeaders messageHeaders) {
-    log.debug("Submit request with payload - {} and headers - {}", request, messageHeaders);
+  public SubmitResponse submit(SubmitRequest request, DpsHeaders headers) {
+    log.debug("Submit request with payload - {} and headers - {}", request, headers);
 
-    Headers headers = headersMapper.toHeaders(messageHeaders);
-
-    authenticationService.checkAuthentication(headers.getAuthorizationToken(),
-        headers.getPartitionID());
     validationService.validateSubmitRequest(request);
 
     Map<String, Object> context = workflowPayloadService.getContext(request.getFileId(), headers);
 
-    String workflowId = workflowIntegrationService
-        .submitIngestToWorkflowService(WorkflowType.INGEST, request.getDataType(), context,
-            headers);
+    String workflowId = workflowIntegrationService.submitIngestToWorkflowService(
+        WorkflowType.INGEST, request.getDataType(), context, headers);
 
     SubmitResponse response = SubmitResponse.builder().workflowId(workflowId).build();
     log.debug("Submit response - {}", response);
