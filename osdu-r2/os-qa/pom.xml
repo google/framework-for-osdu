@@ -186,6 +186,11 @@
             <version>${testNg.version}</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.codeborne</groupId>
+            <artifactId>selenide</artifactId>
+            <version>LATEST</version>
+        </dependency>
 
         <!-- Wait expected response -->
         <dependency>

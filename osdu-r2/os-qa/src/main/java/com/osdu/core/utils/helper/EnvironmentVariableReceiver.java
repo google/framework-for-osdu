@@ -43,4 +43,16 @@ public class EnvironmentVariableReceiver {
     public static String getAirflowHost() {
         return System.getenv("AIRFLOW");
     }
+
+    public static String getGoogleLogin() {
+        return System.getenv("GOOGLE_LOGIN");
+    }
+
+    public static String getGooglePassword() {
+        return System.getenv("GOOGLE_PASSWORD");
+    }
+
+    public static String getTokenPage(){
+        return System.getenv("PAGE_WITH_TOKEN");
+    }
 }

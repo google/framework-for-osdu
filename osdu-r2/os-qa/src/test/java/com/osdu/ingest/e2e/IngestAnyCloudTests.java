@@ -46,10 +46,10 @@ public class IngestAnyCloudTests extends BaseIngestService { //todo::::     add 
     /**
      * Services paths
      */
-    String submitFunction = factoriesHolder.remoteFactoryCreator().getIngest("submitFunction");
-    String getLocation = factoriesHolder.remoteFactoryCreator().getFileService("getLocationFunction");
+    String submitFunction = factoriesHolder.remoteFactoryCreator().getIngest("submit");
+    String getLocation = factoriesHolder.remoteFactoryCreator().getFileService("getLocation");
 
-    String getWorkflowStatus = factoriesHolder.remoteFactoryCreator().getWorkflowService("getStatusFunction");
+    String getWorkflowStatus = factoriesHolder.remoteFactoryCreator().getWorkflowService("getStatus");
 
     @Test(dataProvider = "testedData", dataProviderClass = DataProviders.class)
     @Description("Valid flow send request with all required fields for well log data type and with auth token")
