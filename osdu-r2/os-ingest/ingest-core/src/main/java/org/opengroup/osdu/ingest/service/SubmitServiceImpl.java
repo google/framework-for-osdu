@@ -40,7 +40,7 @@ public class SubmitServiceImpl implements ISubmitService {
 
   @Override
   public SubmitResponse submit(SubmitRequest request, DpsHeaders headers) {
-    log.debug("Submit request with payload - {} and headers - {}", request, headers);
+    log.debug("Submit request with payload - {}", request);
 
     validationService.validateSubmitRequest(request);
 
