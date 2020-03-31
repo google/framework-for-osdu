@@ -40,8 +40,7 @@ public class WorkflowStatusServiceImpl implements IWorkflowStatusService {
 
   @Override
   public GetStatusResponse getWorkflowStatus(GetStatusRequest request, DpsHeaders headers) {
-    log.debug("Request get workflow status with parameters : {}, and headers, {}", request,
-        headers);
+    log.debug("Request get workflow status with parameters : {}", request);
 
     validationService.validateGetStatusRequest(request);
 
@@ -63,8 +62,7 @@ public class WorkflowStatusServiceImpl implements IWorkflowStatusService {
   @Override
   public UpdateStatusResponse updateWorkflowStatus(UpdateStatusRequest request,
       DpsHeaders headers) {
-    log.debug("Request update workflow status with parameters : {}, and headers, {}", request,
-        headers);
+    log.debug("Request update workflow status with parameters : {}", request);
 
     validationService.validateUpdateStatusRequest(request);
 

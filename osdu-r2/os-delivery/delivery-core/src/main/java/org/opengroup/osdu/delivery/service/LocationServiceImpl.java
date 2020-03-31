@@ -51,8 +51,7 @@ public class LocationServiceImpl implements LocationService {
 
   @Override
   public LocationResponse getLocation(LocationRequest request, DpsHeaders headers) {
-    log.debug("Request to create location for file upload with parameters : {}, and headers, {}",
-        request, headers);
+    log.debug("Request to create location for file upload with parameters : {}", request);
     validationService.validateLocationRequest(request);
     checkExisting(request);
 
@@ -81,8 +80,7 @@ public class LocationServiceImpl implements LocationService {
 
   @Override
   public FileLocationResponse getFileLocation(FileLocationRequest request, DpsHeaders headers) {
-    log.debug("Request file location with parameters : {}, and headers, {}",
-        request, headers);
+    log.debug("Request file location with parameters : {}", request);
     validationService.validateFileLocationRequest(request);
 
     String fileID = request.getFileID();

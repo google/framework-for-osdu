@@ -46,8 +46,7 @@ public class FileLocationApi {
   @PostMapping("/getLocation")
   @PreAuthorize("@authorizationFilter.hasPermission('" + StorageRole.CREATOR + "')")
   public LocationResponse getLocation(@RequestBody LocationRequest request) {
-    log.debug("Location request received with following body : {} and headers : {}",
-        request, headers);
+    log.debug("Location request received : {}", request);
     LocationResponse locationResponse = locationService.getLocation(request, headers);
     log.debug("Location result ready : {}", locationResponse);
     return locationResponse;
@@ -57,8 +56,7 @@ public class FileLocationApi {
   @PostMapping("/getFileLocation")
   @PreAuthorize("@authorizationFilter.hasPermission('" + StorageRole.CREATOR + "')")
   public FileLocationResponse getFileLocation(@RequestBody FileLocationRequest request) {
-    log.debug("File location request received with following body : {} and headers : {}",
-        request, headers);
+    log.debug("File location request received : {}", request);
     FileLocationResponse fileLocationResponse = locationService.getFileLocation(request, headers);
     log.debug("File location result ready : {}", fileLocationResponse);
     return fileLocationResponse;

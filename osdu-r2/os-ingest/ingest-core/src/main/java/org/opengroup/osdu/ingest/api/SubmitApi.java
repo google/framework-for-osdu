@@ -48,7 +48,7 @@ public class SubmitApi {
   @PostMapping("/submit")
   @PreAuthorize("@authorizationFilter.hasPermission('" + StorageRole.CREATOR + "')")
   public SubmitResponse submit(@RequestBody SubmitRequest request) {
-    log.debug("Submit request received with following body : {} and headers : {}", request, headers);
+    log.debug("Submit request received : {}", request);
     SubmitResponse submitResponse = submitService.submit(request, headers);
     log.debug("Submit result ready : {}", submitResponse);
     return submitResponse;
@@ -58,8 +58,7 @@ public class SubmitApi {
   @PostMapping("/submitWithManifest")
   @PreAuthorize("@authorizationFilter.hasPermission('" + StorageRole.CREATOR + "')")
   public SubmitResponse submitWithManifest(@RequestBody WorkProductLoadManifest loadManifest) {
-    log.debug("Submit with load manifest request received with following body {} and headers : {}",
-        loadManifest, headers);
+    log.debug("Submit with load manifest request received : {}", loadManifest);
     SubmitResponse submitResponse = osduSubmitService.submit(loadManifest, headers);
     log.debug("Submit load manifest result ready : {}", submitResponse);
     return submitResponse;

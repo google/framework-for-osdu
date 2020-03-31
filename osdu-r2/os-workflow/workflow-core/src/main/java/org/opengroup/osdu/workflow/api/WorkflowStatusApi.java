@@ -45,7 +45,7 @@ public class WorkflowStatusApi {
   @PostMapping("/getStatus")
   @PreAuthorize("@authorizationFilter.hasPermission('" + StorageRole.CREATOR + "')")
   public GetStatusResponse getWorkflowStatus(@RequestBody GetStatusRequest request) {
-    log.debug("Get Workflow Status request received, with following headers : {}", headers);
+    log.debug("Get Workflow Status request received : {}", request);
     GetStatusResponse response = workflowStatusService.getWorkflowStatus(request, headers);
     log.debug("Get Workflow Status result ready : {}", response);
     return response;
@@ -54,7 +54,7 @@ public class WorkflowStatusApi {
   @PostMapping("/updateStatus")
   @PreAuthorize("@authorizationFilter.hasPermission('" + StorageRole.CREATOR + "')")
   public UpdateStatusResponse updateWorkflowStatus(@RequestBody UpdateStatusRequest request) {
-    log.debug("Update Workflow status request received, with following headers : {}", headers);
+    log.debug("Update Workflow status request received : {}", request);
     UpdateStatusResponse response = workflowStatusService.updateWorkflowStatus(request, headers);
     log.debug("Update Workflow status result ready : {}", response);
     return response;
