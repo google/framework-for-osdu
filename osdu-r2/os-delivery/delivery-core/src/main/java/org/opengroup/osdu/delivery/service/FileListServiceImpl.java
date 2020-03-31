@@ -36,8 +36,7 @@ public class FileListServiceImpl implements FileListService {
 
   @Override
   public FileListResponse getFileList(FileListRequest request, DpsHeaders headers) {
-    log.debug("Request file list with parameters : {}, and headers, {}",
-        request, headers);
+    log.debug("Request file list with parameters : {}", request);
     validationService.validateFileListRequest(request);
 
     FileListResponse response = fileLocationRepository.findAll(request);

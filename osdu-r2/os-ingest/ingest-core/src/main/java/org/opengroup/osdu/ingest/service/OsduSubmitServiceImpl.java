@@ -44,7 +44,7 @@ public class OsduSubmitServiceImpl implements IOsduSubmitService {
 
   @Override
   public SubmitResponse submit(WorkProductLoadManifest manifest, DpsHeaders headers) {
-    log.debug("Submit manifest with payload - {} and headers - {}", manifest, headers);
+    log.debug("Submit manifest with payload - {}", manifest);
 
     validationService.validateManifest(manifest);
 

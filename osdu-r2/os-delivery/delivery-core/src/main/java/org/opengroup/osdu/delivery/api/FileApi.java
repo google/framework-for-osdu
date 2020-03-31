@@ -44,7 +44,7 @@ public class FileApi {
   @PostMapping("/getFile")
   @PreAuthorize("@authorizationFilter.hasPermission('" + StorageRole.CREATOR + "')")
   public FileResponse getFile(@RequestBody FileRequest request) {
-    log.debug("Get file request received, with following parameters: {}", request);
+    log.debug("Get file request received : {}", request);
     FileResponse fileResponse = fileService.getFile(request, headers);
     log.debug("Get file result ready : {}", fileResponse);
     return fileResponse;

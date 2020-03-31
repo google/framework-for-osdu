@@ -41,8 +41,7 @@ public class WorkflowIntegrationServiceImpl implements IWorkflowIntegrationServi
 
   @Override
   public String submitIngestToWorkflowService(WorkflowType workflowType, String dataType,
-      Map<String, Object> context,
-      DpsHeaders commonHeaders) {
+      Map<String, Object> context, DpsHeaders commonHeaders) {
 
     StartWorkflowRequest request = StartWorkflowRequest.builder()
         .workflowType(workflowType)

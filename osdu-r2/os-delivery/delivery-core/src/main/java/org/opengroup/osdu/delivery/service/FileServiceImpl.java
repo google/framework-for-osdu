@@ -31,7 +31,7 @@ public class FileServiceImpl implements FileService {
 
   @Override
   public FileResponse getFile(FileRequest request, DpsHeaders headers) {
-    log.debug("Request file with : {}, and headers, {}", request, headers);
+    log.debug("Request file with : {}", request);
     log.debug("File result :");
     throw new UnsupportedOperationException("It will be implemented in future iterations.");
   }

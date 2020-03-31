@@ -43,7 +43,7 @@ public class WorkflowServiceImpl implements IWorkflowService {
 
   @Override
   public StartWorkflowResponse startWorkflow(StartWorkflowRequest request, DpsHeaders headers) {
-    log.debug("Start Workflow with payload - {} and headers - {}", request, headers);
+    log.debug("Start Workflow with payload - {}", request);
 
     validationService.validateStartWorkflowRequest(request);
 
