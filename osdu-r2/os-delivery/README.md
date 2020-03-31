@@ -1,11 +1,11 @@
 # OSDU R2 Prototype Delivery service
 
-## Table of contents
+## Contents
 
 * [Introduction](#introduction)
 * [System interactions](#system-interactions)
 * [Validations](#validations)
-* [API](#delivery-api)
+* [Delivery API](#delivery-api)
     * [POST /delivery](#post-delivery)
     * [POST /getLocation](#post-getlocation)
     * [POST /getFileLocation](#post-getfilelocation)

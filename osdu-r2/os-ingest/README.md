@@ -7,6 +7,10 @@
     * [Default ingestion workflow](#default-ingestion-workflow)
     * [OSDU ingestion workflow](#osdu-ingestion-workflow)
 * [Ingestion API](#ingestion-api)
+    * [POST /submit](#post-submit)
+    * [POST /submitWithManifest](#post-submitwithmanifest)
+* [GCP implementation](#gcp-implementation)
+* [Firestore](#firestore-collections)
 
 ## Introduction
 

@@ -1,6 +1,6 @@
 # OSDU Workflow Service
 
-## Table of contents
+## Contents
 
 * [Introduction](#introduction)
 * [System interactions](#system-interactions)
