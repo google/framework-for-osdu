@@ -5,6 +5,8 @@
 * [Introduction](#introduction)
 * [Terms and definitions](#terms-and-definitions)
 * [Intention](#intention)
+* [Technology stack](#technology-stack)
+* [Auditing and logging](#auditing-and-logging)
 * [OSDU R2 services and components](#osdu-r2-services-and-components)
 * [Service definitions](#services-definitions)
     * [Ingestion service](#ingestion-service)
@@ -83,6 +85,63 @@ services is dictated by a set of functional and operational requirements listed 
 * **Operational requirements**
     * Available admin dashboard for viewing and handling tasks
     * Possibility to resume failed workflow jobs
+    
+## Technology stack
+
+> OSDU R2 uses Maven's BOM to handle the versions of dependencies, which is why some libraries in the list are specified
+> without versions. These dependencies are pulled out according to the Spring Boot 2.2.5 version.
+
+The OSDU GCP R2 is based on the following technology stack:
+
+* [Java 8]
+* [Python 3.6+], used for the Apache Airflow DAGs and the Python SDK
+* [Google Cloud SDK]
+* [Terraform 0.12.8+]
+* [Spring Boot 2.2.5]
+* [Spring Boot Cloud Hoxton.SR3]
+* [Project Lombok]
+* [Jackson]
+* [JavaX Inject 1]
+* [Guava 28.2-jre]
+* [GSON 2.8.5]
+* [Lettuce 4.5.0.Final]
+* [Swagger Core JAX RS Project Setup 1.5.X]
+* [Google HTTP Client 1.31.0]
+* [Auth0 Java JWT 3.8.1]
+* [JSON Web Token 0.9.1]
+* [Elasticsearch 6.6.2]
+* [Elasticsearch REST Client 6.6.2]
+* [Elasticsearch REST High Level Client 6.6.2]
+* [JUnit]
+* [Mockito 2.0.2-beta]
+* [Powermock 2.0.2]
+* [MapStruct 1.3.1 Final]
+
+Java build dependencies:
+
+* [Maven Checkstyle Plugin 3.1.0]
+* [Maven PMD Plugin 3.12.0]
+* [JaCoCo Maven Plugin 0.8.4]
+* [Spotbugs Maven Plugin 3.1.12]
+* [Maven Surefire PLugin]
+
+OSDU GCP R2 extensively uses the following Google Cloud Platform services:
+
+* [Cloud Run]
+* [Cloud Storage]
+* [Cloud Firestore]
+* [Cloud Datastore], used only for compatibility reasons; Datastore is to be replaced by Firestore
+* [Cloud SQL]
+* [Cloud Functions]
+* [Compute Engine]
+* [App Engine]
+* [Google Cloud Operations Suite] (Stackdriver)
+
+## Auditing and logging
+
+OSDU R2 uses Spring Boot default logging to record the application state and errors. Google Cloud Platform pulls out the
+generated logs from the running application and publishes them to [Google Cloud Operations Suite] (formerly
+Stackdriver). 
 
 ## OSDU R2 services and components
 
@@ -388,6 +447,44 @@ OSDU WorkProductLoadManifestStagedFiles JSON schema.
 | Schema    | String  | The OSDU [WorkProductLoadManifestStagedFiles] JSON schema. |
 | Title     | Integer | The name of the manifest validation schema.                |
 
+[Java 8]: https://java.com/en/download/faq/java8.xml
+[Python 3.6+]: https://www.python.org/downloads/release/python-360/ 
+[Google Cloud SDK]: https://cloud.google.com/sdk/install
+[Terraform 0.12.8+]: https://www.terraform.io/downloads.html
+[Spring Boot 2.2.5]: https://spring.io/blog/2020/02/27/spring-boot-2-2-5-released
+[Spring Boot Cloud Hoxton.SR3]: https://spring.io/blog/2020/03/05/spring-cloud-hoxton-service-release-3-sr3-is-available
+[Project Lombok]: https://projectlombok.org/
+[Jackson]: https://github.com/FasterXML/jackson
+[JavaX Inject 1]: https://mvnrepository.com/artifact/javax.inject/javax.inject/1
+[Guava 28.2-jre]: https://github.com/google/guava
+[GSON 2.8.5]: https://github.com/google/gson
+[Lettuce 4.5.0.Final]: https://lettuce.io/
+[Swagger Core JAX RS Project Setup 1.5.X]: https://github.com/swagger-api/swagger-core/wiki/Swagger-Core-JAX-RS-Project-Setup-1.5.X
+[Google HTTP Client 1.31.0]: https://mvnrepository.com/artifact/com.google.http-client/google-http-client/1.31.0
+[Auth0 Java JWT 3.8.1]: https://mvnrepository.com/artifact/com.auth0/java-jwt/3.8.1
+[JSON Web Token 0.9.1]: https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt/0.9.1
+[Elasticsearch 6.6.2]: https://www.elastic.co/guide/en/elasticsearch/reference/6.6/release-notes-6.6.2.html
+[Elasticsearch REST Client 6.6.2]: https://mvnrepository.com/artifact/org.elasticsearch.client/elasticsearch-rest-client/6.6.2
+[Elasticsearch REST High Level Client 6.6.2]: https://mvnrepository.com/artifact/org.elasticsearch.client/elasticsearch-rest-high-level-client/6.6.2
+[JUnit]: https://junit.org/junit5/
+[Mockito 2.0.2-beta]: https://mvnrepository.com/artifact/org.mockito/mockito-all/2.0.2-beta
+[Powermock 2.0.2]: https://mvnrepository.com/artifact/org.powermock/powermock-core/2.0.2
+[MapStruct 1.3.1 Final]: https://mapstruct.org/news/2019-09-29-mapstruct-1_3_1_Final-bug-fix-released/
+[Maven Checkstyle Plugin 3.1.0]: https://blogs.apache.org/maven/entry/apache-maven-checkstyle-plugin-version
+[Maven PMD Plugin 3.12.0]: https://maven.apache.org/plugins/maven-pmd-plugin/index.html
+[JaCoCo Maven Plugin 0.8.4]: https://mvnrepository.com/artifact/org.jacoco/jacoco-maven-plugin/0.8.4
+[Spotbugs Maven Plugin 3.1.12]: https://spotbugs.github.io/spotbugs-maven-plugin/
+[Maven Surefire PLugin]: https://maven.apache.org/surefire/maven-surefire-plugin/
+[Cloud Run]: https://cloud.google.com/run
+[Cloud Storage]: https://cloud.google.com/storage
+[Cloud Firestore]: https://cloud.google.com/firestore
+[Cloud Datastore]: https://cloud.google.com/datastore
+[Cloud SQL]: https://cloud.google.com/sql
+[Cloud Functions]: https://cloud.google.com/functions/
+[Compute Engine]: https://cloud.google.com/compute
+[App Engine]: https://cloud.google.com/appengine
+[Google Cloud Operations Suite]: https://cloud.google.com/products/operations
+[Spring Boot default logging]: https://github.com/spring-projects/spring-boot/blob/2.2.x/spring-boot-project/spring-boot/src/main/resources/org/springframework/boot/logging/logback/defaults.xml#L11
 [Open Group Community Wiki]: https://community.opengroup.org/osdu/documentation/-/wikis/OSDU-(C)/Design-and-Implementation/Ingestion-and-Enrichment-Detail/R2-Ingestion-Workflow-Orchestration-Spike
 [OSDU R1 Ingestion service]: ../compatibility-layer/docs/OSDU%20Compatibility%20Layer%20Services.md
 [WorkProductLoadManifestStagedFiles]: https://gitlab.opengroup.org/osdu/json-schemas/-/blob/master/WorkProductLoadManifestStagedFiles.json
