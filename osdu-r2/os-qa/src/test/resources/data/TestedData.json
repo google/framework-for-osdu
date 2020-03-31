@@ -24,7 +24,7 @@
       "exception": "Exception",
       "dag_id": "Well_log_ingest",
       "dag_id_default": "Default_ingest",
-      "dag_id_osdu": "Osdu_ingest"
+      "dag_id_osdu": "Manifest_dag"
     }
   ]
 }

@@ -50,10 +50,10 @@ public class IngestGcpTests extends BaseIngestService { //todo::::     add creds
     /**
      * Services paths
      */
-    String submitFunction = factoriesHolder.remoteFactoryCreator().getIngest("submitFunction");
-    String getLocation = factoriesHolder.remoteFactoryCreator().getFileService("getLocationFunction");
+    String submitFunction = factoriesHolder.remoteFactoryCreator().getIngest("submit");
+    String getLocation = factoriesHolder.remoteFactoryCreator().getFileService("getLocation");
 
-    String getWorkflowStatus = factoriesHolder.remoteFactoryCreator().getWorkflowService("getStatusFunction");
+    String getWorkflowStatus = factoriesHolder.remoteFactoryCreator().getWorkflowService("getStatus");
 
     @Test(dataProvider = "testedData", dataProviderClass = DataProviders.class)
     @Description("Verify required dag was called")

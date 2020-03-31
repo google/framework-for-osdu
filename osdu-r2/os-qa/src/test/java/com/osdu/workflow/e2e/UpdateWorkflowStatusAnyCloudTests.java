@@ -44,9 +44,9 @@ public class UpdateWorkflowStatusAnyCloudTests extends BaseWorkflowService {
     /**
      * Services paths
      */
-    String startWorkflow = factoriesHolder.remoteFactoryCreator().getWorkflowService("startWorkflowFunction");
-    String getWorkflowStatus = factoriesHolder.remoteFactoryCreator().getWorkflowService("getStatusFunction");
-    String updateStatusWorkflowStatus = factoriesHolder.remoteFactoryCreator().getWorkflowService("updateStatusFunction");
+    String startWorkflow = factoriesHolder.remoteFactoryCreator().getWorkflowService("startWorkflow");
+    String getWorkflowStatus = factoriesHolder.remoteFactoryCreator().getWorkflowService("getStatus");
+    String updateStatusWorkflowStatus = factoriesHolder.remoteFactoryCreator().getWorkflowService("updateStatus");
 
     @Test(dataProvider = "testedData", dataProviderClass = DataProviders.class)
     @Description("Valid flow check running status with all required fields and with auth token")

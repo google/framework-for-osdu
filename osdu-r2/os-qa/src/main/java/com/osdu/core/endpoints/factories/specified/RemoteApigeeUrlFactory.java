@@ -28,19 +28,20 @@ import static com.osdu.core.utils.helper.EnvironmentVariableReceiver.*;
  */
 public class RemoteApigeeUrlFactory implements BaseFactory {
     InstanceCreator instanceCreator = new InstanceCreator();
+    String slash = "/";
 
     @Override
     public String getIngest(String resource) {
-        return instanceCreator.creator(new IngestCreator()).getUrl(getIngestHost() + PropertyHolder.remoteProps.getIngestGcpUrl() + resource);
+        return instanceCreator.creator(new IngestCreator()).getUrl(getIngestHost() + slash + resource);
     }
 
     @Override
     public String getFileService(String resource) {
-        return instanceCreator.creator(new FileServiceCreator()).getUrl(getDeliveryHost() + PropertyHolder.remoteProps.getFileServiceHost() + resource);
+        return instanceCreator.creator(new FileServiceCreator()).getUrl(getDeliveryHost() + slash + resource);
     }
 
     @Override
     public String getWorkflowService(String resource) {
-        return instanceCreator.creator(new FileServiceCreator()).getUrl(getWorkflowHost() + PropertyHolder.remoteProps.getWorkflowServiceHost() + resource);
+        return instanceCreator.creator(new FileServiceCreator()).getUrl(getWorkflowHost() + slash + resource);
     }
 }
