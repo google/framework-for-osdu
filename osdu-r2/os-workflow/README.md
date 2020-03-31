@@ -1,6 +1,6 @@
 # OSDU Workflow Service
 
-## Table of contents
+## Contents
 
 * [Introduction](#introduction)
 * [System interactions](#system-interactions)
@@ -37,7 +37,7 @@ The Workflow service in the OSDU R2 Prototype defines the following workflows:
 The ingestion workflow starts by a call to the `/startWorkflow` API endpoint. The following diagram
 shows the workflow.
 
-![OSDU R2 Workflow Service startWorkflow](/uploads/d2122ae7e53a234d92b87552e5d6b5b1/OSDU_R2_Workflow_Service_startWorkflow_API.png)
+![OSDU R2 WorkflowService startWorkflow](https://user-images.githubusercontent.com/21691607/75542676-ef684080-5a28-11ea-93a3-c28ed13c1fe5.png)
 
 Upon a `/startWorkflow` request:
 
@@ -78,7 +78,7 @@ In OSDU R2, the Opaque Ingestion DAG or the Manifest Ingestion DAG query the Wor
 update the status of a workflow job. The ingestion workflow status can be set to **running**,
 **finished**, or **failed**.
 
-![OSDU_R2_Workflow_Status_Update](/uploads/a6eebc97da22ac4d5ea13afc6930ecd0/OSDU_R2_Workflow_Status_Update.png)
+![OSDU R2 Workflow Status Update](https://user-images.githubusercontent.com/21691607/77782134-77a92800-705f-11ea-92f0-b36f33e00fe0.png)
 
 Upon an `/updateWorkflowStatus` request:
 

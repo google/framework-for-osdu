@@ -7,6 +7,10 @@
     * [Default ingestion workflow](#default-ingestion-workflow)
     * [OSDU ingestion workflow](#osdu-ingestion-workflow)
 * [Ingestion API](#ingestion-api)
+    * [POST /submit](#post-submit)
+    * [POST /submitWithManifest](#post-submitwithmanifest)
+* [GCP implementation](#gcp-implementation)
+* [Firestore](#firestore-collections)
 
 ## Introduction
 
@@ -39,7 +43,7 @@ documentation].
 The Default Ingestion workflow starts upon a call to the `/submit` endpoint. The following diagram
 shows this workflow.
 
-![OSDU_R2_Ingestion_Service_submit](/uploads/7029d5decf1c3308639a04fd9a45eab0/OSDU_R2_Ingestion_Service_submit.png)
+![OSDU R2 Ingestion Service submit](https://user-images.githubusercontent.com/21691607/77780782-357ee700-705d-11ea-8388-a1671d06ee22.png)
 
 Upon a `/submit` request:
 
@@ -73,7 +77,7 @@ The OSDU Ingestion workflow is designed to ingest well log .las files with the m
 The OSDU Ingestion workflow starts upon a call to the Ingestion service's `/submitWithManifest`
 endpoint. The following diagram shows the workflow.
 
-![OSDU_R2_Ingestion_Service_submitWithManifest](/uploads/11d3b3b33430a7944b76e69c3b4c0677/OSDU_R2_Ingestion_Service_submitWithManifest.png)
+![OSDU R2 Ingestion Service submitWithManifest](https://user-images.githubusercontent.com/21691607/77781014-84c51780-705d-11ea-8846-ea08163afcf7.png)
 
 The workflow is the following:
 
@@ -286,7 +290,7 @@ curl -X POST \
 
 #### Response body
 
-| Property     | Type     | Description                                                        |
+| Property     | Type     | Description                                                       |
 | ------------ | -------- | ------------------------------------------------------------------ |
 | `WorkflowID` | `String` | Unique ID of the workflow that was started by the Workflow service |
 
@@ -330,7 +334,7 @@ properties.
 | Schema    | String  | The OSDU [WorkProductLoadManifestStagedFiles] JSON schema. |
 | Title     | Integer | The name of the manifest validation schema.                |
 
-[OSDU R2 Workflow service]: https://gitlab.osdu-gcp.dev/odes/os-workflow
-[OSDU R2 Delivery service documentation]: https://gitlab.osdu-gcp.dev/odes/os-delivery/blob/develop/README.md
+[OSDU R2 Workflow service]: ../os-workflow/README.md
+[OSDU R2 Delivery service documentation]: ../os-delivery/README.md
 [WorkProductLoadManifestStagedFiles]: https://gitlab.opengroup.org/osdu/open-test-data/blob/master/rc-1.0.0/3-schemas/WorkProductLoadManifestStagedFiles.json
 [application-default-credentials]: https://developers.google.com/identity/protocols/application-default-credentials#calling
