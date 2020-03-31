@@ -12,6 +12,7 @@
 #   limitations under the License.
 
 """Imports JSON dumps into Cloud Datastore."""
+import os, sys
 import json
 from google.cloud import datastore
 
@@ -44,5 +45,6 @@ def import_data(jsonfile):
 
 
 if __name__ == "__main__":
-    import_data("ingestion-strategy.json")
-    import_data("schema-data.json")
+    path = os.path.dirname(sys.argv[0])
+    import_data(path + "/ingestion-strategy.json")
+    import_data(path + "/schema-data.json")
