@@ -44,8 +44,7 @@ public class FileListApi {
   @PostMapping("/getFileList")
   @PreAuthorize("@authorizationFilter.hasPermission('" + StorageRole.CREATOR + "')")
   public FileListResponse getFileList(@RequestBody FileListRequest request) {
-    log.debug("File list request received with following body : {} and headers : {}",
-        request, headers);
+    log.debug("File list request received : {}", request);
     FileListResponse fileListResponse = fileListService.getFileList(request, headers);
     log.debug("File list result ready : {}", fileListResponse);
     return fileListResponse;

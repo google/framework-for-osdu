@@ -70,6 +70,7 @@ gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
 
 ```bash
 pip3 install google-cloud-datastore # Already installed in Cloud Shell
+export GOOGLE_APPLICATION_CREDENTIALS="<path to the service account key, e.g. terraform.json>"
 python3 datastore-import/datastore_import.py
  ```
 
@@ -81,7 +82,7 @@ gcr_project         = "<project ID of the Container Registry where images reside
 credentials_file    = "<path to the service account key, e.g. terraform.json>"
 region              = "<your GCP region>"
 enable_iam          = false # Set to true if Terraform service account has Project IAM Admin role
-entitlement-service = "<your OpenDES entitlements API URL, e.g. https://example.com/entitlements/v1>"
+entitlement_service = "<your OpenDES entitlements API URL, e.g. https://example.com/entitlements/v1>"
 
 ```
 

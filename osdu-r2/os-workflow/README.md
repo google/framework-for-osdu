@@ -1,17 +1,16 @@
 # OSDU Workflow Service
 
-## Table of contents
+## Contents
 
 * [Introduction](#introduction)
 * [System interactions](#system-interactions)
-* [API](#api)
+* [Workflow API](#workflow-api)
     * [POST /startWorkflow](#post-startworkflow)
     * [POST /getStatus](#post-getstatus)
     * [POST /updateWorkflowStatus](#post-updateworkflowstatus)
-* [Service Provider Interfaces](#service-provider-interfaces)
+* [Service Provider Interfaces](#workflow-service-provider-interfaces)
 * [GCP implementation](#gcp-implementation)
-    * [Persistence layer](#persistence-layer)
-* [Firestore](#firestore)
+* [Firestore](#firestore-collections)
 
 ## Introduction
 
@@ -38,7 +37,7 @@ The Workflow service in the OSDU R2 Prototype defines the following workflows:
 The ingestion workflow starts by a call to the `/startWorkflow` API endpoint. The following diagram
 shows the workflow.
 
-![OSDU R2 Workflow Service startWorkflow API](/uploads/d2122ae7e53a234d92b87552e5d6b5b1/OSDU_R2_Workflow_Service_startWorkflow_API.png)
+![OSDU R2 WorkflowService startWorkflow](https://user-images.githubusercontent.com/21691607/75542676-ef684080-5a28-11ea-93a3-c28ed13c1fe5.png)
 
 Upon a `/startWorkflow` request:
 
@@ -62,8 +61,6 @@ decides which DAG to run by the following three parameters:
 
 ### Get workflow status
 
-The delivery of an ingestion workflow status starts upon a call to the `/getStatus` API endpoint.
-
 Upon a `/getStatus` request:
 
 1. Validate the incoming request.
@@ -77,9 +74,11 @@ Upon a `/getStatus` request:
 
 ### Update workflow status
 
-Once an ingestion workflow has started and a file is ingested, the Apache Airflow DAGs send a new
-status to the Workflow service, which updates the status in the database. The ingestion workflow
-status can be set to **running**, **finished**, or **failed**.
+In OSDU R2, the Opaque Ingestion DAG or the Manifest Ingestion DAG query the Workflow service to
+update the status of a workflow job. The ingestion workflow status can be set to **running**,
+**finished**, or **failed**.
+
+![OSDU R2 Workflow Status Update](https://user-images.githubusercontent.com/21691607/77782134-77a92800-705f-11ea-92f0-b36f33e00fe0.png)
 
 Upon an `/updateWorkflowStatus` request:
 
@@ -94,9 +93,10 @@ Upon an `/updateWorkflowStatus` request:
     * Fail the update if the workflow ID is not found in the database.
     * Fail the update if there's more than one workflow found by the workflow ID.
     * Fail the update if the stored status and the incoming status are the same.
-3. Return the workflow ID and the workflow status to the requester.
+3. Return the workflow ID and the workflow status to the OSDU R2 service or component that requested
+the update.
 
-## API
+## Workflow API
 
 The OSDU R2 Workflow API includes the following endpoints:
 
@@ -106,7 +106,7 @@ The OSDU R2 Workflow API includes the following endpoints:
 
 General considerations related to querying the Workflow API:
 
-* Each endpoint must receive the authorization token in the "Authorization" header. Example:
+* Each endpoint must receive the authentication bearer token in the "Authorization" header. Example:
 `"Authorization": "Bearer {token}"`
 * Each endpoint must receive the partition ID in the "Partition-ID" header. Example:
 `"Partition-Id: "default_partition"`
@@ -114,14 +114,13 @@ General considerations related to querying the Workflow API:
 
 ### POST /startWorkflow
 
-The `/startWorkflow` API endpoint starts a new workflow. This endpoint isn't available for external
-requests.
+The `/startWorkflow` API endpoint starts a new workflow. This endpoint closed for external requests.
 
 The `/startWorkflow` endpoint is a wrapper around the Airflow invocation, and is designed to
-reconfigure the default workflows. For each combination of user, data, and workflow types, the API
-identifies a suitable DAG and then calls Airflow.
+reconfigure the default workflows. For each combination of the user, data, and workflow types, the
+API identifies a suitable DAG and then calls Airflow.
 
-For OSDU R2 Prototype, this API doesn't reconfigure the workflows and only queries the database to
+For OSDU R2 Prototype, the API doesn't reconfigure the workflows and only queries the database to
 determine which DAG to run.
 
 #### Request body
@@ -130,10 +129,24 @@ determine which DAG to run.
 | ------------ | -------- | --------------------------------------------------------------- |
 | WorkflowType | `String` | Type of workflow job to run &mdash; "osdu" or "ingest"          |
 | DataType     | `String` | Type of data to be ingested &mdash; "well_log" or "opaque"      |
-| Context      | `List`   | Data required to run a DAG, provided as list of key-value pairs |
+| Context      | `Object` | Data required to run a DAG, provided as list of key-value pairs |
 
 > The Context may include a file location, ACL and legal tags, and the Airflow run ID. The
 > **/startWorkflow API** passes the Context to Airflow without modifying it.
+
+Request example:
+
+```sh
+curl --location --request POST 'https://{path}/startWorkflow' \
+    --header 'Authorization: Bearer {token}' \
+    --header 'Partition-Id: {assigned DELFI partition ID}' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+        "WorkflowType": "ingest",
+        "DataType": "opaque",
+        "Context": {}
+    }'
+```
 
 #### Response body
 
@@ -152,6 +165,18 @@ available for external requests.
 | ---------- | -------- | --------------------------- |
 | WorkflowID | `String` | Unique ID of a workflow job |
 
+Request example:
+
+```sh
+curl --location --request POST 'https://{path}/getStatus' \
+    --header 'Authorization: Bearer {token}' \
+    --header 'Partition-Id: {assigned DELFI partition ID}' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+        "WorkflowID": "2b905e77-7e04-4c04-8581-7b4c224164dd"
+    }'
+```
+
 #### Response body
 
 If the workflow ID is found in the database, the following response is returned to the user.
@@ -165,7 +190,7 @@ If the workflow ID isn't found in the database, the `404 Not Found` status is re
 ### POST /updateWorkflowStatus
 
 The `/updateWorkflowStatus` API endpoint updates the status of a workflow job. This endpoint is not
-available for external requests. The endpoint is necessary to let Apache Airflow DAGs update the
+available for external requests. The endpoint is necesasry to let Apache Airflow DAGs update the
 workflow status.
 
 #### Request body
@@ -175,13 +200,17 @@ workflow status.
 | WorkflowID | `String` | Unique ID of a workflow that needs to be updated |
 | Status     | `String` | New status of the workflow                       |
 
-Request body example:
+Request example:
 
-```json
-{
-    "WorkflowID": "2b905e77-7e04-4c04-8581-7b4c224164dd",
-    "Status": "finished"
-}
+```sh
+curl --location --request POST 'https://{path}/updateWorkflowStatus' \
+    --header 'Authorization: Bearer {token}' \
+    --header 'Partition-Id: {assigned DELFI partition ID}' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+        "WorkflowID": "2b905e77-7e04-4c04-8581-7b4c224164dd",
+        "Status": "finished"
+    }'
 ```
 
 #### Response body
@@ -200,7 +229,7 @@ Response body example:
 }
 ```
 
-## Service Provider Interfaces
+## Workflow Service Provider Interfaces
 
 The Workflow service has several Service Provider Interfaces that the classes need to implement.
 
@@ -220,10 +249,10 @@ The Workflow service has several Service Provider Interfaces that the classes ne
 The GCP Identity and Access Management service account for the Workflow service must have the
 **Composer User** and **Cloud Datastore User** roles.
 
-Obtaining user credentials for Application Default Credentials isn't suitable for the development
-purposes because signing a blob is only available with the service account credentials. Remember to
-set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable. Follow the [instructions on the
-Google developer's portal][application-default-credentials].
+Note that obtaining user credentials for Application Default Credentials isn't suitable for the
+development purposes because signing a blob is only available with the service account credentials.
+Remember to set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable. Follow the [instructions
+on the Google developer's portal][application-default-credentials].
 
 ### Persistence layer
 
@@ -235,10 +264,10 @@ Firestore implementation that's already available in the project.
 * The Cloud Datastore implementation is located in the **provider/workflow-gcp-datastore** folder.
 * The Cloud Firestore implementation is located in the **provider/workflow-gcp** folder.
 
-To learn more about available collections, follow to the [Firestore collections](#collections)
+To learn more about available collections, follow to the [Firestore collections](#firestore-collections)
 section.
 
-## Firestore
+## Firestore collections
 
 Upon an ingestion request, the Workflow service needs to determine which DAG to run. To do that, the
 service queries the database with the workflow type and data type.
@@ -248,11 +277,9 @@ The GCP-based implementation of the Workflow service uses Cloud Firestore with t
 
 > The Cloud Datastore implementation in OSDU R2 uses the same collections as Cloud Firestore.
 
-### Collections
+### `ingestion-strategy`
 
-#### `ingestion-strategy`
-
-The database stores the following information to help determine a DAG.
+The database needs to store the following information to help determine a DAG.
 
 | Property     | Type     | Description                                         |
 | ------------ | -------- | --------------------------------------------------- |
@@ -264,7 +291,7 @@ The database stores the following information to help determine a DAG.
 > The OSDU R2 Prototype doesn't support the **UserID** property. When the security system is
 > finalized, the **UserID** property will store the ID of the user group or role.
 
-#### `workflow-status`
+### `workflow-status`
 
 After a workflow starts, the Workflow service stores the following information in the database.
 
