@@ -28,7 +28,7 @@
         <lombok.version>1.18.0</lombok.version>
         <owner.version>1.0.9</owner.version>
         <apache.version>3.7</apache.version>
-        <logger.version>2.8.2</logger.version>
+        <logger.version>2.13.3</logger.version>
         <java.version>1.8</java.version>
         <testNg.version>6.14.3</testNg.version>
         <mockito.version>1.10.19</mockito.version>
