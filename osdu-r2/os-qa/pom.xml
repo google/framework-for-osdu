@@ -30,7 +30,7 @@
         <apache.version>3.7</apache.version>
         <logger.version>2.16</logger.version>
         <java.version>1.8</java.version>
-        <testNg.version>6.14.3</testNg.version>
+        <testNg.version>7.5.1</testNg.version>
         <mockito.version>1.10.19</mockito.version>
         <jdbc.version>8.0.15</jdbc.version>
         <slf4j.simple.version>1.7.25</slf4j.simple.version>
